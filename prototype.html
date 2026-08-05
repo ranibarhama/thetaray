@@ -219,7 +219,7 @@
   .case-hdr .sep{width:1px;height:22px;background:var(--glass-line);}
   .case-hdr button.hic{width:30px;height:30px;border-radius:8px;border:0;background:var(--glass-inset);color:var(--glass-ink);font-size:13px;}
   .case-hdr button.hic:hover{background:var(--glass-inset-h);}
-  .case-hdr button.hic-reset{width:33px;height:33px;font-size:19px;line-height:1;}
+  .case-hdr button.hic-reset{width:33px;height:33px;font-size:17px;line-height:1;}
   .notepad{padding:9px 12px;background:var(--surface-2);}
   .notepad textarea{width:100%;min-height:54px;resize:vertical;border:1px solid var(--line-2);border-radius:8px;padding:7px 9px;font-size:12px;font-family:inherit;color:var(--ink);background:var(--surface);}
   .np-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:6px;}
@@ -1521,7 +1521,7 @@ function Desktop(S){
         <span className="sep"></span>
         <button className="hic" title="Search"><i className="ti ti-search"></i></button>
         <button className="hic" title="Add / link information" onClick={()=>showToast('Add or link information (prototype)')}>＋</button>
-        <button className="hic hic-reset" title="Reset screen to default layout" onClick={resetLayout}>{'↩︎'}</button>
+        <button className="hic hic-reset" title="Reset screen to default layout" onClick={resetLayout}><i className="ti ti-restore"></i></button>
         {isHandover&&!hoOpen&&<button className="hd-chip" onClick={()=>setHoOpen(true)} title="Open the handover brief"><i className="ti ti-switch-horizontal"></i> Handover · {hoOpenCount} open</button>}
         {csOpen&&<div className="cs-menu"><div className="lbl" style={{padding:'4px 10px 6px'}}>Switch investigation</div>{CASES.filter(c=>!deleted.includes(c.id)).map(c=>(<div key={c.id} className={'cs-item'+(c.id===cur.id?' on':'')} onClick={()=>{openCase(c.id);setCsOpen(false);}}><span className={'pill '+STCLS[c.status]} style={{padding:3}}><span className="d"></span></span><div style={{flex:1}}><div className="nm">{c.id}</div><div className="mt">{c.type} · {c.customer}</div></div>{c.alerts>0&&<span className="abadge"><i className="ti ti-flag"></i> {c.alerts}</span>}</div>))}<div style={{borderTop:'1px solid var(--line)',marginTop:6,paddingTop:6}}><div className="cs-item" onClick={goDash}>▦ <span className="nm">All investigations</span></div></div></div>}
       </div>
