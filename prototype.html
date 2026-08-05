@@ -168,6 +168,34 @@
   .md-ic{width:15px;text-align:center;font-size:12px;flex:0 0 auto;margin-top:1px;}
   .md-t{font-size:12px;font-weight:600;line-height:1.35;}
   .md-m{font-size:10.5px;color:var(--ink-3);margin-top:3px;display:flex;align-items:center;gap:5px;}
+  /* mobile manager pulse */
+  .mob-scrim{position:fixed;inset:0;background:rgba(12,18,32,.55);backdrop-filter:blur(3px);z-index:85;display:grid;place-items:center;padding:16px;}
+  .phone{width:334px;background:#0b0e15;border-radius:44px;padding:10px;box-shadow:0 30px 80px rgba(0,0,0,.5);}
+  .mscreen{background:var(--bg);border-radius:34px;overflow:hidden;display:flex;flex-direction:column;height:660px;padding:0 14px 12px;}
+  .mob-status{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;color:var(--ink-2);padding:12px 6px 6px;}
+  .mob-brand{color:var(--violet2);font-weight:800;}
+  .mob-head{display:flex;align-items:center;padding:4px 2px 10px;}
+  .mob-title{font-size:18px;font-weight:800;} .mob-sub{font-size:11px;color:var(--ink-3);margin-top:1px;}
+  .mob-x{margin-left:auto;border:0;background:var(--surface-3);color:var(--ink-2);width:28px;height:28px;border-radius:50%;cursor:pointer;}
+  .mob-hero{display:flex;align-items:center;gap:12px;background:var(--risk-sub);border:1px solid var(--risk-bd);border-radius:16px;padding:12px 14px;margin-bottom:6px;}
+  .mh-n{font-size:34px;font-weight:800;color:var(--risk);line-height:1;}
+  .mh-t{display:flex;flex-direction:column;gap:1px;} .mh-t b{font-size:13.5px;} .mh-t span{font-size:10.5px;color:var(--ink-2);}
+  .mob-sec{font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-3);margin:10px 2px 6px;}
+  .mob-act{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:9px 11px;margin-bottom:6px;box-shadow:var(--shadow);}
+  .ma-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;} .ma-t b{font-size:12.5px;} .ma-t span{font-size:10px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .ma-btns{display:flex;gap:5px;flex:0 0 auto;}
+  .ma-ok{border:0;background:var(--act);color:#fff;font-weight:700;font-size:11px;border-radius:9px;padding:7px 11px;cursor:pointer;font-family:inherit;}
+  .ma-view{border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);font-weight:700;font-size:11px;border-radius:9px;padding:7px 10px;cursor:pointer;font-family:inherit;}
+  .mob-tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px;}
+  .mt{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 11px;display:flex;align-items:baseline;gap:7px;}
+  .mt b{font-size:19px;} .mt span{font-size:10px;color:var(--ink-3);}
+  .mt.risk b{color:var(--risk);} .mt.warn b{color:var(--now);}
+  .mob-team{display:flex;align-items:center;gap:8px;padding:3px 2px;}
+  .mtm-nm{width:52px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;}
+  .mtm-bar{flex:1;height:7px;border-radius:999px;background:var(--surface-3);overflow:hidden;}
+  .mtm-bar i{display:block;height:100%;background:linear-gradient(90deg,#8fb4ff,var(--act));}
+  .mtm-n{font-size:10px;color:var(--ink-2);white-space:nowrap;} .mtm-n b{color:var(--t-risk);font-weight:700;}
+  .mob-feed{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink-2);padding:3px 2px;}
   .dash-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#141a26;color:#eaf0fa;font-size:12px;font-weight:600;padding:9px 16px;border-radius:999px;box-shadow:var(--shadow-pop);z-index:90;}
   .side-stack{display:flex;flex-direction:column;gap:16px;}
   .fitem{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);} .fitem:last-child{border-bottom:0;}
@@ -1044,6 +1072,7 @@ function App(){
 function Dashboard({role,setRole,openCase,deleted,setDeleted,locked,setLocked}){
   const [q,setQ]=useState('');
   const [manageOpen,setManageOpen]=useState(false);
+  const [mobOpen,setMobOpen]=useState(false);
   const [mode,setMode]=useState('classic');
   const [openTasks,setOpenTasks]=useState(false);
   const [taskDone,setTaskDone]=useState({});
@@ -1110,6 +1139,7 @@ function Dashboard({role,setRole,openCase,deleted,setDeleted,locked,setLocked}){
         <div className="roleseg"><button className={role==='agent'?'on':''} onClick={()=>setRole('agent')}>Agent</button><button className={role==='manager'?'on':''} onClick={()=>setRole('manager')}>Manager</button></div>
         <div className="search"><i className="ti ti-search"></i><input placeholder="Search investigations…" value={q} onChange={e=>setQ(e.target.value)}/></div>
         <button className="btn pri">＋ New case</button><button className="btn" onClick={()=>setManageOpen(true)}><i className="ti ti-settings"></i> Manage</button>
+        {role==='manager'&&<button className="btn" onClick={()=>{setMobOpen(true);say('Pulse sent to your phone — preview below');}}><i className="ti ti-device-mobile"></i> Send to mobile</button>}
       </div>
 
       {mode==='classic'&&<React.Fragment>
@@ -1205,6 +1235,50 @@ function Dashboard({role,setRole,openCase,deleted,setDeleted,locked,setLocked}){
       </React.Fragment>}
 
       {manageOpen&&<ManageModal live={live} deleted={deleted} setDeleted={setDeleted} locked={locked} setLocked={setLocked} onClose={()=>setManageOpen(false)}/>}
+      {mobOpen&&(()=>{
+        const breaching=live.filter(c=>c.status!=='closed'&&c.dueD<=1);
+        const high=live.filter(c=>c.risk==='high').length;
+        const esc=live.filter(c=>c.status==='esc').length;
+        const team=analysts.map(nm=>({nm,n:live.filter(c=>c.status!=='closed'&&eff(c)===nm).length,hi:live.filter(c=>c.risk==='high'&&eff(c)===nm).length}));
+        const maxN=Math.max(1,...team.map(x=>x.n));
+        return(
+        <div className="mob-scrim" onClick={()=>setMobOpen(false)}>
+          <div className="phone" onClick={e=>e.stopPropagation()}>
+            <div className="mscreen">
+              <div className="mob-status"><span>9:41</span><span className="mob-brand">A⁺ Ray</span><span><i className="ti ti-wifi"></i> <i className="ti ti-battery-3"></i></span></div>
+              <div className="mob-head">
+                <div><div className="mob-title">Manager pulse</div><div className="mob-sub">{active} active · 2 breaching SLA</div></div>
+                <button className="mob-x" onClick={()=>setMobOpen(false)}>✕</button>
+              </div>
+              <div className="mob-hero"><span className="mh-n">2</span><div className="mh-t"><b>need your decision</b><span>1 escalation approval · 1 disposition overdue</span></div></div>
+              <div className="mob-sec">Needs you</div>
+              <div className="mob-act">
+                <div className="ma-t"><b>Approve escalation</b><span>CASE-AML-0001 · overdue 1d · high risk</span></div>
+                <div className="ma-btns"><button className="ma-ok" onClick={()=>say('Escalation approved · CASE-AML-0001')}>Approve</button><button className="ma-view" onClick={()=>{setMobOpen(false);openCase('CASE-AML-0001');}}>View</button></div>
+              </div>
+              <div className="mob-act">
+                <div className="ma-t"><b>Disposition pending</b><span>CASE-AML-0001-3 · due in 5h · KYC missing</span></div>
+                <div className="ma-btns"><button className="ma-view" onClick={()=>{setMobOpen(false);openCase('CASE-AML-0001-3');}}>Open</button></div>
+              </div>
+              <div className="mob-tiles">
+                <div className="mt risk"><b>{breaching.length}</b><span>breaching SLA</span></div>
+                <div className="mt warn"><b>{high}</b><span>high risk</span></div>
+                <div className="mt"><b>{esc}</b><span>escalations</span></div>
+                <div className="mt"><b>{active}</b><span>active cases</span></div>
+              </div>
+              <div className="mob-sec">Team load</div>
+              {team.map(x=>(
+                <div key={x.nm} className="mob-team">
+                  <span className="mtm-nm">{x.nm.split(' ')[0]}</span>
+                  <span className="mtm-bar"><i style={{width:(x.n/maxN*100)+'%'}}></i></span>
+                  <span className="mtm-n">{x.n}{x.hi>0&&<b> · {x.hi} high</b>}</span>
+                </div>))}
+              <div className="mob-sec">Critical now</div>
+              <div className="mob-feed"><span className="fdot now"></span>Escalation recommended on alert #1428963 · 2h ago</div>
+              <div className="mob-feed"><span className="fdot risk"></span>New account flagged for layering · 3h ago</div>
+            </div>
+          </div>
+        </div>);})()}
       {toast&&<div className="dash-toast">{toast}</div>}
       {dragGhost&&<div className="drag-ghost" style={{left:dragGhost.x+14,top:dragGhost.y+10}}><i className="ti ti-folder"></i> {dragGhost.name}</div>}
     </div>
