@@ -206,11 +206,11 @@
   .flag.now{background:var(--now);}
 
   /* zoom controls */
-  .zoomctl{position:absolute;left:18px;bottom:118px;display:flex;flex-direction:column;gap:1px;background:var(--glass);border:1px solid var(--glass-line);border-radius:11px;overflow:hidden;backdrop-filter:blur(8px);z-index:14;}
+  .zoomctl{position:absolute;left:18px;bottom:86px;display:flex;flex-direction:column;gap:1px;background:var(--glass);border:1px solid var(--glass-line);border-radius:11px;overflow:hidden;backdrop-filter:blur(8px);z-index:14;}
   .zoomctl button{width:38px;height:36px;border:0;background:transparent;color:var(--glass-ink);font-size:16px;}
   .zoomctl button:hover{background:var(--glass-inset-h);}
   .zoomctl .zv{font-size:10px;color:var(--glass-ink2);text-align:center;padding:3px 0;border-top:1px solid var(--glass-line);border-bottom:1px solid var(--glass-line);}
-  .deskhint{position:absolute;left:50%;bottom:118px;transform:translateX(-50%);color:var(--glass-ink2);font-size:10.5px;font-weight:600;letter-spacing:.3px;z-index:8;pointer-events:none;opacity:.75;white-space:nowrap;}
+  .deskhint{position:absolute;left:50%;bottom:84px;transform:translateX(-50%);color:var(--glass-ink2);font-size:10.5px;font-weight:600;letter-spacing:.3px;z-index:8;pointer-events:none;opacity:.75;white-space:nowrap;}
 
   /* floating case header */
   .case-hdr{position:absolute;left:16px;top:14px;z-index:20;height:46px;display:flex;align-items:center;gap:9px;background:var(--glass-strong);border:1px solid var(--glass-line);border-radius:13px;padding:0 10px;backdrop-filter:blur(10px);box-shadow:var(--shadow-md);color:var(--glass-ink);}
@@ -260,6 +260,7 @@
 
   /* metric widgets (Agent Runs / LLM Usage) — number-forward, same height as case header */
   .metricrow{position:absolute;left:16px;top:66px;z-index:19;display:flex;gap:8px;}
+  .metricrow.right{left:auto;right:16px;top:14px;}
   .metric{position:relative;height:42px;background:var(--glass);border:1px solid var(--glass-line);border-radius:11px;padding:0 11px;backdrop-filter:blur(10px);box-shadow:var(--shadow-md);color:var(--glass-ink);cursor:pointer;transition:box-shadow .15s;min-width:110px;display:flex;flex-direction:column;justify-content:center;gap:1px;}
   .metric:hover{border-color:var(--act);}
   .metric.active{border-color:var(--act);box-shadow:0 0 0 1px var(--act),var(--shadow-md);}
@@ -293,7 +294,7 @@
   .fp-b{flex:1;overflow:auto;padding:13px 14px;}
 
   /* entity detail panel */
-  .entpanel{position:absolute;z-index:28;right:16px;bottom:128px;width:300px;background:var(--surface);border:1px solid var(--line-2);border-radius:14px;box-shadow:var(--shadow-pop);overflow:hidden;animation:pin .18s ease;}
+  .entpanel{position:absolute;z-index:28;right:16px;bottom:92px;width:300px;background:var(--surface);border:1px solid var(--line-2);border-radius:14px;box-shadow:var(--shadow-pop);overflow:hidden;animation:pin .18s ease;}
   .ent-h{padding:11px 13px;border-bottom:1px solid var(--line);position:relative;background:var(--surface-2);}
   .ent-h .k{font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-3);}
   .ent-h .n{font-weight:700;font-size:14px;margin-top:2px;} .ent-h .x{position:absolute;top:9px;right:11px;border:0;background:transparent;color:var(--ink-3);font-size:15px;}
@@ -308,44 +309,47 @@
   .post.future{opacity:.4;} .post .pd{font-size:10px;font-weight:700;color:var(--ink-3);} .post .pt{font-weight:700;font-size:12px;margin-top:1px;} .post .px{font-size:11px;color:var(--ink-2);margin-top:2px;line-height:1.4;}
   .post .amt{float:right;font-weight:800;font-size:11.5px;} .amt.pos{color:var(--t-ok);}.amt.neg{color:var(--t-risk);}
   .pin-pill{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;margin-left:5px;} .pin-pill.risk{background:var(--risk-sub);color:var(--t-risk);} .pin-pill.now{background:var(--now-sub);color:var(--t-now);}
-  .toast{position:absolute;left:50%;bottom:132px;transform:translateX(-50%);background:#141a26;color:#eaf0fa;font-size:12px;font-weight:600;padding:9px 16px;border-radius:999px;box-shadow:var(--shadow-pop);z-index:50;animation:pin .18s ease;}
+  .toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);background:#141a26;color:#eaf0fa;font-size:12px;font-weight:600;padding:9px 16px;border-radius:999px;box-shadow:var(--shadow-pop);z-index:50;animation:pin .18s ease;}
 
   /* timeline dock */
-  .tdock{position:absolute;left:16px;right:90px;bottom:14px;z-index:22;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;backdrop-filter:blur(10px);box-shadow:var(--shadow-md);color:var(--glass-ink);transition:transform .25s,opacity .2s;}
-  .tdock.collapsed{transform:translateY(calc(100% - 40px));}
-  .td-head{display:flex;align-items:center;gap:12px;padding:9px 14px;}
-  .play{width:32px;height:32px;border-radius:50%;border:0;background:var(--act);color:#fff;font-size:12px;display:grid;place-items:center;}
+  .tdock{position:absolute;left:96px;right:90px;bottom:14px;z-index:22;display:flex;align-items:center;gap:6px;padding:4px 12px;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;backdrop-filter:blur(10px);box-shadow:var(--shadow-md);color:var(--glass-ink);transition:transform .25s,opacity .2s;}
+  .tdock.collapsed{transform:none;padding:5px 12px;}
+  .tdock.collapsed .rew,.tdock.collapsed .play,.tdock.collapsed .spdseg,.tdock.collapsed .track-wrap{display:none;}
+  .tdock.collapsed .td-head{flex:1;}
+  .tdock.collapsed .td-collapse{margin-left:auto;}
+  .td-head{display:flex;align-items:center;gap:8px;padding:0;flex:0 0 auto;}
+  .play{width:28px;height:28px;border-radius:50%;border:0;background:var(--act);color:#fff;font-size:11px;display:grid;place-items:center;flex:0 0 auto;}
   .play:hover{background:#245ee0;}
-  .rew{width:26px;height:26px;border-radius:50%;border:0;background:var(--glass-inset);color:var(--glass-ink);font-size:11px;display:grid;place-items:center;cursor:pointer;}
+  .rew{width:24px;height:24px;flex:0 0 auto;border-radius:50%;border:0;background:var(--glass-inset);color:var(--glass-ink);font-size:11px;display:grid;place-items:center;cursor:pointer;}
   .rew:hover{background:var(--glass-inset-h);}
-  .td-date{font-weight:800;font-size:14px;} .td-date small{font-weight:700;font-size:9.5px;color:var(--glass-ink2);display:block;text-transform:uppercase;letter-spacing:.5px;}
-  .td-note{font-size:11px;color:var(--glass-ink2);}
-  .td-badge{margin-left:auto;font-size:10.5px;font-weight:700;color:#f0c890;background:rgba(232,133,12,.16);border:1px solid rgba(232,133,12,.4);padding:4px 9px;border-radius:999px;opacity:.4;transition:.3s;} .td-badge.lit{opacity:1;}
-  .td-collapse{width:28px;height:28px;border:0;background:var(--glass-inset);color:var(--glass-ink);border-radius:7px;font-size:12px;}
+  .td-date{font-weight:800;font-size:12px;white-space:nowrap;}
+  
+  .td-badge{font-size:10px;font-weight:700;color:#f0c890;background:rgba(232,133,12,.16);border:1px solid rgba(232,133,12,.4);padding:3px 8px;border-radius:999px;opacity:.4;transition:.3s;white-space:nowrap;flex:0 0 auto;} .td-badge.lit{opacity:1;}
+  .td-collapse{width:26px;height:26px;flex:0 0 auto;border:0;background:var(--glass-inset);color:var(--glass-ink);border-radius:7px;font-size:12px;}
   .td-collapse:hover{background:var(--glass-inset-h);}
-  .track-wrap{position:relative;height:66px;padding:0 14px 6px;}
+  .track-wrap{position:relative;height:48px;padding:0;flex:1;min-width:0;}
   .spdseg{display:inline-flex;background:var(--glass-inset);border-radius:8px;padding:2px;gap:1px;}
-  .spdseg button{border:0;background:transparent;color:var(--glass-ink2);font-size:10px;font-weight:800;padding:4px 8px;border-radius:6px;cursor:pointer;}
+  .spdseg button{border:0;background:transparent;color:var(--glass-ink2);font-size:9.5px;font-weight:800;padding:3px 7px;border-radius:6px;cursor:pointer;}
   .spdseg button:hover{color:var(--glass-ink);}
   .spdseg button.on{background:var(--act);color:#fff;}
-  .track{position:absolute;left:14px;right:14px;top:32px;height:6px;border-radius:999px;background:var(--glass-track);cursor:pointer;}
+  .track{position:absolute;left:14px;right:14px;top:24px;height:6px;border-radius:999px;background:var(--glass-track);cursor:pointer;}
   .track .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#7ea6ff,var(--act));}
-  .dot{position:absolute;top:29px;width:12px;height:12px;border-radius:50%;background:var(--glass-dot);border:2px solid #4f8bf0;transform:translateX(-50%);cursor:pointer;transition:.15s;}
-  .dot.risk{border-color:#f08a8a;}.dot.now{border-color:#f0b060;width:15px;height:15px;top:27px;}
+  .dot{position:absolute;top:21px;width:12px;height:12px;border-radius:50%;background:var(--glass-dot);border:2px solid #4f8bf0;transform:translateX(-50%);cursor:pointer;transition:.15s;}
+  .dot.risk{border-color:#f08a8a;}.dot.now{border-color:#f0b060;width:15px;height:15px;top:19px;}
   .dot.reached{background:#7ea6ff;}.dot.risk.reached{background:#f08a8a;}.dot.now.reached{background:#f0b060;}
   .dot.rel{box-shadow:0 0 0 3px rgba(56,197,143,.6);border-color:#38c58f;}
   .dot .lab{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9.5px;font-weight:600;color:#eaf0fa;opacity:0;transition:.15s;pointer-events:none;background:#141a26;padding:1px 6px;border-radius:5px;z-index:3;}
   .dot.onhead{z-index:8;}
-  .dot.onhead .lab{opacity:1;bottom:auto;top:19px;background:var(--act);color:#fff;box-shadow:0 2px 8px rgba(47,109,246,.4);font-size:10px;padding:2px 8px;}
+  .dot.onhead .lab{opacity:1;bottom:auto;top:16px;background:var(--act);color:#fff;box-shadow:0 2px 8px rgba(47,109,246,.4);font-size:10px;padding:2px 8px;}
   .dot:hover .lab{opacity:1;}
   /* F-Tree-style grab-tab playhead: grip tab · stem · dot */
-  .phead{position:absolute;top:0;height:42px;width:26px;transform:translateX(-50%);z-index:6;display:flex;flex-direction:column;align-items:center;cursor:grab;touch-action:none;}
+  .phead{position:absolute;top:2px;height:34px;width:24px;transform:translateX(-50%);z-index:6;display:flex;flex-direction:column;align-items:center;cursor:grab;touch-action:none;}
   .phead:active{cursor:grabbing;}
-  .ph-grip{width:24px;height:17px;border-radius:7px 7px 5px 5px;background:var(--act);display:flex;align-items:center;justify-content:center;gap:2.5px;box-shadow:0 1px 5px rgba(10,16,30,.35);transition:transform .15s;flex:0 0 auto;}
-  .ph-grip i{display:block;width:2px;height:9px;border-radius:1px;background:rgba(255,255,255,.9);}
+  .ph-grip{width:20px;height:13px;border-radius:6px 6px 4px 4px;background:var(--act);display:flex;align-items:center;justify-content:center;gap:2.5px;box-shadow:0 1px 5px rgba(10,16,30,.35);transition:transform .15s;flex:0 0 auto;}
+  .ph-grip i{display:block;width:2px;height:7px;border-radius:1px;background:rgba(255,255,255,.9);}
   .phead:hover .ph-grip,.phead:active .ph-grip{transform:scale(1.12);}
   .ph-stem{width:2.5px;flex:1;background:var(--act);opacity:.85;}
-  .ph-dot{width:12px;height:12px;border-radius:50%;background:var(--act);border:2px solid var(--glass-dot);box-shadow:0 0 0 3px rgba(47,109,246,.22);margin-top:-2px;flex:0 0 auto;}
+  .ph-dot{width:10px;height:10px;border-radius:50%;background:var(--act);border:2px solid var(--glass-dot);box-shadow:0 0 0 3px rgba(47,109,246,.22);margin-top:-2px;flex:0 0 auto;}
 
   /* section tables (inside panels) */
   .tbl{width:100%;border-collapse:collapse;font-size:12px;}
@@ -484,6 +488,73 @@
   .wf-bar.live{background:var(--now);animation:runpulse 1.4s ease-out infinite;}
   .wf-bar .out{position:absolute;left:calc(100% + 6px);top:1px;font-size:9.5px;font-weight:700;color:var(--ink-2);white-space:nowrap;}
   .wf-bar .in{position:absolute;right:5px;top:1px;font-size:9.5px;font-weight:700;color:#fff;white-space:nowrap;}
+  /* artifacts focus layout */
+  .viewseg{display:inline-flex;background:var(--glass-inset);border-radius:9px;padding:2px;gap:1px;}
+  .viewseg button{border:0;background:transparent;color:var(--glass-ink2);width:30px;height:26px;border-radius:7px;font-size:13px;cursor:pointer;display:grid;place-items:center;}
+  .viewseg button:hover{color:var(--glass-ink);}
+  .viewseg button.on{background:var(--act);color:#fff;}
+  .viewseg button:focus-visible{outline:2px solid var(--act);outline-offset:1px;}
+  .afocus{position:absolute;left:16px;right:16px;top:70px;bottom:78px;display:grid;grid-template-columns:minmax(0,1fr) 148px;gap:12px;z-index:12;}
+  .afocus.withmap{grid-template-columns:minmax(0,1fr) 330px 148px;}
+  .af-rail{display:flex;flex-direction:column;gap:6px;min-width:0;}
+  .afr-item{display:flex;align-items:center;gap:7px;border:1px solid var(--glass-line);background:var(--glass);backdrop-filter:blur(8px);color:var(--glass-ink);border-radius:10px;padding:7px 9px;font-size:10.5px;font-weight:700;cursor:pointer;text-align:left;font-family:inherit;}
+  .afr-item i{font-size:12px;flex:0 0 auto;}
+  .afr-nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .afr-cnt{font-size:9px;font-weight:800;background:var(--glass-inset);border-radius:999px;padding:1px 6px;}
+  .afr-item:hover{border-color:var(--act);}
+  .afr-item.on{background:var(--act);border-color:var(--act);color:#fff;}
+  .afr-item.on .afr-cnt{background:rgba(255,255,255,.22);}
+  .afr-item.main{border-color:var(--violet2);}
+  .afr-item.main.on{background:var(--violet2);border-color:var(--violet2);}
+  .afr-div{height:1px;background:var(--glass-line);margin:2px 0;}
+  .af-docwrap{position:relative;display:flex;flex-direction:column;min-height:0;background:var(--surface);border:1px solid var(--line-2);border-radius:14px;box-shadow:var(--shadow-md);overflow:hidden;}
+  .af-h{cursor:default;flex:0 0 auto;}
+  .af-doc{flex:1;min-height:0;overflow:auto;padding:14px 48px 16px 20px;}
+  .af-nav{position:absolute;right:9px;top:56px;display:flex;flex-direction:column;gap:3px;z-index:6;}
+  .af-nav button{width:24px;height:22px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);font-size:10px;font-weight:700;cursor:pointer;padding:0;display:grid;place-items:center;}
+  .af-nav button:hover{border-color:var(--act-bd);color:var(--act);}
+  .af-nav button.on{background:var(--act);border-color:var(--act);color:#fff;}
+  .af-nav .topbtn{margin-top:4px;}
+  .fp-nav{top:54px;right:12px;}
+  .floatpanel.full .fp-b{padding-right:48px;}
+  .art-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid var(--line);}
+  .ab-lbl{font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-3);white-space:nowrap;}
+  .doc-select.sm{min-width:0;padding:6px 26px 6px 10px;font-size:12px;font-weight:600;}
+  .ab-input{border:1px solid var(--line-2);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;width:128px;background:var(--surface);color:var(--ink);}
+  .ab-div{width:1px;height:18px;background:var(--line);}
+  .af-side{display:flex;flex-direction:column;gap:10px;min-width:0;}
+  .af-map{background:var(--glass);border:1px solid var(--glass-line);border-radius:13px;padding:9px;backdrop-filter:blur(9px);color:var(--glass-ink);}
+  .af-map-h{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:7px;}
+  .af-note{margin:7px 2px 0;font-size:10.5px;color:var(--glass-ink2);} .af-note b{color:var(--glass-ink);}
+  .af-selnote{background:var(--glass);border:1px solid var(--glass-line);border-radius:11px;padding:9px 12px;font-size:11px;color:var(--glass-ink2);backdrop-filter:blur(9px);} .af-selnote b{color:var(--glass-ink);}
+  .mini-wrap{position:relative;width:100%;height:182px;overflow:hidden;border-radius:9px;background:rgba(127,127,127,.06);}
+  .mini-stage{position:absolute;left:0;top:0;width:900px;height:500px;transform:scale(0.362);transform-origin:0 0;}
+  .sec.sync{background:var(--now-sub);box-shadow:inset 3px 0 0 var(--now);border-radius:9px;padding:6px 9px;margin-left:-9px;transition:background .3s;}
+  .jumpable{cursor:pointer;} .jumpable:hover{text-decoration:underline;}
+  @media(max-width:940px){.afocus,.afocus.withmap{grid-template-columns:minmax(0,1fr) 148px;top:116px;}.af-side{display:none;}.metricrow.right{top:66px;}}
+  /* case handover */
+  .hopanel{position:absolute;right:16px;top:66px;bottom:78px;width:342px;z-index:36;background:var(--glass-strong);border:1px solid var(--glass-line);border-radius:14px;backdrop-filter:blur(12px);box-shadow:var(--shadow-pop);display:flex;flex-direction:column;color:var(--glass-ink);animation:din .25s ease;}
+  .ho-h{display:flex;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--glass-line);}
+  .ho-t{font-weight:800;font-size:13.5px;} .ho-s{font-size:11px;color:var(--glass-ink2);} .ho-s b{color:var(--glass-ink);}
+  .ho-x{margin-left:auto;border:0;background:var(--glass-inset);color:var(--glass-ink);width:26px;height:26px;border-radius:7px;cursor:pointer;flex:0 0 auto;}
+  .ho-x:hover{background:var(--glass-inset-h);}
+  .ho-prog{display:flex;align-items:center;gap:9px;padding:10px 14px 6px;font-size:10.5px;color:var(--glass-ink2);white-space:nowrap;}
+  .ho-progbar{flex:1;height:6px;border-radius:999px;background:var(--glass-inset);overflow:hidden;}
+  .ho-progbar i{display:block;height:100%;background:linear-gradient(90deg,#8fb4ff,var(--act));}
+  .ho-body{flex:1;overflow:auto;padding:2px 12px 10px;}
+  .ho-sec{display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--ok);margin:10px 2px 5px;}
+  .ho-sec.open{color:var(--now);}
+  .ho-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;font-size:11.5px;line-height:1.35;}
+  .ho-row:hover{background:var(--glass-inset);}
+  .ho-row i{font-size:12px;flex:0 0 auto;}
+  .ho-row.done i{color:var(--ok);} .ho-row.open i{color:var(--now);} .ho-row.risk i{color:var(--risk);}
+  .ho-lbl{flex:1;min-width:0;} .ho-meta{font-size:9.5px;color:var(--glass-ink2);text-align:right;flex:0 0 auto;max-width:110px;}
+  .ho-actions{display:flex;gap:8px;padding:11px 14px;border-top:1px solid var(--glass-line);}
+  .hd-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;background:var(--now-sub);color:var(--t-now);border:1px solid var(--now-bd);border-radius:999px;padding:5px 11px;cursor:pointer;white-space:nowrap;font-family:inherit;}
+  .hd-chip:hover{border-color:var(--now);}
+  .secdot{display:inline-flex;font-size:9px;flex:0 0 auto;}
+  .secdot.done{color:var(--ok);} .secdot.warn{color:var(--now);}
+  .note-by{display:block;font-size:9.5px;color:var(--ink-3);margin-top:2px;font-style:italic;}
   /* llm usage mini dashboard */
   .lu-models{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;}
   .lu-model{font-size:11px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:5px 11px;}
@@ -717,6 +788,9 @@ const EVENTS=[
  {id:10,date:'2026-03-31',tier:'now',node:'a1',title:'Alert #1428963 fires',amt:0,tc:'—',dc:'',cp:'—',text:'Rule RULE-TM-001: CRDT ThisMonth $537,236 exceeds the $13,600 threshold.'},
 ];
 const txns=EVENTS.filter(e=>e.amt!==0);
+/* Artifacts Focus: which worksheet section each timeline event belongs to, and back */
+const EV_SECTION={1:'as2',2:'as4',3:'as4',4:'as6',5:'as6',6:'as6',7:'as8',8:'as8',9:'as8',10:'as1'};
+const SEC_EV={as1:10,as2:1,as4:2,as6:4,as8:7,as10:10};
 function balAt(t){let b=0;EVENTS.forEach(e=>{if(e.acct==='a1'&&frac(e.date)<=t)b+=e.amt;});return b;}
 function evNodes(e){if(e.node)return[e.node];if(e.edge)return e.edge.split('-');return[];}
 
@@ -770,6 +844,16 @@ const FOLDER_ORDER=['01_alert','02_rule','03_customer_accounts','04_transactions
 const docS3=d=>'s3://apps-demo/cases/CASE-AML-0001/'+(d.folder==='root'?'':d.folder+'/')+d.name;
 /* which map entities each document is evidence FOR (index-aligned with DOCS) */
 const DOC_LINKS=[['a1'],['cust'],['cust'],['a1','a2'],['a1','cp1'],['a1'],['a1'],['a1'],['cust']];
+/* Case handover — what the previous analyst completed (derived from the audit trail) */
+const HANDOVER_DONE=[
+ {ic:'paperclip',label:'Evidence imported',meta:'9 documents · s3'},
+ {ic:'file-text',label:'Worksheet generated',meta:'10/10 sections'},
+ {ic:'topology-star-3',label:'Visualizations created',meta:'graph + chart'},
+ {ic:'robot',label:'Agent run succeeded',meta:'7 steps · 378.8s'},
+ {ic:'world',label:'Adverse-media search run',meta:'2 web searches'},
+ {ic:'pencil',label:'Manual review pass',meta:'comment + edit · 7/16'},
+];
+const SECTION_STATUS={artifacts:'done',attachments:'warn',data:'done',audit:'done',viz:'done'};
 /* Agent Runs — the real run tree from the live tab (1 run, 7 tool-call steps, all succeeded) */
 const AGENT_RUN={name:'aml_alert_review',status:'succeeded',kind:'Quick action',tag:'aml_alert_review',date:'7/16/2026, 4:24:43 PM',dur:378.8,
  children:[
@@ -869,6 +953,8 @@ function App(){
   const [pan,setPan]=useState({x:150,y:120});const [zoom,setZoom]=useState(1);
   const [panels,setPanels]=useState({});   // {id:{x,y,full}}
   const [tOpen,setTOpen]=useState(true);
+  const [deskView,setDeskView]=useState('map');
+  const [hoSeen,setHoSeen]=useState([]);
   const [deleted,setDeleted]=useState([]);const [locked,setLocked]=useState([]); // Manage Investigations
   const cur=CASES.find(c=>c.id===caseId);
 
@@ -877,7 +963,7 @@ function App(){
   const resetDesk=()=>{setSel(null);setFocusEv(null);setPan({x:150,y:120});setZoom(1);setPanels({});setT(frac('2026-03-08'));setPlaying(false);};
   const openCase=(id)=>{setCaseId(id);resetDesk();setScreen('case');};
   const goDash=()=>setScreen('dashboard');
-  const deskState={t,setT,playing,setPlaying,speed,setSpeed,sel,setSel,focusEv,setFocusEv,pan,setPan,zoom,setZoom,panels,setPanels,tOpen,setTOpen,cur,openCase,goDash,deleted,openAdvisor:(card)=>{setAdvOpen(true);setAdvSeen(true);setAdvCard(card||null);}};
+  const deskState={t,setT,playing,setPlaying,speed,setSpeed,sel,setSel,focusEv,setFocusEv,pan,setPan,zoom,setZoom,panels,setPanels,tOpen,setTOpen,view:deskView,setView:setDeskView,hoSeen,setHoSeen,cur,openCase,goDash,deleted,openAdvisor:(card)=>{setAdvOpen(true);setAdvSeen(true);setAdvCard(card||null);}};
 
   const openPanelIds=Object.keys(panels);
   return (
@@ -936,6 +1022,8 @@ function App(){
             <li>Click any case row to open its <b>investigation desktop</b>.</li>
           </ul></div>
           :<div className="cpop"><h4>About this page — Investigation desktop</h4><ul>
+            <li><b>Handover</b> — taking over a colleague's case? A brief auto-opens once (done vs still-open, resume-where-they-left-off); reopen it from the amber Handover chip; ✓/⚠ dots on section cards mark complete vs open areas.</li>
+            <li><b>Two views</b> — the header switch toggles Map focus and Artifacts focus (wide worksheet + mini map); the timeline highlights & scrolls to the section for the current moment, and clicking a section header jumps the timeline back. Position, selection and playback survive the switch.</li>
             <li><b>The map is the workspace</b> — pan (drag), zoom (scroll / +−), click a node for its story & actions.</li>
             <li><b>Timeline is docked</b> & two-way linked; drag the grip tab, play at 1× or ½× — landing on an event pins its label below the line.</li>
             <li><b>Everything floats</b> — chips open movable panels (double-click a header for full-screen work mode; 📝 notes with read/unread; 💬 asks the advisor in context).</li>
@@ -1180,15 +1268,45 @@ function ManageModal({live,deleted,setDeleted,locked,setLocked,onClose}){
   );
 }
 
+/* secondary mini map used by Artifacts Focus (same state, scaled render) */
+function MiniMap({t,sel,setSel,litNodes=[],alertReached}){
+  const seen=k=>frac(NODES[k].seenAt)<=t;
+  const edgeLive=e=>e.type==='own'?(seen(e.from)&&seen(e.to)):frac(e.liveAt)<=t;
+  const C=k=>({x:NODES[k].x,y:NODES[k].y});
+  return(
+    <div className="mini-wrap">
+      <div className="mini-stage">
+        <svg className="edges" viewBox="0 0 900 500" preserveAspectRatio="none">
+          {EDGES.map((e,i)=>{const a=C(e.from),b=C(e.to);const cls='edge '+e.type+(e.dir==='out'?' out':'')+(edgeLive(e)?' live':'');return <line key={i} className={cls} x1={a.x} y1={a.y} x2={b.x} y2={b.y}/>;})}
+        </svg>
+        {Object.keys(NODES).map(k=>{const n=NODES[k];const isAlert=k==='a1'&&alertReached;
+          return(<div key={k} className={'node '+(k==='cust'?'cust ':'')+(seen(k)?'seen ':'')+(sel===k?'sel ':'')+(litNodes.includes(k)?'lit ':'')+(isAlert?'alert':'')} style={{left:n.x,top:n.y}} onClick={()=>setSel(sel===k?null:k)}>
+            <div className="kind">{n.kind}</div><div className="name">{n.name}</div><div className="sub">{n.sub}</div>
+          </div>);})}
+      </div>
+    </div>);
+}
+
 /* ===== INVESTIGATION DESKTOP ===== */
 function Desktop(S){
-  const {t,setT,playing,setPlaying,speed,setSpeed,sel,setSel,focusEv,setFocusEv,pan,setPan,zoom,setZoom,panels,setPanels,tOpen,setTOpen,cur,openCase,goDash,openAdvisor,deleted=[]}=S;
+  const {t,setT,playing,setPlaying,speed,setSpeed,sel,setSel,focusEv,setFocusEv,pan,setPan,zoom,setZoom,panels,setPanels,tOpen,setTOpen,view,setView,hoSeen,setHoSeen,cur,openCase,goDash,openAdvisor,deleted=[]}=S;
   const canvasRef=useRef(null),trackRef=useRef(null);
   const [csOpen,setCsOpen]=useState(false);
   const [toast,setToast]=useState(null);
   const [agentRunning,setAgentRunning]=useState(false);
   const [chipPos,setChipPos]=useState({});
-  const [notes,setNotes]=useState({});
+  const [afSel,setAfSel]=useState('artifacts');
+  const [afMapOpen,setAfMapOpen]=useState(false);
+  const [hoOpen,setHoOpen]=useState(false);
+  const isHandover=cur.detail&&cur.assigneeName!=='You';
+  useEffect(()=>{if(cur.detail&&cur.assigneeName!=='You'&&!hoSeen.includes(cur.id))setHoOpen(true);},[cur.id]);
+  const closeHandover=()=>{setHoOpen(false);setHoSeen(x=>x.includes(cur.id)?x:[...x,cur.id]);};
+  const [notes,setNotes]=useState({
+    artifacts:[{text:'Waiting on KYC docs from the RM — chase if not received by Friday.',read:false,by:'Admin User'}],
+    attachments:[{text:'KYC folder still empty — confirm the RFI actually went out on 7/22.',read:false,by:'Admin User'}],
+  });
+  const unreadTotal=Object.keys(notes).reduce((n,k)=>n+notes[k].filter(x=>!x.read).length,0);
+  const hoOpenCount=3+unreadTotal;
   const [pinned,setPinned]=useState([]);      // evidence pinned to the desk: [{k:'d'|'v',i,x,y}]
   const [ghost,setGhost]=useState(null);      // drag ghost while dragging an item out
   const [docFocus,setDocFocus]=useState(null);// open the attachments inspector on this doc
@@ -1275,7 +1393,7 @@ function Desktop(S){
     const up=()=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);};window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);};
   /* draggable case-area chips — reposition + reorder; a click (no drag) opens the panel */
   const chipDrag=(id,e)=>{
-    const cr=canvasRef.current.getBoundingClientRect(),rect=e.currentTarget.getBoundingClientRect();
+    const cr=(canvasRef.current||deskRef.current).getBoundingClientRect(),rect=e.currentTarget.getBoundingClientRect();
     const x0=rect.left-cr.left,y0=rect.top-cr.top,sx=e.clientX,sy=e.clientY;let moved=false;
     setChipPos(p=>({...p,[id]:{x:x0,y:y0}}));
     const mv=ev=>{const dx=ev.clientX-sx,dy=ev.clientY-sy;if(Math.abs(dx)>4||Math.abs(dy)>4)moved=true;setChipPos(p=>({...p,[id]:{x:x0+dx,y:y0+dy}}));};
@@ -1288,6 +1406,9 @@ function Desktop(S){
   const [pinHover,setPinHover]=useState(null); // key 'd3' / 'v1'
   const hoverPin=pinHover!=null?pinned.find(q=>q.k+q.i===pinHover):null;
   const litNodes=[...(focusEv?evNodes(EVENTS.find(e=>e.id===focusEv)):[]),...(hoverPin?pinMeta(hoverPin).links:[])];
+  const curEv=EVENTS.filter(e=>frac(e.date)<=t).slice(-1)[0];
+  const syncSec=curEv?EV_SECTION[curEv.id]:null;
+  const jumpSec=k=>{const id=SEC_EV[k];if(!id)return;const e=EVENTS.find(x=>x.id===id);setPlaying(false);setT(frac(e.date));setFocusEv(id);};
   const relEventIds=sel?EVENTS.filter(e=>evNodes(e).includes(sel)||e.acct===sel).map(e=>e.id):[];
   const edgeLive=e=>e.type==='own'?(seen(e.from)&&seen(e.to)):frac(e.liveAt)<=t;
   const edgeFlow=e=>e.type==='money'&&edgeLive(e)&&t-frac(e.liveAt)<0.06;
@@ -1298,7 +1419,7 @@ function Desktop(S){
   return (
     <div className="desk" ref={deskRef}>
       {/* canvas */}
-      <div className="canvas" ref={canvasRef} onPointerDown={panStart} onWheel={wheel}>
+      {view==="map"&&<div className="canvas" ref={canvasRef} onPointerDown={panStart} onWheel={wheel}>
         <div className="deskhint">drag to pan · scroll to zoom · click a node to focus</div>
         {detail? (
           <div className="cinner" style={{transform:`translate(${pan.x}px,${pan.y}px) scale(${zoom})`}}>
@@ -1319,10 +1440,67 @@ function Desktop(S){
             <div><div style={{fontSize:15,fontWeight:700,marginBottom:6}}>No transaction map for this case yet</div><div style={{fontSize:12}}>This {cur.type} case has {cur.progress}% completion.<br/>Open a floating panel on the right to continue the investigation.</div></div>
           </div>
         )}
-      </div>
+      </div>}
+
+      {/* Artifacts Focus layout */}
+      {view==='artifacts'&&detail&&(()=>{const meta=CHIPS.find(c=>c.id===afSel)||CHIPS[0];return(
+        <div className={'afocus'+(afMapOpen?' withmap':'')}>
+          <div className="af-docwrap">
+            <div className="fp-h af-h">
+              <span className="ic"><i className={'ti ti-'+meta.ic}></i></span><span className="t">{meta.nm}</span>
+              <button className="notebtn" title="Add note" onClick={()=>toggleNote(afSel)}><i className="ti ti-pencil"></i>{noteCount(afSel)>0&&<span className={'note-badge'+(unreadCount(afSel)>0?' unread':'')}>{noteCount(afSel)}</span>}</button>
+              <button title="Ask AI advisor" onClick={()=>openAdvisor(meta.nm)}><i className="ti ti-message-circle"></i></button>
+              {afSel==='artifacts'
+                ?<button title="Back to map view" onClick={()=>setView('map')}>✕</button>
+                :<button title="Back to artifacts" onClick={()=>setAfSel('artifacts')}>✕</button>}
+            </div>
+            {noteOpenId===afSel&&<div className="notes-panel">
+              {noteCount(afSel)>0&&<div className="notelist">
+                <div className="nl-h">Notes <span className="nl-count">{noteCount(afSel)}</span>{unreadCount(afSel)>0&&<span className="nl-unread">{unreadCount(afSel)} unread</span>}<span className="nl-x" onClick={()=>setNoteOpenId(null)}>✕</span></div>
+                {notes[afSel].map((nt,i)=><div key={i} className={'note-item'+(nt.read?'':' unread')} onClick={()=>toggleRead(afSel,i)} title="Click to mark read / unread"><span className="note-dot"></span><span className="note-txt">{nt.text}{nt.by&&<span className="note-by">— {nt.by}</span>}</span><span className="note-flag">{nt.read?'read':'unread'}</span></div>)}
+              </div>}
+              <div className="notepad">
+                <textarea value={noteDraft} onChange={e=>setNoteDraft(e.target.value)} placeholder={'Write a note for '+meta.nm.toLowerCase()+'…'}></textarea>
+                <div className="np-actions"><button className="btn sm" onClick={()=>setNoteOpenId(null)}>Close</button><button className="btn pri sm" onClick={()=>addNote(afSel)}>Add note</button></div>
+              </div>
+            </div>}
+            <div className="af-doc">
+              {afSel==='artifacts'&&<ArtifactsDoc t={t} syncSec={syncSec} onJumpSec={jumpSec} showToc={false}/>}
+              {afSel==='attachments'&&<AttachmentsBody pinnedIs={pinned.filter(x=>x.k==='d').map(x=>x.i)} focusDoc={docFocus}/>}
+              {afSel==='data'&&<DataWorkspaceBody t={t}/>}
+              {afSel==='audit'&&<AuditBody/>}
+              {afSel==='viz'&&<VizBody pinnedIs={pinned.filter(x=>x.k==='v').map(x=>x.i)} focusViz={vizFocus}/>}
+            </div>
+            {afSel==='artifacts'&&<div className="af-nav" aria-label="Worksheet sections">
+              {[1,2,3,4,5,6,7,8,9,10].map(n=><button key={n} className={syncSec==='as'+n?'on':''} title={'Section '+n} onClick={()=>{const el=document.getElementById('as'+n),sc=document.querySelector('.af-doc');if(el&&sc)sc.scrollTop=sc.scrollTop+el.getBoundingClientRect().top-sc.getBoundingClientRect().top-8;}}>{n}</button>)}
+              <button className="topbtn" title="Back to top" onClick={()=>{const sc=document.querySelector('.af-doc');if(sc)sc.scrollTop=0;}}><i className="ti ti-arrow-up"></i></button>
+            </div>}
+          </div>
+          {afMapOpen&&<div className="af-side">
+            <div className="af-map">
+              <div className="af-map-h"><span><i className="ti ti-topology-star-3"></i> Case map</span><button className="btn sm" onClick={()=>setView('map')}>Full map</button></div>
+              <MiniMap t={t} sel={sel} setSel={setSel} litNodes={litNodes} alertReached={alertReached}/>
+              <p className="af-note">{curEv?<span>Now at: <b>{curEv.title}</b></span>:'Scrub the timeline to replay the case.'}</p>
+            </div>
+            {sel&&NODES[sel]&&<div className="af-selnote">Selected: <b>{NODES[sel].name}</b> · switch to map focus for entity actions</div>}
+          </div>}
+          <div className="af-rail" role="tablist" aria-label="Case areas">
+            {CHIPS.filter(c=>!c.widget).map(c=>(
+              <button key={c.id} role="tab" aria-selected={afSel===c.id} className={'afr-item'+(afSel===c.id?' on':'')+(c.id==='artifacts'?' main':'')} onClick={()=>setAfSel(c.id)}>
+                <i className={'ti ti-'+c.ic}></i><span className="afr-nm">{c.nm}</span>{SECTION_STATUS[c.id]&&<span className={'secdot '+SECTION_STATUS[c.id]} title={SECTION_STATUS[c.id]==='warn'?'Open item: KYC missing':'Complete per handover'}><i className={'ti ti-'+(SECTION_STATUS[c.id]==='warn'?'alert-triangle':'check')}></i></span>}<span className="afr-cnt">{c.cnt}</span>
+              </button>))}
+            <div className="afr-div"></div>
+            <button className={'afr-item mapitem'+(afMapOpen?' on':'')} onClick={()=>setAfMapOpen(o=>!o)} title={afMapOpen?'Close the map card':'Open the map card beside the content'}>
+              <i className="ti ti-topology-star-3"></i><span className="afr-nm">Case map</span><span className="afr-cnt">{afMapOpen?'−':'+'}</span>
+            </button>
+          </div>
+        </div>);})()}
+      {view==='artifacts'&&!detail&&(
+        <div className="afocus"><div className="af-doc"><div className="empty" style={{margin:30}}>No worksheet artifacts for this case yet.</div></div></div>
+      )}
 
       {/* zoom controls */}
-      {detail&&<div className="zoomctl"><button onClick={()=>zoomBtn(.2)}>＋</button><div className="zv">{Math.round(zoom*100)}%</div><button onClick={()=>zoomBtn(-.2)}>－</button><button onClick={fit} title="Fit">⤢</button></div>}
+      {detail&&view==='map'&&<div className="zoomctl"><button onClick={()=>zoomBtn(.2)}>＋</button><div className="zv">{Math.round(zoom*100)}%</div><button onClick={()=>zoomBtn(-.2)}>－</button><button onClick={fit} title="Fit">⤢</button></div>}
 
       {/* floating case header */}
       <div className="case-hdr">
@@ -1333,14 +1511,20 @@ function Desktop(S){
         <span className={'pill '+RKCLS[cur.risk]}><span className="d"></span>{RKLABEL[cur.risk]}</span>
         <span className="av" title={cur.assigneeName}>{cur.assignee}</span>
         <span className="sep"></span>
+        {detail&&<div className="viewseg" role="group" aria-label="Case view">
+          <button className={view==='map'?'on':''} aria-pressed={view==='map'} title="Map focus" onClick={()=>setView('map')}><i className="ti ti-topology-star-3"></i></button>
+          <button className={view==='artifacts'?'on':''} aria-pressed={view==='artifacts'} title="Artifacts focus" onClick={()=>setView('artifacts')}><i className="ti ti-file-text"></i></button>
+        </div>}
+        <span className="sep"></span>
         <button className="hic" title="Search"><i className="ti ti-search"></i></button>
         <button className="hic" title="Add / link information" onClick={()=>showToast('Add or link information (prototype)')}>＋</button>
         <button className="hic hic-reset" title="Reset screen to default layout" onClick={resetLayout}>{'↩︎'}</button>
+        {isHandover&&!hoOpen&&<button className="hd-chip" onClick={()=>setHoOpen(true)} title="Open the handover brief"><i className="ti ti-switch-horizontal"></i> Handover · {hoOpenCount} open</button>}
         {csOpen&&<div className="cs-menu"><div className="lbl" style={{padding:'4px 10px 6px'}}>Switch investigation</div>{CASES.filter(c=>!deleted.includes(c.id)).map(c=>(<div key={c.id} className={'cs-item'+(c.id===cur.id?' on':'')} onClick={()=>{openCase(c.id);setCsOpen(false);}}><span className={'pill '+STCLS[c.status]} style={{padding:3}}><span className="d"></span></span><div style={{flex:1}}><div className="nm">{c.id}</div><div className="mt">{c.type} · {c.customer}</div></div>{c.alerts>0&&<span className="abadge"><i className="ti ti-flag"></i> {c.alerts}</span>}</div>))}<div style={{borderTop:'1px solid var(--line)',marginTop:6,paddingTop:6}}><div className="cs-item" onClick={goDash}>▦ <span className="nm">All investigations</span></div></div></div>}
       </div>
 
       {/* metric widgets under the case header (number-forward, header height) */}
-      <div className="metricrow">
+      <div className={'metricrow'+(view==='artifacts'?' right':'')}>
         {CHIPS.filter(c=>c.widget).map(c=>{
           const isAgents=c.id==='agents', running=isAgents&&agentRunning;
           const runN=running?2:0, doneN=running?5:7;
@@ -1358,16 +1542,16 @@ function Desktop(S){
       </div>
 
       {/* draggable case-area chips — reposition & reorder freely; click to open */}
-      {CHIPS.filter(c=>!c.widget).map((c,i)=>{const pos=chipPos[c.id];
+      {view==='map'&&CHIPS.filter(c=>!c.widget).map((c,i)=>{const pos=chipPos[c.id];
         return(
           <div key={c.id} className={'chip'+(panels[c.id]?' active':'')} style={pos?{left:pos.x,top:pos.y}:{right:16,top:14+i*50}} onPointerDown={e=>chipDrag(c.id,e)} title="Drag to reposition · click to open">
-            <div className="ch"><span className="ic"><i className={'ti ti-'+c.ic}></i></span><span className="nm">{c.nm}</span><span className="cnt">{c.cnt}</span></div>
+            <div className="ch"><span className="ic"><i className={'ti ti-'+c.ic}></i></span><span className="nm">{c.nm}</span>{SECTION_STATUS[c.id]&&<span className={'secdot '+SECTION_STATUS[c.id]} title={SECTION_STATUS[c.id]==='warn'?'Open item: KYC missing':'Complete per handover'}><i className={'ti ti-'+(SECTION_STATUS[c.id]==='warn'?'alert-triangle':'check')}></i></span>}<span className="cnt">{c.cnt}</span></div>
             <div className="sum">{c.sum}</div>
           </div>
         );})}
 
       {/* entity detail panel */}
-      {sel&&NODES[sel]&&(
+      {view==='map'&&sel&&NODES[sel]&&(
         <div className="entpanel">
           <div className="ent-h"><button className="x" onClick={()=>setSel(null)}>✕</button><div className="k">{NODES[sel].kind}</div><div className="n">{NODES[sel].name}</div></div>
           <div className="ent-acts">
@@ -1377,7 +1561,7 @@ function Desktop(S){
           {noteOpenId===('ent:'+sel)&&<div className="notes-panel">
             {noteCount('ent:'+sel)>0&&<div className="notelist">
               <div className="nl-h">Notes <span className="nl-count">{noteCount('ent:'+sel)}</span>{unreadCount('ent:'+sel)>0&&<span className="nl-unread">{unreadCount('ent:'+sel)} unread</span>}<span className="nl-x" onClick={()=>setNoteOpenId(null)}>✕</span></div>
-              {notes['ent:'+sel].map((nt,i)=><div key={i} className={'note-item'+(nt.read?'':' unread')} onClick={()=>toggleRead('ent:'+sel,i)} title="Click to mark read / unread"><span className="note-dot"></span><span className="note-txt">{nt.text}</span><span className="note-flag">{nt.read?'read':'unread'}</span></div>)}
+              {notes['ent:'+sel].map((nt,i)=><div key={i} className={'note-item'+(nt.read?'':' unread')} onClick={()=>toggleRead('ent:'+sel,i)} title="Click to mark read / unread"><span className="note-dot"></span><span className="note-txt">{nt.text}{nt.by&&<span className="note-by">— {nt.by}</span>}</span><span className="note-flag">{nt.read?'read':'unread'}</span></div>)}
             </div>}
             <div className="notepad">
               <textarea value={noteDraft} onChange={e=>setNoteDraft(e.target.value)} placeholder={'Write a note for '+NODES[sel].name+'…'}></textarea>
@@ -1407,19 +1591,26 @@ function Desktop(S){
             {noteOpenId===id&&<div className="notes-panel">
               {noteCount(id)>0&&<div className="notelist">
                 <div className="nl-h">Notes <span className="nl-count">{noteCount(id)}</span>{unreadCount(id)>0&&<span className="nl-unread">{unreadCount(id)} unread</span>}<span className="nl-x" onClick={()=>setNoteOpenId(null)}>✕</span></div>
-                {notes[id].map((nt,i)=><div key={i} className={'note-item'+(nt.read?'':' unread')} onClick={()=>toggleRead(id,i)} title="Click to mark read / unread"><span className="note-dot"></span><span className="note-txt">{nt.text}</span><span className="note-flag">{nt.read?'read':'unread'}</span></div>)}
+                {notes[id].map((nt,i)=><div key={i} className={'note-item'+(nt.read?'':' unread')} onClick={()=>toggleRead(id,i)} title="Click to mark read / unread"><span className="note-dot"></span><span className="note-txt">{nt.text}{nt.by&&<span className="note-by">— {nt.by}</span>}</span><span className="note-flag">{nt.read?'read':'unread'}</span></div>)}
               </div>}
               <div className="notepad">
                 <textarea value={noteDraft} onChange={e=>setNoteDraft(e.target.value)} placeholder="Write a note for this card…"></textarea>
                 <div className="np-actions"><button className="btn sm" onClick={()=>setNoteOpenId(null)}>Close</button><button className="btn pri sm" onClick={()=>addNote(id)}>Add note</button></div>
               </div>
             </div>}
-            <div className="fp-b"><PanelBody id={id} t={t} onRunAgents={runAgents} agentRunning={agentRunning} attProps={{pinDrag,pinnedIs:pinned.filter(x=>x.k==='d').map(x=>x.i),focusDoc:docFocus}} vizProps={{vizDrag,pinnedIs:pinned.filter(x=>x.k==='v').map(x=>x.i),focusViz:vizFocus}}/></div>
+            <div className="fp-b"><PanelBody id={id} t={t} onRunAgents={runAgents} agentRunning={agentRunning} attProps={{pinDrag,pinnedIs:pinned.filter(x=>x.k==='d').map(x=>x.i),focusDoc:docFocus}} vizProps={{vizDrag,pinnedIs:pinned.filter(x=>x.k==='v').map(x=>x.i),focusViz:vizFocus}} artProps={{syncSec,onJumpSec:jumpSec,showToc:!p.full}}/></div>
+            {id==='artifacts'&&p.full&&(
+              <div className="af-nav fp-nav" aria-label="Worksheet sections">
+                {[1,2,3,4,5,6,7,8,9,10].map(n=><button key={n} className={syncSec==='as'+n?'on':''} title={'Section '+n}
+                  onClick={e=>{const sc=e.currentTarget.closest('.floatpanel').querySelector('.fp-b');const el=sc&&sc.querySelector('[id="as'+n+'"]');if(el&&sc)sc.scrollTop=sc.scrollTop+el.getBoundingClientRect().top-sc.getBoundingClientRect().top-8;}}>{n}</button>)}
+                <button className="topbtn" title="Back to top" onClick={e=>{const sc=e.currentTarget.closest('.floatpanel').querySelector('.fp-b');if(sc)sc.scrollTop=0;}}><i className="ti ti-arrow-up"></i></button>
+              </div>
+            )}
           </div>
         );})}
 
       {/* evidence threads — pin → related map entity */}
-      {detail&&pinned.length>0&&(
+      {view==='map'&&detail&&pinned.length>0&&(
         <svg className="pinlinks">
           {pinned.flatMap(p=>pinMeta(p).links.filter(k=>NODES[k]).map(k=>{
             const n=NODES[k];const nx=n.x*zoom+pan.x,ny=n.y*zoom+pan.y;
@@ -1432,8 +1623,31 @@ function Desktop(S){
           }))}
         </svg>
       )}
+      {/* case handover side panel */}
+      {hoOpen&&cur.detail&&(
+        <div className="hopanel">
+          <div className="ho-h"><span className="av">AU</span>
+            <div><div className="ho-t">Case handover</div><div className="ho-s">from <b>Admin User</b> · last activity 2h ago</div></div>
+            <button className="ho-x" onClick={closeHandover} title="Close">✕</button></div>
+          <div className="ho-prog"><div className="ho-progbar"><i style={{width:cur.progress+'%'}}></i></div><span>{cur.progress}% complete</span></div>
+          <div className="ho-body">
+            <div className="ho-sec"><i className="ti ti-check"></i> Done so far</div>
+            {HANDOVER_DONE.map((d,i)=>(<div key={i} className="ho-row done"><i className={'ti ti-'+d.ic}></i><span className="ho-lbl">{d.label}</span><span className="ho-meta">{d.meta}</span></div>))}
+            <div className="ho-sec open"><i className="ti ti-alert-circle"></i> Still open</div>
+            <div className="ho-row open"><i className="ti ti-id"></i><span className="ho-lbl">KYC / customer profile missing</span><span className="ho-meta">RFI due today</span></div>
+            <div className="ho-row open"><i className="ti ti-world"></i><span className="ho-lbl">DOJ adverse-media match uncorroborated</span><span className="ho-meta">confirm identity</span></div>
+            <div className="ho-row risk"><i className="ti ti-flag"></i><span className="ho-lbl">Disposition not filed</span><span className="ho-meta">escalation recommended</span></div>
+            {unreadTotal>0&&<div className="ho-row open"><i className="ti ti-pencil"></i><span className="ho-lbl">{unreadTotal} unread note{unreadTotal>1?'s':''} from Admin User</span><span className="ho-meta">on Artifacts & Attachments</span></div>}
+          </div>
+          <div className="ho-actions">
+            <button className="btn sm" onClick={()=>{setPlaying(false);setT(frac('2026-03-31'));setFocusEv(10);closeHandover();showToast('Resumed at the alert — their last position');}}>Resume where they left off</button>
+            <button className="btn pri sm" onClick={()=>{closeHandover();showToast("You've taken over "+cur.id);}}>Take over</button>
+          </div>
+        </div>
+      )}
+
       {/* pinned evidence — documents & visualizations dragged onto the desk */}
-      {pinned.map(p=>{const m=pinMeta(p);const d=m.item;const key=p.k+p.i;return(
+      {view==='map'&&pinned.map(p=>{const m=pinMeta(p);const d=m.item;const key=p.k+p.i;return(
         <div key={key} className="pincard" style={{left:p.x,top:p.y}} onPointerDown={e=>pinCardDown(p,e)}
              onMouseEnter={()=>setPinHover(key)} onMouseLeave={()=>setPinHover(h=>h===key?null:h)}
              title={'Drag to move · drop on the '+m.homeName+' panel to return · click to open'}>
@@ -1444,7 +1658,7 @@ function Desktop(S){
       {ghost&&<div className="drag-ghost" style={{left:ghost.x+14,top:ghost.y+10}}><i className={'ti ti-'+ghost.icon}></i> {ghost.name}</div>}
 
       {/* timeline dock */}
-      <div className={'tdock'+(tOpen?'':' collapsed')}>
+      <div className={'tdock'+(tOpen?'':' collapsed')+(view==='artifacts'?' slim':'')}>
         <div className="td-head">
           <button className="rew" title="Back to start" onClick={()=>{setPlaying(false);setT(0);}}><i className="ti ti-player-skip-back"></i></button>
           <button className="play" onClick={()=>{if(t>=1)setT(0);setPlaying(pl=>!pl);}}>{playing?'❚❚':'▶'}</button>
@@ -1452,10 +1666,8 @@ function Desktop(S){
             <button className={speed==='slow'?'on':''} onClick={()=>setSpeed('slow')}>½×</button>
             <button className={speed==='normal'?'on':''} onClick={()=>setSpeed('normal')}>1×</button>
           </div>
-          <div className="td-date mono">{fmtDate(t)}<small>Case timeline · Mar 2026</small></div>
-          <div className="td-note">Select an event → its entities highlight on the map. Select a node → its events highlight here.</div>
+          <div className="td-date mono" title="Case timeline · Review period Mar 2026">{fmtDate(t)}</div>
           <div className={'td-badge'+(alertReached?' lit':'')}><i className="ti ti-flag"></i> Alert #1428963</div>
-          <button className="td-collapse" title={tOpen?'Collapse':'Expand'} onClick={()=>setTOpen(o=>!o)}>{tOpen?'▾':'▴'}</button>
         </div>
         <div className="track-wrap">
           <div className="track" ref={trackRef} onPointerDown={tDown}><div className="fill" style={{width:(t*100)+'%'}}></div></div>
@@ -1467,6 +1679,7 @@ function Desktop(S){
             <div className="ph-dot"></div>
           </div>
         </div>
+        <button className="td-collapse" title={tOpen?'Collapse':'Expand'} onClick={()=>setTOpen(o=>!o)}>{tOpen?'▾':'▴'}</button>
       </div>
 
       {toast&&<div className="toast">{toast}</div>}
@@ -1970,45 +2183,47 @@ function DatasetViewer({d,t,onBack,toast,msg,copyId}){
 }
 
 /* ===== panel bodies (existing section content) ===== */
-function PanelBody({id,t,onRunAgents,agentRunning,attProps,vizProps}){
-  const [copied,setCopied]=useState(false);
-  const [dlOpen,setDlOpen]=useState(false);
-  const [expMsg,setExpMsg]=useState('');
+function PanelBody({id,t,onRunAgents,agentRunning,attProps,vizProps,artProps}){
   if(id==='agents')return <AgentRunsBody onRunAgents={onRunAgents} agentRunning={agentRunning}/>;
   if(id==='llm')return <LlmBody/>;
   if(id==='audit')return <AuditBody/>;
   if(id==='attachments')return <AttachmentsBody {...(attProps||{})}/>;
   if(id==='viz')return <VizBody {...(vizProps||{})}/>;
   if(id==='data')return <DataWorkspaceBody t={t}/>;
-  if(id==='artifacts'){
-    const go=n=>{const el=document.getElementById('as'+n),sc=el&&el.closest('.fp-b');if(el&&sc)sc.scrollTop=sc.scrollTop+el.getBoundingClientRect().top-sc.getBoundingClientRect().top-6;};
+  if(id==='artifacts')return <ArtifactsDoc t={t} {...(artProps||{})}/>;
+  return null;
+}
+function ArtifactsDoc({t,syncSec,onJumpSec,showToc=true}){
+  const [copied,setCopied]=useState(false);
+  const [dlOpen,setDlOpen]=useState(false);
+  const [expMsg,setExpMsg]=useState('');
+  const secCls=k=>'sec'+(syncSec===k?' sync':'');
+  const jump=k=>{if(onJumpSec&&SEC_EV[k])onJumpSec(k);};
+  const jumpCls=k=>SEC_EV[k]&&onJumpSec?'jumpable':'';
+  useEffect(()=>{if(!syncSec)return;const el=document.getElementById(syncSec);const sc=el&&el.closest('.fp-b,.af-doc');if(el&&sc){const r=el.getBoundingClientRect(),cr=sc.getBoundingClientRect();if(r.top<cr.top+4||r.bottom>cr.bottom-30){sc.scrollTop=sc.scrollTop+r.top-cr.top-10;}}},[syncSec]);
+  {
+    const go=n=>{const el=document.getElementById('as'+n),sc=el&&el.closest('.fp-b,.af-doc');if(el&&sc)sc.scrollTop=sc.scrollTop+el.getBoundingClientRect().top-sc.getBoundingClientRect().top-6;};
     const md=`# Alert Review — CASE-AML-0001\n\n**Case ID:** CASE-AML-0001\n\n## 1. Alert Details\n- Alert Number: 1428963\n- Alert Type: Product-Service\n- Crime Type: Money Laundering\n- Rule / Source ID: RULE-TM-001 (RV-001)\n- Rule Threshold: $13,600\n- Computed Monthly Value (ThisMonth): $537,236\n- Alerted Account: D209417365\n\n## 2. Customer Information\n- Customer: RIVERA MARISOL (#4180552173), Individual, MX\n- Address: AVENIDA REFORMA 88, VLR GTO 37100 MEXICO\n- Accounts: 209417365 (opened 2026-02-18), 209418772 (opened 2026-03-23)\n\n## 4. Alerted Activity\n| Date | Account | TC | D/C | Amount | Counterparty |\n|---|---|---|---|---|---|\n| 2026-03-02 | D209417365 | CRDT | Credit | $533,789.46 | Summit Capital / Orion Trading |\n| 2026-03-04 | D209417365 | CRDT | Credit | $3,446.71 | Summit Capital / Orion Trading |\n\n## 10. Conclusion & Escalation\nEscalation recommended: no KYC profile, unsupported economic purpose for cross-border wires, mid-review new-account layering, and an uncorroborated adverse-media match. Alert #1428963 — escalate for further review.\n`;
     const copyMd=()=>{try{navigator.clipboard.writeText(md);}catch(e){}setCopied(true);setTimeout(()=>setCopied(false),1500);};
     const dl=fmt=>{setDlOpen(false);if(fmt==='md'){const b=new Blob([md],{type:'text/markdown'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='alert-review-worksheet.md';a.click();URL.revokeObjectURL(u);setExpMsg('Downloaded .md');}else{setExpMsg((fmt==='pdf'?'PDF':'Word (.docx)')+' export runs server-side in the full app (prototype)');}setTimeout(()=>setExpMsg(''),2800);};
     return(<div className="doc">
-      <div className="art-toolbar">
-        <div className="doc-field">
-          <span className="fl">Document</span>
-          <div className="doc-sel-wrap">
-            <select className="doc-select" defaultValue="arw"><option value="arw">Alert Review Worksheet</option></select>
-            <span className="doc-chev">▼</span>
-          </div>
-        </div>
-        <div className="dl-actions">
+      <div className="art-bar">
+        <span className="ab-lbl">Document</span>
+        <div className="doc-sel-wrap"><select className="doc-select sm" defaultValue="arw"><option value="arw">Alert Review Worksheet</option></select><span className="doc-chev">▼</span></div>
+        <span className="ab-div"></span>
+        <span className="ab-lbl">Case ID <span className="req">*</span></span>
+        <input className="ab-input mono" value="CASE-AML-0001" readOnly/>
+        <div className="dl-actions" style={{marginLeft:'auto'}}>
+          {expMsg&&<span className="expmsg">{expMsg}</span>}
           <button className="btn sm" onClick={copyMd}>⧉ {copied?'Copied':'Copy Markdown'}</button>
           <div className="dl-wrap"><button className="btn sm" onClick={()=>setDlOpen(o=>!o)}><i className="ti ti-download"></i> Download ▾</button>
             {dlOpen&&<div className="dl-menu"><button onClick={()=>dl('pdf')}>PDF</button><button onClick={()=>dl('docx')}>Word (.docx)</button><button onClick={()=>dl('md')}>Markdown</button></div>}</div>
-          {expMsg&&<span className="expmsg">{expMsg}</span>}
         </div>
       </div>
-      <div className="parambox"><div className="pb-h">Parameters</div>
-        <div className="doc-field" style={{maxWidth:280}}><span className="fl">Case ID <span className="req">*</span></span>
-          <input className="param-input" value="CASE-AML-0001" readOnly/></div>
-      </div>
-      <div className="toc-in">{[1,2,3,4,5,6,7,8,9,10].map(n=><a key={n} onClick={()=>go(n)}>{n}</a>)}</div>
+      {showToc&&<div className="toc-in">{[1,2,3,4,5,6,7,8,9,10].map(n=><a key={n} onClick={()=>go(n)}>{n}</a>)}</div>}
       <h1>Alert Review</h1>
 
-      <div className="sec" id="as1"><h4>1. Alert Details</h4><table className="fv"><tbody>
+      <div className={secCls('as1')} id="as1"><h4 onClick={()=>jump('as1')} className={jumpCls('as1')} title={SEC_EV['as1']&&onJumpSec?'Jump the timeline to this moment':undefined}>1. Alert Details</h4><table className="fv"><tbody>
         <tr><td className="k">Alert Number</td><td>1428963 — secondary account of the primary customer</td></tr>
         <tr><td className="k">Alert Type</td><td>Product-Service</td></tr>
         <tr><td className="k">Crime Type</td><td>Money Laundering</td></tr>
@@ -2022,7 +2237,7 @@ function PanelBody({id,t,onRunAgents,agentRunning,attProps,vizProps}){
         <tr><td className="k">Alerted Account Number</td><td>D209417365</td></tr>
       </tbody></table></div>
 
-      <div className="sec" id="as2"><h4>2. Customer Information</h4><table className="fv"><tbody>
+      <div className={secCls('as2')} id="as2"><h4 onClick={()=>jump('as2')} className={jumpCls('as2')} title={SEC_EV['as2']&&onJumpSec?'Jump the timeline to this moment':undefined}>2. Customer Information</h4><table className="fv"><tbody>
         <tr><td className="k">Customer Number</td><td>4180552173</td></tr>
         <tr><td className="k">Customer Name</td><td>RIVERA MARISOL</td></tr>
         <tr><td className="k">Entity Type (Individual / Commercial)</td><td>Individual</td></tr>
@@ -2033,54 +2248,54 @@ function PanelBody({id,t,onRunAgents,agentRunning,attProps,vizProps}){
         <tr><td className="k">All Customer Accounts (number, opened, status)</td><td>209417365 — opened 2026-02-18 — ACTIVE; 209418772 — opened 2026-03-23 — ACTIVE</td></tr>
       </tbody></table></div>
 
-      <div className="sec" id="as3"><h4>3. Review Period</h4><table className="fv"><tbody>
+      <div className={secCls('as3')} id="as3"><h4 onClick={()=>jump('as3')} className={jumpCls('as3')} title={SEC_EV['as3']&&onJumpSec?'Jump the timeline to this moment':undefined}>3. Review Period</h4><table className="fv"><tbody>
         <tr><td className="k">Start Date</td><td>2026-03-01</td></tr>
         <tr><td className="k">End Date</td><td>2026-03-31</td></tr>
         <tr><td className="k">Scope Rationale / Adjustments</td><td>Monthly rule evaluated the prior calendar month (March 2026) for CRDT/M3/2026.</td></tr>
       </tbody></table></div>
 
-      <div className="sec" id="as4"><h4>4. Alerted Activity <span className="muted">— rows reveal with the timeline</span></h4>
+      <div className={secCls('as4')} id="as4"><h4 onClick={()=>jump('as4')} className={jumpCls('as4')} title={SEC_EV['as4']&&onJumpSec?'Jump the timeline to this moment':undefined}>4. Alerted Activity <span className="muted">— rows reveal with the timeline</span></h4>
         <table className="tbl"><thead><tr><th>#</th><th>Date</th><th>Account</th><th>TC</th><th>D/C</th><th>Amount</th><th>Counterparty / Description</th></tr></thead><tbody>
           <tr className={frac('2026-03-02')>t?'dim':''}><td>1</td><td className="mono">2026-03-02</td><td className="mono">D209417365</td><td className="mono">CRDT</td><td><span className="tag credit">Credit</span></td><td className="mono">$533,789.46</td><td>FEDWIRE CUSTOMER TRANSFER</td></tr>
           <tr className={frac('2026-03-04')>t?'dim':''}><td>2</td><td className="mono">2026-03-04</td><td className="mono">D209417365</td><td className="mono">CRDT</td><td><span className="tag credit">Credit</span></td><td className="mono">$3,446.71</td><td>FEDWIRE CUSTOMER TRANSFER</td></tr>
         </tbody></table></div>
 
-      <div className="sec" id="as5"><h4>5. Cash Activity, Structuring and CTRs</h4><table className="fv"><tbody>
+      <div className={secCls('as5')} id="as5"><h4 onClick={()=>jump('as5')} className={jumpCls('as5')} title={SEC_EV['as5']&&onJumpSec?'Jump the timeline to this moment':undefined}>5. Cash Activity, Structuring and CTRs</h4><table className="fv"><tbody>
         <tr><td className="k">Cash Activity?</td><td>No</td></tr>
         <tr><td className="k">If Yes, Was Structuring Observed?</td><td>Not applicable</td></tr>
         <tr><td className="k">Were CTRs Filed?</td><td>Not available in uploaded evidence</td></tr>
         <tr><td className="k"># of CTRs</td><td>Not available in uploaded evidence</td></tr>
       </tbody></table></div>
 
-      <div className="sec" id="as6"><h4>6. Cursory Review — Other Observations</h4>
+      <div className={secCls('as6')} id="as6"><h4 onClick={()=>jump('as6')} className={jumpCls('as6')} title={SEC_EV['as6']&&onJumpSec?'Jump the timeline to this moment':undefined}>6. Cursory Review — Other Observations</h4>
         <p className="np">In March 2026, the customer’s activity across accounts D209417365 and 209418772 included the opening of account 209418772 on 2026-03-23, followed by internal transfers between the customer’s own accounts. Account D209417365 reflected 1 inbound INTR credit totaling 490,300.79 and 2 outbound INTR debits totaling 508,300.79, while account 209418772 reflected 2 inbound INTR credits totaling 508,300.79 and 1 outbound INTR debit totaling 490,300.79.</p>
         <p className="np">Account D209417365 also received 2 inbound CRDT credits totaling 537,236.17 and sent 3 outbound international wires (IWTR) totaling 31,805.38 to a Mexican beneficiary bank. Account 209418772 had 3 DBTC debits totaling 72.01. No cash was identified. The customer’s occupation/business type is not documented, so the activity is not being characterized as consistent with a profile.</p></div>
 
-      <div className="sec" id="as7"><h4>7. Customer Profile Match</h4><table className="fv"><tbody>
+      <div className={secCls('as7')} id="as7"><h4 onClick={()=>jump('as7')} className={jumpCls('as7')} title={SEC_EV['as7']&&onJumpSec?'Jump the timeline to this moment':undefined}>7. Customer Profile Match</h4><table className="fv"><tbody>
         <tr><td className="k">In line with Profile?</td><td>Cannot be determined - no customer profile in uploaded evidence</td></tr>
         <tr><td className="k">If No, Was Updated Profile Requested?</td><td>Yes - an updated profile / RFI should be requested</td></tr>
         <tr><td className="k">Date of Profile or RFI</td><td>Not available in uploaded evidence</td></tr>
       </tbody></table></div>
 
-      <div className="sec" id="as8"><h4>8. Source and Use of Funds</h4><table className="fv"><tbody>
+      <div className={secCls('as8')} id="as8"><h4 onClick={()=>jump('as8')} className={jumpCls('as8')} title={SEC_EV['as8']&&onJumpSec?'Jump the timeline to this moment':undefined}>8. Source and Use of Funds</h4><table className="fv"><tbody>
         <tr><td className="k">Primary Source of Funds</td><td>incoming domestic wire credits from SUMMIT CAPITAL BANK F/B/O ORION TRADING LLC into D209417365, supplemented by internal transfers from the customer’s own accounts</td></tr>
         <tr><td className="k">Use of Funds</td><td>outgoing international wires to Banco Norte Pacífico S.A. in Mexico and internal transfers between the customer’s own accounts; no cash activity was identified; the economic purpose of the wires cannot be established from the evidence</td></tr>
       </tbody></table></div>
 
-      <div className="sec" id="as9"><h4>9. Internet Searches and Negative Media</h4>
+      <div className={secCls('as9')} id="as9"><h4 onClick={()=>jump('as9')} className={jumpCls('as9')} title={SEC_EV['as9']&&onJumpSec?'Jump the timeline to this moment':undefined}>9. Internet Searches and Negative Media</h4>
         <p className="np"><b>RIVERA MARISOL</b><br/>Search performed: web search for “RIVERA MARISOL” AML OR BSA OR sanctions OR fraud and “RIVERA MARISOL”.</p>
         <p className="np"><b>Finding:</b> one DOJ press release for a Marisol Rivera charged with wire fraud; other results were ambiguous and referred to different individuals with the same name. Potential name match only, but not enough identifying information to tie the result to the investigated customer; treat as not confirmed / possible false positive pending corroboration.</p>
         <p className="np"><b>Relevance call:</b> AML/BSA relevant, but false positive / not confirmed.</p>
         <p className="np"><b>Gaps:</b> No definitive adverse-media linkage to the investigated customer was established from the available web results; corroborate identity before relying on the DOJ match.</p>
         <p className="muted" style={{wordBreak:'break-all',lineHeight:1.5}}>Sources: justice.gov/usao-edpa/pr/jacksonville-woman-charged-wire-fraud · sanctionssearch.ofac.treas.gov · sanctionslist.ofac.treas.gov · adviserinfo.sec.gov · psychologytoday.com · ratemyprofessors.com · imdb.com</p></div>
 
-      <div className="sec" id="as10"><h4>10. Conclusion and Escalation Recommendation</h4>
+      <div className={secCls('as10')} id="as10"><h4 onClick={()=>jump('as10')} className={jumpCls('as10')} title={SEC_EV['as10']&&onJumpSec?'Jump the timeline to this moment':undefined}>10. Conclusion and Escalation Recommendation</h4>
         <p className="np"><b>Alert # 1428963. Escalation recommended for further review.</b></p>
         <p className="np">This review is being conducted for the period of Not available in uploaded evidence through Not available in uploaded evidence due to alert generating on 2026-01-04 for Monthly Domestic Wire (CRDT) Transactions $13,600+ in a New Account (Ind)-100 and Amount above $13600 within Account # D209417365 belonging to RIVERA MARISOL, established on 2026-02-18. This individual is stated to operate as Not available in uploaded evidence with address AVENIDA REFORMA 88, VLR GTO 37100 MEXICO.</p>
         <p className="np">The transactions triggering the alert during CRDT/M3/2026 consisted of two March 2026 CRDT credit Fedwire transactions to D209417365 totaling $537,236.17: $533,789.46 on 2026-03-02 and $3,446.71 on 2026-03-04, both from SUMMIT CAPITAL BANK F/B/O ORION TRADING LLC. The sum is within $0.17 of the alert’s whole-dollar ThisMonth value of $537,236, consistent with rounding. No cash activity was identified. Activity also included funds moving between the customer’s own accounts, and the customer’s account sent international wires to a Mexican beneficiary bank. No customer profile was available, so consistency with expected activity cannot be confirmed.</p>
         <p className="np">Escalation is recommended because no customer profile/KYC/onboarding record is available to confirm the expected activity, the economic purpose of the wires remains unsupported by profile documentation, and the activity includes inbound domestic wire credits followed by internal transfers and outgoing international wires to a Mexican beneficiary bank. The unresolved concerns are: the missing customer profile and expected activity, the unsupported economic purpose of the cross-border wires, the lack of corroboration for the adverse-media name match, and the need to confirm the source and use of funds underlying the account activity.</p></div>
 
-      <div className="sec" id="asAA"><h4>Alerted Activity</h4>
+      <div className={secCls('asAA')} id="asAA"><h4 onClick={()=>jump('asAA')} className={jumpCls('asAA')} title={SEC_EV['asAA']&&onJumpSec?'Jump the timeline to this moment':undefined}>Alerted Activity</h4>
         <svg viewBox="0 0 720 220" style={{width:'100%',maxWidth:660,display:'block'}} className="aachart">
           {[0,200000,400000,600000,800000,1000000].map(v=>{const x=300+(v+80000)/1230000*400;return <line key={v} x1={x} y1={20} x2={x} y2={160} stroke="var(--line)" strokeWidth="1"/>;})}
           <rect x={326} y={30} width={348} height={24} fill="#d9843a"/>
@@ -2095,7 +2310,6 @@ function PanelBody({id,t,onRunAgents,agentRunning,attProps,vizProps}){
         <p className="chart-cap">Total transaction amount by counterparty for the alerted activity (embedded in the worksheet).</p></div>
     </div>);
   }
-  return null;
 }
 
 /* ===== additional Artifacts documents ===== */
