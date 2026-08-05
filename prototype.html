@@ -353,6 +353,9 @@
 
   /* section tables (inside panels) */
   .tbl{width:100%;border-collapse:collapse;font-size:12px;}
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:11px;}
+  .tblwrap .tbl{min-width:560px;border:0;border-radius:0;}
+  .tblwrap .tbl td,.tblwrap .tbl th{white-space:nowrap;}
   .tbl th{text-align:left;font-size:9.5px;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-3);padding:7px 9px;border-bottom:1px solid var(--line);background:var(--surface-2);position:sticky;top:0;}
   .tbl td{padding:7px 9px;border-bottom:1px solid var(--line);} .tbl tr:last-child td{border-bottom:0;}
   .tbl tr.dim td{opacity:.42;}.tbl tr.hot td{background:var(--now-sub);}
@@ -2255,10 +2258,10 @@ function ArtifactsDoc({t,syncSec,onJumpSec,showToc=true}){
       </tbody></table></div>
 
       <div className={secCls('as4')} id="as4"><h4 onClick={()=>jump('as4')} className={jumpCls('as4')} title={SEC_EV['as4']&&onJumpSec?'Jump the timeline to this moment':undefined}>4. Alerted Activity <span className="muted">— rows reveal with the timeline</span></h4>
-        <table className="tbl"><thead><tr><th>#</th><th>Date</th><th>Account</th><th>TC</th><th>D/C</th><th>Amount</th><th>Counterparty / Description</th></tr></thead><tbody>
+        <div className="tblwrap"><table className="tbl"><thead><tr><th>#</th><th>Date</th><th>Account</th><th>TC</th><th>D/C</th><th>Amount</th><th>Counterparty / Description</th></tr></thead><tbody>
           <tr className={frac('2026-03-02')>t?'dim':''}><td>1</td><td className="mono">2026-03-02</td><td className="mono">D209417365</td><td className="mono">CRDT</td><td><span className="tag credit">Credit</span></td><td className="mono">$533,789.46</td><td>FEDWIRE CUSTOMER TRANSFER</td></tr>
           <tr className={frac('2026-03-04')>t?'dim':''}><td>2</td><td className="mono">2026-03-04</td><td className="mono">D209417365</td><td className="mono">CRDT</td><td><span className="tag credit">Credit</span></td><td className="mono">$3,446.71</td><td>FEDWIRE CUSTOMER TRANSFER</td></tr>
-        </tbody></table></div>
+        </tbody></table></div></div>
 
       <div className={secCls('as5')} id="as5"><h4 onClick={()=>jump('as5')} className={jumpCls('as5')} title={SEC_EV['as5']&&onJumpSec?'Jump the timeline to this moment':undefined}>5. Cash Activity, Structuring and CTRs</h4><table className="fv"><tbody>
         <tr><td className="k">Cash Activity?</td><td>No</td></tr>
