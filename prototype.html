@@ -169,33 +169,54 @@
   .md-t{font-size:12px;font-weight:600;line-height:1.35;}
   .md-m{font-size:10.5px;color:var(--ink-3);margin-top:3px;display:flex;align-items:center;gap:5px;}
   /* mobile manager pulse */
-  .mob-scrim{position:fixed;inset:0;background:rgba(12,18,32,.55);backdrop-filter:blur(3px);z-index:85;display:grid;place-items:center;padding:16px;}
-  .phone{width:334px;background:#0b0e15;border-radius:44px;padding:10px;box-shadow:0 30px 80px rgba(0,0,0,.5);}
-  .mscreen{background:var(--bg);border-radius:34px;overflow:hidden;display:flex;flex-direction:column;height:660px;padding:0 14px 12px;}
-  .mob-status{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;color:var(--ink-2);padding:12px 6px 6px;}
-  .mob-brand{color:var(--violet2);font-weight:800;}
-  .mob-head{display:flex;align-items:center;padding:4px 2px 10px;}
-  .mob-title{font-size:18px;font-weight:800;} .mob-sub{font-size:11px;color:var(--ink-3);margin-top:1px;}
-  .mob-x{margin-left:auto;border:0;background:var(--surface-3);color:var(--ink-2);width:28px;height:28px;border-radius:50%;cursor:pointer;}
-  .mob-hero{display:flex;align-items:center;gap:12px;background:var(--risk-sub);border:1px solid var(--risk-bd);border-radius:16px;padding:12px 14px;margin-bottom:6px;}
-  .mh-n{font-size:34px;font-weight:800;color:var(--risk);line-height:1;}
-  .mh-t{display:flex;flex-direction:column;gap:1px;} .mh-t b{font-size:13.5px;} .mh-t span{font-size:10.5px;color:var(--ink-2);}
-  .mob-sec{font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-3);margin:10px 2px 6px;}
-  .mob-act{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:9px 11px;margin-bottom:6px;box-shadow:var(--shadow);}
-  .ma-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;} .ma-t b{font-size:12.5px;} .ma-t span{font-size:10px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .mob-scrim{position:fixed;inset:0;background:rgba(12,18,32,.55);backdrop-filter:blur(3px);z-index:85;display:flex;overflow:auto;padding:16px;}
+  .phone{width:336px;flex:0 0 auto;margin:auto;background:#0b0e15;border-radius:46px;padding:9px;box-shadow:0 34px 90px rgba(0,0,0,.55);animation:mobin .35s cubic-bezier(.2,.8,.3,1);}
+  @keyframes mobin{from{opacity:0;transform:translateY(26px) scale(.97);}to{opacity:1;transform:none;}}
+  .mscreen{position:relative;background:var(--bg);border-radius:38px;overflow:hidden;display:flex;flex-direction:column;height:684px;padding:0 14px;}
+  .m-island{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:88px;height:22px;border-radius:999px;background:#0b0e15;z-index:5;}
+  .mob-status{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;color:var(--ink-2);padding:12px 8px 8px;}
+  .mob-head{display:flex;align-items:center;gap:9px;padding:6px 2px 12px;}
+  .mob-hello{font-size:10.5px;color:var(--ink-3);font-weight:600;}
+  .mob-title{font-size:19px;font-weight:800;letter-spacing:-.3px;}
+  .mob-av{margin-left:auto;width:30px;height:30px;border-radius:50%;background:var(--violet-sub);color:#4a37a0;display:grid;place-items:center;font-size:10px;font-weight:800;}
+  .theme-dark .mob-av{color:#bdacff;}
+  .mob-x{border:0;background:var(--surface-3);color:var(--ink-2);width:28px;height:28px;border-radius:50%;cursor:pointer;flex:0 0 auto;}
+  .mob-hero{display:flex;align-items:center;gap:13px;background:linear-gradient(120deg,#d93a3a,#e8850c);border-radius:18px;padding:13px 15px;margin-bottom:9px;color:#fff;box-shadow:0 8px 22px rgba(217,58,58,.3);}
+  .mh-ring{width:50px;height:50px;border-radius:50%;border:3px solid rgba(255,255,255,.45);display:grid;place-items:center;flex:0 0 auto;animation:hpulse 2s ease-out infinite;}
+  .mh-ring b{font-size:22px;font-weight:800;}
+  @keyframes hpulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.35);}70%,100%{box-shadow:0 0 0 10px rgba(255,255,255,0);}}
+  .mh-t{display:flex;flex-direction:column;gap:2px;} .mh-t b{font-size:14px;} .mh-t span{font-size:10.5px;opacity:.85;}
+  .mob-sec{font-size:9.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--ink-3);margin:11px 4px 6px;}
+  .mob-act{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line-2);border-radius:14px;padding:10px 12px;margin-bottom:7px;box-shadow:var(--shadow);}
+  .mob-act.risk{border-left-color:var(--risk);}
+  .mob-act.warn{border-left-color:var(--now);}
+  .ma-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .ma-t b{font-size:12.5px;} .ma-t span{font-size:10px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .ma-btns{display:flex;gap:5px;flex:0 0 auto;}
-  .ma-ok{border:0;background:var(--act);color:#fff;font-weight:700;font-size:11px;border-radius:9px;padding:7px 11px;cursor:pointer;font-family:inherit;}
-  .ma-view{border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);font-weight:700;font-size:11px;border-radius:9px;padding:7px 10px;cursor:pointer;font-family:inherit;}
-  .mob-tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px;}
-  .mt{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 11px;display:flex;align-items:baseline;gap:7px;}
-  .mt b{font-size:19px;} .mt span{font-size:10px;color:var(--ink-3);}
-  .mt.risk b{color:var(--risk);} .mt.warn b{color:var(--now);}
-  .mob-team{display:flex;align-items:center;gap:8px;padding:3px 2px;}
-  .mtm-nm{width:52px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;}
-  .mtm-bar{flex:1;height:7px;border-radius:999px;background:var(--surface-3);overflow:hidden;}
-  .mtm-bar i{display:block;height:100%;background:linear-gradient(90deg,#8fb4ff,var(--act));}
-  .mtm-n{font-size:10px;color:var(--ink-2);white-space:nowrap;} .mtm-n b{color:var(--t-risk);font-weight:700;}
-  .mob-feed{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink-2);padding:3px 2px;}
+  .ma-ok{border:0;background:var(--act);color:#fff;font-weight:700;font-size:11px;border-radius:999px;padding:8px 13px;cursor:pointer;font-family:inherit;}
+  .ma-ok:active{transform:scale(.96);}
+  .ma-view{border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);font-weight:700;font-size:11px;border-radius:999px;padding:8px 12px;cursor:pointer;font-family:inherit;}
+  .mob-tiles{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:4px;}
+  .mt{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:9px 11px;}
+  .mt-ic{width:28px;height:28px;border-radius:9px;background:var(--surface-3);display:grid;place-items:center;font-size:13px;color:var(--ink-2);flex:0 0 auto;}
+  .mt-t{display:flex;flex-direction:column;line-height:1.1;} .mt-t b{font-size:17px;} .mt-t span{font-size:9.5px;color:var(--ink-3);}
+  .mt.risk{background:var(--risk-sub);border-color:var(--risk-bd);} .mt.risk .mt-ic{background:rgba(217,58,58,.14);color:var(--risk);} .mt.risk b{color:var(--t-risk);}
+  .mt.warn{background:var(--now-sub);border-color:var(--now-bd);} .mt.warn .mt-ic{background:rgba(232,133,12,.14);color:var(--now);} .mt.warn b{color:var(--t-now);}
+  .mob-team{display:flex;align-items:center;gap:8px;padding:4px 2px;}
+  .mtm-av{width:24px;height:24px;border-radius:50%;background:var(--act-sub);color:var(--t-act);display:grid;place-items:center;font-size:9px;font-weight:800;flex:0 0 auto;}
+  .mtm-nm{width:44px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;}
+  .mtm-bar{position:relative;flex:1;height:8px;border-radius:999px;background:var(--surface-3);overflow:hidden;}
+  .mtm-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#8fb4ff,var(--act));}
+  .mtm-bar em{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--risk);opacity:.85;}
+  .mtm-n{font-size:10px;color:var(--ink-2);white-space:nowrap;min-width:34px;text-align:right;} .mtm-n b{color:var(--t-risk);font-weight:700;}
+  .mtm-idle{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;background:var(--now-sub);color:var(--t-now);border-radius:999px;padding:2px 8px;min-width:34px;text-align:center;}
+  .mob-feed{display:flex;align-items:flex-start;gap:9px;padding:5px 2px;font-size:11px;color:var(--ink);font-weight:600;line-height:1.3;}
+  .mob-feed div{display:flex;flex-direction:column;gap:1px;} .mob-feed div span{font-size:9.5px;color:var(--ink-3);font-weight:500;}
+  .mf-ic{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:11px;flex:0 0 auto;}
+  .mf-ic.now{background:var(--now-sub);color:var(--now);} .mf-ic.risk{background:var(--risk-sub);color:var(--risk);}
+  .mob-foot{margin-top:auto;padding:8px 0 6px;text-align:center;}
+  .mob-foot button{border:0;background:transparent;color:var(--act);font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .m-homebar{width:110px;height:4px;border-radius:999px;background:var(--ink-3);opacity:.5;margin:8px auto 2px;}
   .dash-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#141a26;color:#eaf0fa;font-size:12px;font-weight:600;padding:9px 16px;border-radius:999px;box-shadow:var(--shadow-pop);z-index:90;}
   .side-stack{display:flex;flex-direction:column;gap:16px;}
   .fitem{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);} .fitem:last-child{border-bottom:0;}
@@ -1050,6 +1071,7 @@ function App(){
             <li><b>The small switch</b> flips to the ✨ Smart view: a scored priority queue with reason chips, attention signals, AI briefing, a 7-day due strip and My Day.</li>
             <li><b>Agent / Manager</b> changes the lens — manager gets team workload, comments, assignment (and swimlanes with drag-to-reassign in Smart).</li>
             <li><b>⚙ Manage</b> opens bulk investigation management (search, faceted filter, lock, delete).</li>
+            <li><b>📱 Send to mobile</b> (manager only) previews the <b>Manager pulse</b> — a one-screen phone view built for decisions, not browsing: what needs your sign-off first (approve / open in one tap), live pulse tiles, team-load bars that expose imbalance (including idle analysts), and the two critical events right now.</li>
             <li>Click any case row to open its <b>investigation desktop</b>.</li>
           </ul></div>
           :<div className="cpop"><h4>About this page — Investigation desktop</h4><ul>
@@ -1245,37 +1267,46 @@ function Dashboard({role,setRole,openCase,deleted,setDeleted,locked,setLocked}){
         <div className="mob-scrim" onClick={()=>setMobOpen(false)}>
           <div className="phone" onClick={e=>e.stopPropagation()}>
             <div className="mscreen">
-              <div className="mob-status"><span>9:41</span><span className="mob-brand">A⁺ Ray</span><span><i className="ti ti-wifi"></i> <i className="ti ti-battery-3"></i></span></div>
+              <div className="m-island"></div>
+              <div className="mob-status"><span>9:41</span><span><i className="ti ti-wifi"></i> <i className="ti ti-battery-3"></i></span></div>
               <div className="mob-head">
-                <div><div className="mob-title">Manager pulse</div><div className="mob-sub">{active} active · 2 breaching SLA</div></div>
+                <div><div className="mob-hello">Good morning</div><div className="mob-title">Manager pulse</div></div>
+                <span className="mob-av">MG</span>
                 <button className="mob-x" onClick={()=>setMobOpen(false)}>✕</button>
               </div>
-              <div className="mob-hero"><span className="mh-n">2</span><div className="mh-t"><b>need your decision</b><span>1 escalation approval · 1 disposition overdue</span></div></div>
-              <div className="mob-sec">Needs you</div>
-              <div className="mob-act">
+              <div className="mob-hero">
+                <div className="mh-ring"><b>2</b></div>
+                <div className="mh-t"><b>need your decision</b><span>1 escalation · 1 disposition overdue</span></div>
+              </div>
+              <div className="mob-act risk">
                 <div className="ma-t"><b>Approve escalation</b><span>CASE-AML-0001 · overdue 1d · high risk</span></div>
                 <div className="ma-btns"><button className="ma-ok" onClick={()=>say('Escalation approved · CASE-AML-0001')}>Approve</button><button className="ma-view" onClick={()=>{setMobOpen(false);openCase('CASE-AML-0001');}}>View</button></div>
               </div>
-              <div className="mob-act">
+              <div className="mob-act warn">
                 <div className="ma-t"><b>Disposition pending</b><span>CASE-AML-0001-3 · due in 5h · KYC missing</span></div>
                 <div className="ma-btns"><button className="ma-view" onClick={()=>{setMobOpen(false);openCase('CASE-AML-0001-3');}}>Open</button></div>
               </div>
               <div className="mob-tiles">
-                <div className="mt risk"><b>{breaching.length}</b><span>breaching SLA</span></div>
-                <div className="mt warn"><b>{high}</b><span>high risk</span></div>
-                <div className="mt"><b>{esc}</b><span>escalations</span></div>
-                <div className="mt"><b>{active}</b><span>active cases</span></div>
+                <div className="mt risk"><span className="mt-ic"><i className="ti ti-alarm"></i></span><div className="mt-t"><b>{breaching.length}</b><span>breaching SLA</span></div></div>
+                <div className="mt warn"><span className="mt-ic"><i className="ti ti-alert-triangle"></i></span><div className="mt-t"><b>{high}</b><span>high risk</span></div></div>
+                <div className="mt"><span className="mt-ic"><i className="ti ti-arrow-big-up"></i></span><div className="mt-t"><b>{esc}</b><span>escalations</span></div></div>
+                <div className="mt"><span className="mt-ic"><i className="ti ti-folder-open"></i></span><div className="mt-t"><b>{active}</b><span>active cases</span></div></div>
               </div>
               <div className="mob-sec">Team load</div>
               {team.map(x=>(
                 <div key={x.nm} className="mob-team">
+                  <span className="mtm-av">{x.nm.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</span>
                   <span className="mtm-nm">{x.nm.split(' ')[0]}</span>
-                  <span className="mtm-bar"><i style={{width:(x.n/maxN*100)+'%'}}></i></span>
-                  <span className="mtm-n">{x.n}{x.hi>0&&<b> · {x.hi} high</b>}</span>
+                  <span className="mtm-bar"><i style={{width:(x.n/maxN*100)+'%'}}></i>{x.hi>0&&<em style={{width:(x.hi/maxN*100)+'%'}}></em>}</span>
+                  {x.n===0?<span className="mtm-idle">idle</span>:<span className="mtm-n">{x.n}{x.hi>0&&<b> · {x.hi}</b>}</span>}
                 </div>))}
               <div className="mob-sec">Critical now</div>
-              <div className="mob-feed"><span className="fdot now"></span>Escalation recommended on alert #1428963 · 2h ago</div>
-              <div className="mob-feed"><span className="fdot risk"></span>New account flagged for layering · 3h ago</div>
+              <div className="mob-feed"><span className="mf-ic now"><i className="ti ti-flag"></i></span><div>Escalation recommended on alert #1428963<span>CASE-AML-0001-3 · 2h ago</span></div></div>
+              <div className="mob-feed"><span className="mf-ic risk"><i className="ti ti-alert-triangle"></i></span><div>New account flagged for layering<span>209418772 · 3h ago</span></div></div>
+              <div className="mob-foot">
+                <button onClick={()=>setMobOpen(false)}>Open full dashboard <i className="ti ti-arrow-right"></i></button>
+                <div className="m-homebar"></div>
+              </div>
             </div>
           </div>
         </div>);})()}
