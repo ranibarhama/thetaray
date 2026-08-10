@@ -35,7 +35,7 @@
   .wrap{max-width:1120px;margin:0 auto;padding:0 30px;}
 
   /* ── hero ─────────────────────────────────────────── */
-  .hero{position:relative;background:linear-gradient(130deg,#2e2b6e 0%,var(--violet1) 38%,var(--violet2) 78%,#8a5fd6 100%);color:#fff;padding:30px 0 92px;overflow:hidden;}
+  .hero{position:relative;background:linear-gradient(130deg,#2e2b6e 0%,var(--violet1) 38%,var(--violet2) 78%,#8a5fd6 100%);color:#fff;padding:24px 0 84px;overflow:hidden;}
   .hero::before,.hero::after{content:'';position:absolute;border-radius:50%;filter:blur(10px);pointer-events:none;}
   .hero::before{width:520px;height:520px;right:-140px;top:-260px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 65%);}
   .hero::after{width:420px;height:420px;left:-160px;bottom:-240px;background:radial-gradient(circle,rgba(120,80,220,.5),transparent 65%);}
@@ -58,9 +58,9 @@
   .new{color:#fff;white-space:nowrap;}
 
   /* ── three ideas, overlapping the hero ────────────── */
-  .ideas{margin-top:-62px;position:relative;z-index:2;padding-bottom:6px;}
+  .ideas{margin-top:-74px;position:relative;z-index:2;padding-bottom:6px;}
   .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-  .idea{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .15s;}
+  .idea{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:17px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .15s;}
   .idea:hover{transform:translateY(-3px);}
   .idea::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
   .idea.a::before{background:linear-gradient(90deg,var(--act),#7fa8ff);}
@@ -80,14 +80,22 @@
   .idea.b .tag{background:var(--now-sub);border-color:transparent;color:var(--t-now);}
   .idea.c .tag{background:var(--violet-sub);border-color:transparent;color:var(--t-violet);}
 
+  /* ── handover strip ───────────────────────────────── */
+  .hand{padding:12px 0 0;}
+  .hand-card{display:flex;align-items:center;gap:16px;background:linear-gradient(120deg,var(--ok-sub),var(--surface) 55%);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:16px;box-shadow:var(--shadow);padding:11px 22px;flex-wrap:wrap;}
+  .hand-ic{flex:0 0 auto;width:38px;height:38px;border-radius:12px;background:var(--ok-sub);color:var(--t-ok);display:grid;place-items:center;font-size:19px;}
+  .hand-card b.h{font-size:15px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;}
+  .hand-card p{flex:1 1 420px;font-size:12.5px;color:var(--ink-2);margin:0;}
+  .hand-card .htag{font-size:10.5px;font-weight:800;border-radius:999px;padding:4px 12px;background:var(--ok-sub);color:var(--t-ok);white-space:nowrap;}
+
   /* ── closer ───────────────────────────────────────── */
-  .closer{padding:16px 0 18px;}
-  .close-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:18px 30px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+  .closer{padding:12px 0 10px;}
+  .close-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:15px 30px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
   .close-card h2{font-size:21px;font-weight:800;letter-spacing:-.5px;flex:1 1 380px;}
   .close-card h2 b{color:var(--t-violet);}
   .close-card h2 small{display:block;font-size:12.5px;color:var(--ink-3);font-weight:500;letter-spacing:0;margin-top:5px;max-width:560px;}
   .close-card .cta{background:var(--violet);color:#fff;margin-top:0;flex:0 0 auto;}
-  footer{text-align:center;font-size:11.5px;color:var(--ink-3);padding-bottom:12px;}
+  footer{text-align:center;font-size:11.5px;color:var(--ink-3);padding-bottom:8px;}
 
   @media (max-width:960px){
     .hero .wrap{flex-direction:column;align-items:stretch;gap:20px;}
@@ -152,12 +160,23 @@
           <div class="num"><i class="ti ti-cards"></i></div>
           <h2>A workspace analysts shape themselves <span>(if they want…)</span></h2>
         </div>
-        <p>Nothing is fixed and nothing hides the case: every section is a floating card — <b>move it, pin evidence to the desk, arrange the screen the way you work</b> — and jump back to the default view in one click. And picking up a colleague's case starts with a <b>handover brief</b>. The same floating approach also makes the product <b>easy to embed in a customer's environment</b> — cards can live inside existing screens and workflows.</p>
+        <p>Nothing is fixed and nothing hides the case: every section is a floating card — <b>move it, pin evidence to the desk, arrange the screen the way you work</b> — and jump back to the default view in one click. The same floating approach also makes the product <b>easy to embed in a customer's environment</b> — cards can live inside existing screens and workflows.</p>
         <div class="tags">
-          <span class="tag">Floating, movable cards</span><span class="tag">Drag &amp; pin evidence</span><span class="tag">One-click default</span><span class="tag">Case handover</span>
+          <span class="tag">Floating, movable cards</span><span class="tag">Drag &amp; pin evidence</span><span class="tag">One-click default</span><span class="tag">Easy to embed</span>
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<div class="hand">
+  <div class="wrap">
+    <div class="hand-card">
+      <div class="hand-ic"><i class="ti ti-heart-handshake"></i></div>
+      <b class="h">Take over a case, not a mess.</b>
+      <p>Opening a colleague's case starts with a <b>handover brief</b> — done vs. still open, their unread notes, every section marked ✓ or ⚠.</p>
+      <span class="htag"><i class="ti ti-player-track-next"></i> Resume where they left off — one click</span>
     </div>
   </div>
 </div>
