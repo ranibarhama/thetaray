@@ -7,108 +7,77 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css"/>
 <style>
   :root{
-    --bg:#f3f5f9; --surface:#ffffff; --surface-2:#f6f8fb; --surface-3:#eef1f6;
+    --bg:#f3f5f9; --surface:#ffffff; --surface-2:#f6f8fb;
     --line:#e6e9f0; --line-2:#d5dae4;
     --ink:#1a2232; --ink-2:#586074; --ink-3:#8a92a4;
     --act:#2f6df6; --act-sub:#e9f1ff; --t-act:#1a4fbf;
     --now:#e8850c; --now-sub:#fdf0dd; --t-now:#9a5a05;
-    --risk:#d93a3a; --risk-sub:#fbe7e7; --t-risk:#a52222;
     --ok:#1e9e6a; --ok-sub:#e3f5ed; --t-ok:#0f7a4f;
     --violet:#5b46b8; --violet1:#3a3785; --violet2:#6b4bc0; --violet-sub:#eee9fb; --t-violet:#4a37a0;
-    --shadow:0 1px 2px rgba(10,16,30,.10),0 6px 18px rgba(10,16,30,.10);
+    --shadow:0 1px 2px rgba(10,16,30,.10),0 8px 24px rgba(10,16,30,.10);
     --font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   }
   @media (prefers-color-scheme:dark){
     :root{
-      --bg:#0e1420; --surface:#1a2333; --surface-2:#212c3f; --surface-3:#2a3548;
+      --bg:#0e1420; --surface:#1a2333; --surface-2:#212c3f;
       --line:#2a3446; --line-2:#3a465c;
       --ink:#e9edf4; --ink-2:#aab4c6; --ink-3:#7d8798;
       --act-sub:rgba(47,109,246,.18); --t-act:#8fb4ff;
       --now-sub:rgba(232,133,12,.18); --t-now:#f0b874;
-      --risk-sub:rgba(217,58,58,.18); --t-risk:#ff9b9b;
       --ok-sub:rgba(30,158,106,.16); --t-ok:#5fd39e;
       --violet-sub:rgba(107,75,192,.26); --t-violet:#bdacff;
-      --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.4);
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.4);
     }
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:14.5px;line-height:1.5;}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.5;}
   .ti{line-height:1;vertical-align:-7%;}
-  .wrap{max-width:1060px;margin:0 auto;padding:0 28px;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 28px;}
 
   /* hero */
-  .hero{background:linear-gradient(135deg,var(--violet1),var(--violet2));color:#fff;padding:54px 0 46px;}
-  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:6px 14px;margin-bottom:18px;}
-  h1{font-size:34px;font-weight:800;letter-spacing:-.8px;line-height:1.15;max-width:720px;}
-  .sub{font-size:16px;opacity:.85;max-width:680px;margin-top:14px;}
-  .hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;}
-  .hm{font-size:12px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:5px 13px;}
-  .hero-cta{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap;}
-  .cta{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--violet1);font-weight:800;font-size:14px;border-radius:999px;padding:12px 22px;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.25);}
-  .cta.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5);box-shadow:none;font-weight:700;}
+  .hero{background:linear-gradient(135deg,var(--violet1),var(--violet2));color:#fff;padding:64px 0 56px;text-align:center;}
+  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:6px 14px;margin-bottom:22px;}
+  h1{font-size:42px;font-weight:800;letter-spacing:-1px;line-height:1.12;max-width:780px;margin:0 auto;}
+  .sub{font-size:18px;opacity:.88;max-width:600px;margin:18px auto 0;}
+  .sub b{color:#fff;}
+  .cta{display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--violet1);font-weight:800;font-size:15px;border-radius:999px;padding:14px 28px;text-decoration:none;box-shadow:0 10px 30px rgba(0,0,0,.28);margin-top:30px;}
   .cta:hover{transform:translateY(-1px);}
 
-  section{padding:44px 0 8px;}
-  .sec-t{font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--t-violet);margin-bottom:6px;}
-  .sec-h{font-size:23px;font-weight:800;letter-spacing:-.4px;margin-bottom:20px;}
+  /* the one-line shift */
+  .shiftbar{margin-top:-26px;}
+  .shift{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:10px;padding:20px 26px;flex-wrap:wrap;}
+  .pair{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;}
+  .old{color:var(--ink-3);text-decoration:line-through;text-decoration-thickness:1.5px;font-weight:600;}
+  .arr{color:var(--t-violet);font-weight:800;}
+  .new{color:var(--ink);}
+  .dotsep{color:var(--line-2);font-weight:800;margin:0 6px;}
 
-  /* the shift */
-  .shift{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);}
-  .col-h{padding:14px 22px;font-weight:800;font-size:13px;display:flex;align-items:center;gap:9px;}
-  .was .col-h{background:var(--surface-3);color:var(--ink-2);}
-  .now .col-h{background:var(--act-sub);color:var(--t-act);}
-  .col{background:var(--surface);}
-  .col.was{border-right:1px solid var(--line);}
-  .row{padding:13px 22px;border-top:1px solid var(--line);min-height:74px;}
-  .row b{display:flex;align-items:center;gap:8px;font-size:13.5px;}
-  .row span{display:block;font-size:12.5px;color:var(--ink-3);margin-top:3px;}
-  .was .row b i{color:var(--ink-3);}
-  .now .row b i{color:var(--t-act);}
-  .now .row{background:var(--surface);}
+  /* three ideas */
+  .ideas{padding:56px 0 10px;}
+  .idea{display:flex;gap:26px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:30px 34px;box-shadow:var(--shadow);margin-bottom:18px;}
+  .num{flex:0 0 auto;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:24px;}
+  .num.act{background:var(--act-sub);color:var(--t-act);}
+  .num.now{background:var(--now-sub);color:var(--t-now);}
+  .num.violet{background:var(--violet-sub);color:var(--t-violet);}
+  .idea h2{font-size:22px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px;}
+  .idea p{font-size:15px;color:var(--ink-2);max-width:640px;}
+  .idea .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .tag{font-size:12px;font-weight:700;border-radius:999px;padding:4px 12px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);}
 
-  /* principles */
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);}
-  .c-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:18px;margin-bottom:12px;}
-  .c-ic.act{background:var(--act-sub);color:var(--t-act);}
-  .c-ic.violet{background:var(--violet-sub);color:var(--t-violet);}
-  .c-ic.now{background:var(--now-sub);color:var(--t-now);}
-  .c-ic.ok{background:var(--ok-sub);color:var(--t-ok);}
-  .c-ic.risk{background:var(--risk-sub);color:var(--t-risk);}
-  .card h3{font-size:14.5px;font-weight:800;letter-spacing:-.2px;margin-bottom:6px;}
-  .card p{font-size:12.5px;color:var(--ink-2);}
-  .card .why{display:block;font-size:11.5px;color:var(--ink-3);margin-top:9px;padding-top:9px;border-top:1px dashed var(--line-2);font-style:italic;}
+  /* closer */
+  .closer{text-align:center;padding:44px 0 64px;}
+  .closer h2{font-size:28px;font-weight:800;letter-spacing:-.6px;}
+  .closer h2 b{color:var(--t-violet);}
+  .closer p{color:var(--ink-3);font-size:14px;margin-top:8px;}
+  .closer .cta{background:var(--violet);color:#fff;}
+  footer{text-align:center;font-size:12px;color:var(--ink-3);padding-bottom:30px;}
 
-  /* real content strip */
-  .strip{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 26px;box-shadow:var(--shadow);display:flex;gap:22px;align-items:center;flex-wrap:wrap;}
-  .strip .lead{flex:1 1 300px;}
-  .strip .lead h3{font-size:16px;font-weight:800;margin-bottom:5px;}
-  .strip .lead p{font-size:12.5px;color:var(--ink-2);}
-  .facts{display:flex;gap:10px;flex-wrap:wrap;}
-  .fact{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:9px 14px;text-align:center;}
-  .fact b{display:block;font-size:16px;letter-spacing:-.3px;}
-  .fact span{font-size:10.5px;color:var(--ink-3);}
-
-  /* demo path */
-  .path{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;counter-reset:step;}
-  .step{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 15px;box-shadow:var(--shadow);position:relative;}
-  .step::before{counter-increment:step;content:counter(step);position:absolute;top:-11px;left:14px;width:24px;height:24px;border-radius:50%;background:var(--violet);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;box-shadow:var(--shadow);}
-  .step b{display:block;font-size:13px;margin:4px 0 4px;}
-  .step span{font-size:11.5px;color:var(--ink-3);}
-
-  .final{padding:40px 0 20px;text-align:center;}
-  .final .cta{background:var(--violet);color:#fff;font-size:15px;padding:14px 28px;}
-  footer{padding:18px 0 36px;text-align:center;font-size:12px;color:var(--ink-3);}
-  footer a{color:var(--t-act);text-decoration:none;}
-
-  @media (max-width:900px){
-    .grid{grid-template-columns:repeat(2,1fr);}
-    .path{grid-template-columns:1fr 1fr;}
-    .shift{grid-template-columns:1fr;}
-    .col.was{border-right:0;}
-    h1{font-size:27px;}
-    .row{min-height:0;}
+  @media (max-width:760px){
+    h1{font-size:30px;}
+    .idea{flex-direction:column;gap:14px;padding:24px;}
+    .shift{gap:8px;}
+    .dotsep{display:none;}
+    .pair{width:100%;justify-content:center;}
   }
 </style>
 </head>
@@ -116,133 +85,75 @@
 
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow"><i class="ti ti-sparkles"></i> Ray Platform · UX concept proposal</div>
-    <h1>From forms and tabs to an Investigation&nbsp;Command&nbsp;Center</h1>
-    <p class="sub">Same investigation, same data, same agents — presented as a living workspace built around
-    <b>decisions, entities and time</b> instead of pages and tables.</p>
-    <div class="hero-meta">
-      <span class="hm"><i class="ti ti-circle-check"></i> Working prototype — every screen is live</span>
-      <span class="hm"><i class="ti ti-database"></i> Seeded with the real CASE-AML-0001-3 content</span>
-      <span class="hm"><i class="ti ti-moon"></i> Full dark / light theming</span>
-    </div>
-    <div class="hero-cta">
-      <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> Open the live prototype</a>
-      <a class="cta ghost" href="#shift">5-minute tour of the concept ↓</a>
-    </div>
+    <div class="eyebrow"><i class="ti ti-sparkles"></i> Ray Platform · New UX concept</div>
+    <h1>Stop reading the case.<br/>Watch it happen.</h1>
+    <p class="sub">Same data, same agents, same content — rebuilt around
+    <b>decisions, entities and time</b> instead of tabs and tables.</p>
+    <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> Open the live prototype</a>
   </div>
 </div>
 
-<section id="shift">
+<div class="shiftbar">
   <div class="wrap">
-    <div class="sec-t">The shift</div>
-    <div class="sec-h">What changes — side by side</div>
     <div class="shift">
-      <div class="col was">
-        <div class="col-h"><i class="ti ti-layout-list"></i> Today's product</div>
-        <div class="row"><b><i class="ti ti-table"></i> A flat list of investigations</b><span>Entry point is a table — no sense of what needs you first.</span></div>
-        <div class="row"><b><i class="ti ti-user"></i> One identical view for everyone</b><span>Analyst and manager see the same screens.</span></div>
-        <div class="row"><b><i class="ti ti-folder"></i> A case is a stack of 7 tabs</b><span>Artifacts, attachments, data, audit… each a separate full page.</span></div>
-        <div class="row"><b><i class="ti ti-calendar"></i> Time is buried in table columns</b><span>The story of the case has to be reconstructed in your head.</span></div>
-        <div class="row"><b><i class="ti ti-file-text"></i> Long documents, no guidance</b><span>The worksheet is one long scroll; navigation is manual.</span></div>
-        <div class="row"><b><i class="ti ti-arrows-exchange"></i> Handover = re-reading everything</b><span>A new analyst starts from zero on someone else's case.</span></div>
-      </div>
-      <div class="col now">
-        <div class="col-h"><i class="ti ti-sparkles"></i> The new concept</div>
-        <div class="row"><b><i class="ti ti-layout-dashboard"></i> A decision-ready dashboard</b><span>KPI tiles are filters; tasks, activity and workload open on demand.</span></div>
-        <div class="row"><b><i class="ti ti-users"></i> Role-aware lenses</b><span>Analyst · Manager · ✨ Smart priority queue · 📱 mobile Manager&nbsp;Pulse.</span></div>
-        <div class="row"><b><i class="ti ti-topology-star-3"></i> The case is a living map</b><span>Entities and money flow are the workspace; sections float over it.</span></div>
-        <div class="row"><b><i class="ti ti-timeline"></i> Time is the master control</b><span>A docked timeline plays the case; map and worksheet follow it.</span></div>
-        <div class="row"><b><i class="ti ti-viewfinder"></i> A focus mode for reading</b><span>Wide worksheet, section rail, mini map, floating 1–10 navigation.</span></div>
-        <div class="row"><b><i class="ti ti-heart-handshake"></i> Handover is a feature</b><span>A brief shows done vs. still open — resume where they left off.</span></div>
-      </div>
+      <span class="pair"><span class="old">list of cases</span><span class="arr">→</span><span class="new">decision dashboard</span></span>
+      <span class="dotsep">·</span>
+      <span class="pair"><span class="old">7 tabs</span><span class="arr">→</span><span class="new">living map</span></span>
+      <span class="dotsep">·</span>
+      <span class="pair"><span class="old">date columns</span><span class="arr">→</span><span class="new">a timeline you play</span></span>
     </div>
   </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <div class="sec-t">The logic</div>
-    <div class="sec-h">Eight principles behind the design</div>
-    <div class="grid">
-      <div class="card"><div class="c-ic act"><i class="ti ti-layout-dashboard"></i></div>
-        <h3>Dashboard as the entry point</h3>
-        <p>You land on decisions, not data. KPI tiles filter the portfolio with one click; classic by default, ✨&nbsp;Smart on a switch.</p>
-        <span class="why">Why: the first 10 seconds should answer "what needs me now?"</span></div>
-      <div class="card"><div class="c-ic violet"><i class="ti ti-users"></i></div>
-        <h3>One product, three lenses</h3>
-        <p>Analyst works cases; Manager gets workload, comments &amp; assignment; ✨&nbsp;Smart adds a scored queue, signals and an AI briefing.</p>
-        <span class="why">Why: same data, different jobs — the UX should follow the role.</span></div>
-      <div class="card"><div class="c-ic risk"><i class="ti ti-device-mobile"></i></div>
-        <h3>Mobile = decisions only</h3>
-        <p>The Manager Pulse is one phone screen: what needs sign-off, live pulse tiles, team imbalance, critical events. Approve in one tap.</p>
-        <span class="why">Why: mobile isn't a smaller dashboard — it's a different question.</span></div>
-      <div class="card"><div class="c-ic act"><i class="ti ti-topology-star-3"></i></div>
-        <h3>The map is the workspace</h3>
-        <p>Customer, accounts, wires and hits form a living network. Click any node for its story and actions — the case is spatial, not tabular.</p>
-        <span class="why">Why: money laundering is a network; the UI should look like one.</span></div>
-      <div class="card"><div class="c-ic now"><i class="ti ti-timeline"></i></div>
-        <h3>Time is the master control</h3>
-        <p>A docked timeline is two-way linked to everything. Press play and watch the case unfold — funds in, layering, wires out, the alert.</p>
-        <span class="why">Why: every investigation is a story; stories are told in time.</span></div>
-      <div class="card"><div class="c-ic violet"><i class="ti ti-cards"></i></div>
-        <h3>Everything floats, nothing hides</h3>
-        <p>All 7 sections are light floating cards over the map — movable, expandable to work mode. Drag evidence out to pin it; amber threads tie pins to entities.</p>
-        <span class="why">Why: opening a document should never mean losing the case.</span></div>
-      <div class="card"><div class="c-ic ok"><i class="ti ti-heart-handshake"></i></div>
-        <h3>Continuity is a feature</h3>
-        <p>Taking over a colleague's case opens a handover brief: done vs. still open, unread notes, and "resume where they left off". ✓/⚠ dots mark every section.</p>
-        <span class="why">Why: the most expensive moment in a case is the analyst switch.</span></div>
-      <div class="card"><div class="c-ic act"><i class="ti ti-sparkles"></i></div>
-        <h3>AI in context, and accountable</h3>
-        <p>The advisor knows what you're looking at. Agent runs and LLM spend are glanceable widgets — the AI's work is visible, timed and priced.</p>
-        <span class="why">Why: trust in agents comes from seeing them work, not a black box.</span></div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <div class="strip">
-      <div class="lead">
-        <h3><i class="ti ti-database"></i> Same content, new stage</h3>
-        <p>This is a UX change, not a scope change. Every screen carries the content captured from the
-        current product — the CASE-AML-0001-3 alert review (Marisol Rivera), its worksheet, evidence,
-        datasets, audit trail and real agent economics.</p>
-      </div>
-      <div class="facts">
-        <div class="fact"><b>10</b><span>worksheet sections</span></div>
-        <div class="fact"><b>9</b><span>documents</span></div>
-        <div class="fact"><b>9</b><span>datasets</span></div>
-        <div class="fact"><b>50</b><span>audit events</span></div>
-        <div class="fact"><b>378.8s</b><span>agent run</span></div>
-        <div class="fact"><b>$1.1180</b><span>LLM spend · 198 calls</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <div class="sec-t">The demo</div>
-    <div class="sec-h">Five stops, five minutes</div>
-    <div class="path">
-      <div class="step"><b>Dashboard</b><span>Click a KPI tile to filter · flip to ✨ Smart · switch to Manager · 📱 Send to mobile.</span></div>
-      <div class="step"><b>Open the case</b><span>CASE-AML-0001-3 → the handover brief: what's done, what's open, resume.</span></div>
-      <div class="step"><b>Play the timeline</b><span>Watch the map light up as the money moves — Feb funds-in to the April alert.</span></div>
-      <div class="step"><b>Float the evidence</b><span>Open cards, drag a wire confirmation onto the desk — threads tie it to entities.</span></div>
-      <div class="step"><b>Artifacts focus</b><span>Flip the view switch: wide worksheet, section rail, mini map, 1–10 nav.</span></div>
-    </div>
-  </div>
-</section>
-
-<div class="final">
-  <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> Start the demo</a>
 </div>
 
-<footer>
-  Ray Platform UX concept · interaction model inspired by a "living canvas + time" storytelling UX ·
-  <a href="./prototype.html">prototype</a>
-</footer>
+<div class="ideas">
+  <div class="wrap">
+
+    <div class="idea">
+      <div class="num act"><i class="ti ti-layout-dashboard"></i></div>
+      <div>
+        <h2>Start with decisions, not a list</h2>
+        <p>The dashboard answers <b>"what needs me now?"</b> in ten seconds — and adapts to who's asking.</p>
+        <div class="tags">
+          <span class="tag">Analyst</span><span class="tag">Manager</span>
+          <span class="tag">✨ Smart priority queue</span><span class="tag">📱 One-screen mobile pulse</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="idea">
+      <div class="num now"><i class="ti ti-topology-star-3"></i></div>
+      <div>
+        <h2>The case is a map you play through time</h2>
+        <p>Customer, accounts, wires and alerts form a living network. Press play and <b>watch the money move</b> — from funds-in to the alert. The story tells itself.</p>
+        <div class="tags">
+          <span class="tag">Entity map = workspace</span><span class="tag">Timeline drives everything</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="idea">
+      <div class="num violet"><i class="ti ti-cards"></i></div>
+      <div>
+        <h2>Nothing ever hides the case</h2>
+        <p>Every section floats over the map — open evidence, pin it, read the worksheet in a clean focus view, or pick up a colleague's case with a <b>handover brief</b>. You never lose context.</p>
+        <div class="tags">
+          <span class="tag">Floating cards</span><span class="tag">Artifacts focus view</span><span class="tag">Case handover</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="closer">
+  <div class="wrap">
+    <h2>Same content. Same engine. <b>A different experience.</b></h2>
+    <p>All 7 case sections carry the real content from today's product — nothing was cut to make it pretty.</p>
+    <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> Start the demo</a>
+  </div>
+</div>
+
+<footer>Ray Platform UX concept · working prototype, every screen live</footer>
 
 </body>
 </html>
