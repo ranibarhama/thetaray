@@ -14,7 +14,7 @@
     --now:#e8850c; --now-sub:#fdf0dd; --t-now:#9a5a05;
     --ok:#1e9e6a; --ok-sub:#e3f5ed; --t-ok:#0f7a4f;
     --violet:#5b46b8; --violet1:#3a3785; --violet2:#6b4bc0; --violet-sub:#eee9fb; --t-violet:#4a37a0;
-    --shadow:0 1px 2px rgba(10,16,30,.10),0 8px 24px rgba(10,16,30,.10);
+    --shadow:0 1px 2px rgba(10,16,30,.08),0 10px 30px rgba(10,16,30,.12);
     --font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   }
   @media (prefers-color-scheme:dark){
@@ -26,58 +26,75 @@
       --now-sub:rgba(232,133,12,.18); --t-now:#f0b874;
       --ok-sub:rgba(30,158,106,.16); --t-ok:#5fd39e;
       --violet-sub:rgba(107,75,192,.26); --t-violet:#bdacff;
-      --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.4);
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.45);
     }
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.5;}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5;}
   .ti{line-height:1;vertical-align:-7%;}
-  .wrap{max-width:960px;margin:0 auto;padding:0 28px;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 30px;}
 
-  /* hero */
-  .hero{background:linear-gradient(135deg,var(--violet1),var(--violet2));color:#fff;padding:64px 0 56px;text-align:center;}
-  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:6px 14px;margin-bottom:22px;}
-  h1{font-size:42px;font-weight:800;letter-spacing:-1px;line-height:1.12;max-width:780px;margin:0 auto;}
-  .sub{font-size:18px;opacity:.88;max-width:600px;margin:18px auto 0;}
+  /* ── hero ─────────────────────────────────────────── */
+  .hero{position:relative;background:linear-gradient(130deg,#2e2b6e 0%,var(--violet1) 38%,var(--violet2) 78%,#8a5fd6 100%);color:#fff;padding:30px 0 92px;overflow:hidden;}
+  .hero::before,.hero::after{content:'';position:absolute;border-radius:50%;filter:blur(10px);pointer-events:none;}
+  .hero::before{width:520px;height:520px;right:-140px;top:-260px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 65%);}
+  .hero::after{width:420px;height:420px;left:-160px;bottom:-240px;background:radial-gradient(circle,rgba(120,80,220,.5),transparent 65%);}
+  .hero .wrap{position:relative;z-index:1;display:flex;align-items:center;gap:48px;}
+  .h-left{flex:1.2;min-width:0;}
+  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:5px 13px;margin-bottom:16px;}
+  h1{font-size:34px;font-weight:800;letter-spacing:-.9px;line-height:1.1;}
+  h1 em{font-style:normal;background:linear-gradient(90deg,#ffd9a0,#ff9d6c);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .sub{font-size:14.5px;opacity:.88;max-width:480px;margin-top:12px;}
   .sub b{color:#fff;}
-  .cta{display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--violet1);font-weight:800;font-size:15px;border-radius:999px;padding:14px 28px;text-decoration:none;box-shadow:0 10px 30px rgba(0,0,0,.28);margin-top:30px;}
-  .cta:hover{transform:translateY(-1px);}
+  .cta{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--violet1);font-weight:800;font-size:13.5px;border-radius:999px;padding:11px 22px;text-decoration:none;box-shadow:0 10px 28px rgba(0,0,0,.3);margin-top:20px;transition:transform .15s;}
+  .cta:hover{transform:translateY(-2px);}
+  /* shift pairs inside hero */
+  .h-right{flex:0 0 330px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:18px 22px;backdrop-filter:blur(6px);}
+  .h-right h5{font-size:10px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;opacity:.75;margin-bottom:10px;}
+  .pair{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.12);}
+  .pair:last-child{border-bottom:0;}
+  .old{opacity:.55;text-decoration:line-through;text-decoration-thickness:1.5px;font-weight:600;white-space:nowrap;}
+  .arr{color:#ffd9a0;font-weight:800;}
+  .new{color:#fff;white-space:nowrap;}
 
-  /* the one-line shift */
-  .shiftbar{margin-top:-26px;}
-  .shift{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:10px;padding:20px 26px;flex-wrap:wrap;}
-  .pair{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;}
-  .old{color:var(--ink-3);text-decoration:line-through;text-decoration-thickness:1.5px;font-weight:600;}
-  .arr{color:var(--t-violet);font-weight:800;}
-  .new{color:var(--ink);}
-  .dotsep{color:var(--line-2);font-weight:800;margin:0 6px;}
+  /* ── three ideas, overlapping the hero ────────────── */
+  .ideas{margin-top:-62px;position:relative;z-index:2;padding-bottom:6px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .idea{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .15s;}
+  .idea:hover{transform:translateY(-3px);}
+  .idea::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+  .idea.a::before{background:linear-gradient(90deg,var(--act),#7fa8ff);}
+  .idea.b::before{background:linear-gradient(90deg,var(--now),#ffb35c);}
+  .idea.c::before{background:linear-gradient(90deg,var(--violet),#a58cf0);}
+  .i-head{display:flex;align-items:center;gap:11px;margin-bottom:9px;}
+  .num{flex:0 0 auto;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:18px;}
+  .idea.a .num{background:var(--act-sub);color:var(--t-act);}
+  .idea.b .num{background:var(--now-sub);color:var(--t-now);}
+  .idea.c .num{background:var(--violet-sub);color:var(--t-violet);}
+  .idea h2{font-size:16px;font-weight:800;letter-spacing:-.3px;line-height:1.2;}
+  .idea h2 span{font-weight:600;color:var(--ink-3);}
+  .idea p{font-size:12.5px;color:var(--ink-2);}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px;}
+  .tag{font-size:10.5px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);}
+  .idea.a .tag{background:var(--act-sub);border-color:transparent;color:var(--t-act);}
+  .idea.b .tag{background:var(--now-sub);border-color:transparent;color:var(--t-now);}
+  .idea.c .tag{background:var(--violet-sub);border-color:transparent;color:var(--t-violet);}
 
-  /* three ideas */
-  .ideas{padding:56px 0 10px;}
-  .idea{display:flex;gap:26px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:30px 34px;box-shadow:var(--shadow);margin-bottom:18px;}
-  .num{flex:0 0 auto;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:24px;}
-  .num.act{background:var(--act-sub);color:var(--t-act);}
-  .num.now{background:var(--now-sub);color:var(--t-now);}
-  .num.violet{background:var(--violet-sub);color:var(--t-violet);}
-  .idea h2{font-size:22px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px;}
-  .idea p{font-size:15px;color:var(--ink-2);max-width:640px;}
-  .idea .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
-  .tag{font-size:12px;font-weight:700;border-radius:999px;padding:4px 12px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);}
+  /* ── closer ───────────────────────────────────────── */
+  .closer{padding:16px 0 18px;}
+  .close-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:18px 30px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+  .close-card h2{font-size:21px;font-weight:800;letter-spacing:-.5px;flex:1 1 380px;}
+  .close-card h2 b{color:var(--t-violet);}
+  .close-card h2 small{display:block;font-size:12.5px;color:var(--ink-3);font-weight:500;letter-spacing:0;margin-top:5px;max-width:560px;}
+  .close-card .cta{background:var(--violet);color:#fff;margin-top:0;flex:0 0 auto;}
+  footer{text-align:center;font-size:11.5px;color:var(--ink-3);padding-bottom:12px;}
 
-  /* closer */
-  .closer{text-align:center;padding:44px 0 64px;}
-  .closer h2{font-size:28px;font-weight:800;letter-spacing:-.6px;}
-  .closer h2 b{color:var(--t-violet);}
-  .closer p{color:var(--ink-3);font-size:14px;margin-top:8px;}
-  .closer .cta{background:var(--violet);color:#fff;}
-  footer{text-align:center;font-size:12px;color:var(--ink-3);padding-bottom:30px;}
-
-  @media (max-width:760px){
-    h1{font-size:30px;}
-    .idea{flex-direction:column;gap:14px;padding:24px;}
-    .shift{gap:8px;}
-    .dotsep{display:none;}
-    .pair{width:100%;justify-content:center;}
+  @media (max-width:960px){
+    .hero .wrap{flex-direction:column;align-items:stretch;gap:20px;}
+    .h-right{flex:1 1 auto;}
+    .grid3{grid-template-columns:1fr;}
+    h1{font-size:28px;}
+    .hero{padding-bottom:80px;}
   }
 </style>
 </head>
@@ -85,72 +102,73 @@
 
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow"><i class="ti ti-sparkles"></i> Ray Platform · New UX concept</div>
-    <h1>Stop reading the case.<br/>Watch it happen.</h1>
-    <p class="sub">Same data, same agents, same content — rebuilt around
-    <b>decisions, entities and time</b> instead of tabs and tables.</p>
-    <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> Open the live prototype</a>
-  </div>
-</div>
-
-<div class="shiftbar">
-  <div class="wrap">
-    <div class="shift">
-      <span class="pair"><span class="old">list of cases</span><span class="arr">→</span><span class="new">decision dashboard</span></span>
-      <span class="dotsep">·</span>
-      <span class="pair"><span class="old">7 tabs</span><span class="arr">→</span><span class="new">living map</span></span>
-      <span class="dotsep">·</span>
-      <span class="pair"><span class="old">date columns</span><span class="arr">→</span><span class="new">a timeline you play</span></span>
+    <div class="h-left">
+      <div class="eyebrow"><i class="ti ti-sparkles"></i> Ray Platform · New UX concept</div>
+      <h1>Stop reading the case.<br/><em>Watch it happen.</em></h1>
+      <p class="sub">Same data, same agents, same content — rebuilt around
+      <b>decisions, entities and time</b> instead of tabs and tables.</p>
+      <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> Open the live prototype</a>
+    </div>
+    <div class="h-right">
+      <h5>The shift</h5>
+      <div class="pair"><span class="old">list of cases</span><span class="arr">→</span><span class="new">decision dashboard</span></div>
+      <div class="pair"><span class="old">7 tabs</span><span class="arr">→</span><span class="new">living map</span></div>
+      <div class="pair"><span class="old">date columns</span><span class="arr">→</span><span class="new">a timeline you play</span></div>
     </div>
   </div>
 </div>
 
 <div class="ideas">
   <div class="wrap">
+    <div class="grid3">
 
-    <div class="idea">
-      <div class="num act"><i class="ti ti-layout-dashboard"></i></div>
-      <div>
-        <h2>A clearer entry point — decisions, not a list</h2>
+      <div class="idea a">
+        <div class="i-head">
+          <div class="num"><i class="ti ti-layout-dashboard"></i></div>
+          <h2>A clearer entry point — decisions, not a list</h2>
+        </div>
         <p>One dashboard that answers <b>"what needs me now?"</b> in ten seconds. It comes in <b>two views</b> — Classic and ✨&nbsp;Smart — and adapts to who's asking.</p>
         <div class="tags">
           <span class="tag">Classic view</span><span class="tag">✨ Smart view</span>
-          <span class="tag">Analyst / Manager lens</span><span class="tag">📱 One-screen mobile pulse</span>
+          <span class="tag">Analyst / Manager lens</span><span class="tag">📱 Mobile pulse</span>
         </div>
       </div>
-    </div>
 
-    <div class="idea">
-      <div class="num now"><i class="ti ti-topology-star-3"></i></div>
-      <div>
-        <h2>The case is a map you play through time</h2>
+      <div class="idea b">
+        <div class="i-head">
+          <div class="num"><i class="ti ti-topology-star-3"></i></div>
+          <h2>The case is a map you play through time</h2>
+        </div>
         <p>Customer, accounts, wires and alerts form a living network. Press play and <b>watch the money move</b> — from funds-in to the alert. And here too, <b>two views</b> of the same case: the <b>map</b> in the center, or the <b>artifacts worksheet</b> in the center — switch anytime, nothing is lost.</p>
         <div class="tags">
           <span class="tag">Map focus</span><span class="tag">Artifacts focus</span><span class="tag">Timeline drives everything</span>
         </div>
       </div>
-    </div>
 
-    <div class="idea">
-      <div class="num violet"><i class="ti ti-cards"></i></div>
-      <div>
-        <h2>A workspace analysts shape themselves <span style="font-weight:600;color:var(--ink-3);">(if they want…)</span></h2>
-        <p>Nothing is fixed and nothing hides the case: every section is a floating card — <b>move it, pin evidence to the desk, arrange the screen the way you work</b>. Two views per screen plus movable panels means each analyst builds their own cockpit. And picking up a colleague's case starts with a <b>handover brief</b>. The same floating approach also makes the product <b>easy to embed in a customer's environment</b> — cards can live inside existing screens and workflows.</p>
+      <div class="idea c">
+        <div class="i-head">
+          <div class="num"><i class="ti ti-cards"></i></div>
+          <h2>A workspace analysts shape themselves <span>(if they want…)</span></h2>
+        </div>
+        <p>Nothing is fixed and nothing hides the case: every section is a floating card — <b>move it, pin evidence to the desk, arrange the screen the way you work</b> — and jump back to the default view in one click. And picking up a colleague's case starts with a <b>handover brief</b>. The same floating approach also makes the product <b>easy to embed in a customer's environment</b> — cards can live inside existing screens and workflows.</p>
         <div class="tags">
-          <span class="tag">Floating, movable cards</span><span class="tag">Drag &amp; pin evidence</span><span class="tag">Case handover</span>
+          <span class="tag">Floating, movable cards</span><span class="tag">Drag &amp; pin evidence</span><span class="tag">One-click default</span><span class="tag">Case handover</span>
         </div>
       </div>
-    </div>
 
+    </div>
   </div>
 </div>
 
 <div class="closer">
   <div class="wrap">
-    <h2>From reading data to <b>seeing the story.</b></h2>
-    <p>Everything from today's product is still here — the new experience turns it into faster decisions,
-    smoother handovers and a clearer picture of every case.</p>
-    <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> Start the demo</a>
+    <div class="close-card">
+      <h2>From reading data to <b>seeing the story.</b>
+        <small>Everything from today's product is still here — the new experience turns it into faster decisions,
+        smoother handovers and a clearer picture of every case.</small>
+      </h2>
+      <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> Start the demo</a>
+    </div>
   </div>
 </div>
 
