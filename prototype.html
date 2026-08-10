@@ -1025,6 +1025,7 @@ function App(){
         <button className={'navarea'+(screen==='dashboard'?' on':'')} onClick={goDash}>Investigations</button>
         <button className="navarea">Studio</button><button className="navarea">Admin</button>
         <div className="top-sp"></div>
+        <a className="tic" href="./concept.html" title="Back to the concept page" style={{textDecoration:'none',display:'grid',placeItems:'center'}}><i className="ti ti-presentation"></i></a>
         <button className="tic" title={theme==='dark'?'Switch to light mode':'Switch to dark mode'} onClick={()=>setTheme(th=>th==='dark'?'light':'dark')}>{theme==='dark'?<i className="ti ti-sun"></i>:<i className="ti ti-moon"></i>}</button>
         <button className="tic" title="Search"><i className="ti ti-search"></i></button><button className="tic" title="Settings"><i className="ti ti-settings"></i></button><button className="tic" title="Account"><i className="ti ti-user"></i></button>
       </div>
