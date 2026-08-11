@@ -97,6 +97,10 @@
   .close-card .cta{background:var(--violet);color:#fff;margin-top:0;flex:0 0 auto;}
   footer{text-align:center;font-size:11.5px;color:var(--ink-3);padding-bottom:8px;}
 
+  .fsbtn{position:fixed;top:14px;right:16px;z-index:50;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff;font-size:16px;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(4px);transition:background .15s;}
+  .fsbtn:hover{background:rgba(255,255,255,.28);}
+  .fsbtn.dim{background:var(--surface);border-color:var(--line-2);color:var(--ink-2);}
+
   @media (max-width:960px){
     .hero .wrap{flex-direction:column;align-items:stretch;gap:20px;}
     .h-right{flex:1 1 auto;}
@@ -195,5 +199,25 @@
 
 <footer>Ray Platform UX concept · working prototype, every screen live</footer>
 
+<button class="fsbtn" id="fsbtn" title="Present full screen"><i class="ti ti-maximize"></i></button>
+<script>
+(function(){
+  var b=document.getElementById('fsbtn');
+  b.addEventListener('click',function(){
+    if(document.fullscreenElement){document.exitFullscreen();}
+    else{document.documentElement.requestFullscreen();}
+  });
+  document.addEventListener('fullscreenchange',function(){
+    var on=!!document.fullscreenElement;
+    b.innerHTML=on?'<i class="ti ti-minimize"></i>':'<i class="ti ti-maximize"></i>';
+    b.title=on?'Exit full screen':'Present full screen';
+  });
+  // keep the button visible over light content when scrolled past the hero
+  window.addEventListener('scroll',function(){
+    var hero=document.querySelector('.hero');
+    b.classList.toggle('dim',window.scrollY>hero.offsetHeight-40);
+  });
+})();
+</script>
 </body>
 </html>

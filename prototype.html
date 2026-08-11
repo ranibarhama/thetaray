@@ -999,6 +999,8 @@ function App(){
   const [advOpen,setAdvOpen]=useState(false);const [advSeen,setAdvSeen]=useState(false);const [advCard,setAdvCard]=useState(null);
   const [concept,setConcept]=useState(false);
   const [theme,setTheme]=useState('light');
+  const [fs,setFs]=useState(false);
+  useEffect(()=>{const f=()=>setFs(!!document.fullscreenElement);document.addEventListener('fullscreenchange',f);return()=>document.removeEventListener('fullscreenchange',f);},[]);
   // desktop state (persists across advisor + panels)
   const [t,setT]=useState(frac('2026-03-08'));const [playing,setPlaying]=useState(false);const [speed,setSpeed]=useState('normal');
   const [sel,setSel]=useState(null);const [focusEv,setFocusEv]=useState(null);
@@ -1026,6 +1028,7 @@ function App(){
         <button className="navarea">Studio</button><button className="navarea">Admin</button>
         <div className="top-sp"></div>
         <a className="tic" href="./concept.html" title="Back to the concept page" style={{textDecoration:'none',display:'grid',placeItems:'center'}}><i className="ti ti-presentation"></i></a>
+        <button className="tic" title={fs?'Exit full screen':'Present full screen'} onClick={()=>{fs?document.exitFullscreen():document.documentElement.requestFullscreen();}}>{fs?<i className="ti ti-minimize"></i>:<i className="ti ti-maximize"></i>}</button>
         <button className="tic" title={theme==='dark'?'Switch to light mode':'Switch to dark mode'} onClick={()=>setTheme(th=>th==='dark'?'light':'dark')}>{theme==='dark'?<i className="ti ti-sun"></i>:<i className="ti ti-moon"></i>}</button>
         <button className="tic" title="Search"><i className="ti ti-search"></i></button><button className="tic" title="Settings"><i className="ti ti-settings"></i></button><button className="tic" title="Account"><i className="ti ti-user"></i></button>
       </div>
