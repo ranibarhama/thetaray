@@ -1027,7 +1027,7 @@ function App(){
         <button className={'navarea'+(screen==='dashboard'?' on':'')} onClick={goDash}>Investigations</button>
         <button className="navarea">Studio</button><button className="navarea">Admin</button>
         <div className="top-sp"></div>
-        <a className="tic" href="./concept.html" title="Back to the concept page" style={{textDecoration:'none',display:'grid',placeItems:'center'}}><i className="ti ti-presentation"></i></a>
+        <a className="tic" href="./concept.html" title="Back to the concept page" style={{textDecoration:'none',display:'grid',placeItems:'center'}} onClick={()=>{if(document.fullscreenElement)sessionStorage.setItem('rayFS','1');}}><i className="ti ti-presentation"></i></a>
         <button className="tic" title={fs?'Exit full screen':'Present full screen'} onClick={()=>{fs?document.exitFullscreen():document.documentElement.requestFullscreen();}}>{fs?<i className="ti ti-minimize"></i>:<i className="ti ti-maximize"></i>}</button>
         <button className="tic" title={theme==='dark'?'Switch to light mode':'Switch to dark mode'} onClick={()=>setTheme(th=>th==='dark'?'light':'dark')}>{theme==='dark'?<i className="ti ti-sun"></i>:<i className="ti ti-moon"></i>}</button>
         <button className="tic" title="Search"><i className="ti ti-search"></i></button><button className="tic" title="Settings"><i className="ti ti-settings"></i></button><button className="tic" title="Account"><i className="ti ti-user"></i></button>
@@ -2464,6 +2464,15 @@ function ParametersDoc(){
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+<script>
+// carry fullscreen across LP <-> prototype: restore on first click after arriving
+if(sessionStorage.getItem('rayFS')==='1'){
+  sessionStorage.removeItem('rayFS');
+  window.addEventListener('pointerdown',function(){
+    if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(function(){});
+  },{once:true});
+}
 </script>
 </body>
 </html>

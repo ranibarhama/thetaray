@@ -119,7 +119,7 @@
       <h1>Stop reading the case.<br/><em>Watch it happen.</em></h1>
       <p class="sub">Same data, same agents, same content — rebuilt around
       <b>decisions, entities and time</b> instead of tabs and tables.</p>
-      <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> Open the live prototype</a>
+      <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> See it in action</a>
     </div>
     <div class="h-right">
       <h5>The shift</h5>
@@ -192,7 +192,7 @@
         <small>Everything from today's product is still here — the new experience turns it into faster decisions,
         smoother handovers and a clearer picture of every case.</small>
       </h2>
-      <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> Start the demo</a>
+      <a class="cta" href="./prototype.html"><i class="ti ti-player-play"></i> See it in action</a>
     </div>
   </div>
 </div>
@@ -217,6 +217,18 @@
     var hero=document.querySelector('.hero');
     b.classList.toggle('dim',window.scrollY>hero.offsetHeight-40);
   });
+  // carry fullscreen across LP <-> prototype: flag on exit-by-navigation, restore on first click
+  document.querySelectorAll('a.cta').forEach(function(a){
+    a.addEventListener('click',function(){
+      if(document.fullscreenElement)sessionStorage.setItem('rayFS','1');
+    });
+  });
+  if(sessionStorage.getItem('rayFS')==='1'){
+    sessionStorage.removeItem('rayFS');
+    window.addEventListener('pointerdown',function(){
+      if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(function(){});
+    },{once:true});
+  }
 })();
 </script>
 </body>
