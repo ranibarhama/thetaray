@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ray Platform · Investigation Desktop</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css"/>
+<link rel="stylesheet" href="studio.css"/>
 <style>
   .ti{line-height:1;vertical-align:-7%;font-size:1.05em;}
   :root{
@@ -746,6 +747,7 @@
   .adv-in{border-top:1px solid var(--line);padding:9px;display:flex;gap:7px;} .adv-in input{flex:1;border:1px solid var(--line-2);border-radius:9px;padding:8px 10px;font-size:12px;}
 
   .concept{position:fixed;left:16px;bottom:16px;z-index:65;}
+  .concept.right{left:auto;right:16px;} .concept.right .cpop{left:auto;right:0;}
   .concept .toggle{background:#141a26;color:#dfe4ee;border:1px solid var(--glass-line);border-radius:999px;padding:7px 13px;font-size:11px;font-weight:600;box-shadow:var(--shadow-pop);}
   .cpop{position:absolute;left:0;bottom:42px;width:310px;background:#141a26;color:#dfe4ee;border:1px solid var(--glass-line);border-radius:12px;padding:14px;box-shadow:var(--shadow-pop);font-size:11px;line-height:1.5;} .cpop h4{margin:0 0 8px;font-size:12px;color:#8fbaff;} .cpop b{color:#fff;} .cpop ul{margin:0;padding-left:15px;} .cpop li{margin:5px 0;}
 </style>
@@ -755,6 +757,11 @@
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="studio-data.js"></script>
+<script src="studio-engine.js"></script>
+<script src="studio-engine2.js"></script>
+<script type="text/babel" src="studio-ui.js"></script>
+<script type="text/babel" src="studio.js"></script>
 <script type="text/babel">
 const {useState,useRef,useEffect} = React;
 const START=Date.parse('2026-02-15T00:00:00Z'),END=Date.parse('2026-04-06T00:00:00Z'),span=END-START;
@@ -1025,7 +1032,7 @@ function App(){
       <div className="top">
         <div className="brand" onClick={goDash}><span className="mk">A⁺</span>Ray Platform</div>
         <button className={'navarea'+(screen==='dashboard'?' on':'')} onClick={goDash}>Investigations</button>
-        <button className="navarea">Studio</button><button className="navarea">Admin</button>
+        <button className={'navarea'+(screen==='studio'?' on':'')} onClick={()=>setScreen('studio')}>Studio</button><button className="navarea">Admin</button>
         <div className="top-sp"></div>
         <a className="tic" href="./concept.html" title="Back to the concept page" style={{textDecoration:'none',display:'grid',placeItems:'center'}} onClick={()=>{if(document.fullscreenElement)sessionStorage.setItem('rayFS','1');}}><i className="ti ti-presentation"></i></a>
         <button className="tic" title={fs?'Exit full screen':'Present full screen'} onClick={()=>{fs?document.exitFullscreen():document.documentElement.requestFullscreen();}}>{fs?<i className="ti ti-minimize"></i>:<i className="ti ti-maximize"></i>}</button>
@@ -1034,7 +1041,9 @@ function App(){
       </div>
 
       <div className={'scene'+(screen==='dashboard'?' scroll':'')}>
-        {screen==='dashboard'
+        {screen==='studio'
+          ? (window.RayStudio?<window.RayStudio/>:<div style={{padding:40,color:'var(--ink-3)'}}>Loading Studio…</div>)
+          : screen==='dashboard'
           ? <Dashboard role={role} setRole={setRole} openCase={openCase} deleted={deleted} setDeleted={setDeleted} locked={locked} setLocked={setLocked}/>
           : <Desktop {...deskState}/>}
       </div>
@@ -1065,10 +1074,19 @@ function App(){
           <div className="adv-in"><input placeholder="Ask the advisor…"/><button className="btn pri sm">Send</button></div>
         </div>
       )}
-      <div className="advisor"><button className="adv-btn" onClick={()=>{if(!advOpen)setAdvCard(null);setAdvOpen(o=>!o);setAdvSeen(true);}}>◆{!advSeen&&<span className="adv-note">1</span>}</button></div>
+      {screen!=='studio'&&<div className="advisor"><button className="adv-btn" onClick={()=>{if(!advOpen)setAdvCard(null);setAdvOpen(o=>!o);setAdvSeen(true);}}>◆{!advSeen&&<span className="adv-note">1</span>}</button></div>}
 
-      <div className="concept">
-        {concept&&(screen==='dashboard'
+      <div className={'concept'+(screen==='studio'?' right':'')}>
+        {concept&&screen==='studio'&&<div className="cpop"><h4>About this page — Ray Studio</h4><ul>
+            <li><b>Talk, don't configure</b> — set up a use case by chatting or speaking to Ray (🎙). One sentence like “Set up UK transaction screening on autopilot with our AML policy” picks the job, the manual and the mode.</li>
+            <li><b>Chat + living package</b> — the conversation is on the left; the package (workflow, policy, report, results, trail) builds and updates live on the right. Changed steps glow; tap a step to talk about it.</li>
+            <li><b>Four stages, lighter steps</b> — Build (hire &amp; brief) → Train (practice on closed alerts) → Prove (shadow live alerts, no effect) → Operate (work alone, starting small).</li>
+            <li><b>Autopilot</b> — agree the rules once; Ray runs Build + Train and only checks back for held rules and your final approval. You decide 3 times.</li>
+            <li><b>Built-in trust</b> — every change shows a diff and the policy clause or alert evidence behind it, can be undone, and lands in the Trail. Nothing goes live without a signature.</li>
+            <li><b>Who acts next</b> — every use case shows the next owner; hand Train to your analyst lead with full context. <b>Needs you</b> lists only what needs a person.</li>
+            <li><b>Mobile ready</b> — on a phone the Studio becomes one column with a Talk / Package switch.</li>
+          </ul></div>}
+        {concept&&screen!=='studio'&&(screen==='dashboard'
           ?<div className="cpop"><h4>About this page — Investigations dashboard</h4><ul>
             <li><b>KPI tiles are filters</b> — click Active / Due / High risk / Awaiting review to filter the list; Pending tasks opens your task card. Click again to clear.</li>
             <li><b>Your tasks & Recent activity</b> collapse from their headers (closed by default). Checked tasks get struck through.</li>
