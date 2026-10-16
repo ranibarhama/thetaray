@@ -1078,13 +1078,13 @@ function App(){
 
       <div className={'concept'+(screen==='studio'?' right':'')}>
         {concept&&screen==='studio'&&<div className="cpop"><h4>About this page — Ray Studio</h4><ul>
-            <li><b>Talk, don't configure</b> — set up a use case by chatting or speaking to Ray (🎙). One sentence like “Set up UK transaction screening on autopilot with our AML policy” picks the job, the manual and the mode.</li>
-            <li><b>Chat + living package</b> — the conversation is on the left; the package (workflow, policy, report, results, trail) builds and updates live on the right. Changed steps glow; tap a step to talk about it.</li>
-            <li><b>Four stages, lighter steps</b> — Build (hire &amp; brief) → Train (practice on closed alerts) → Prove (shadow live alerts, no effect) → Operate (work alone, starting small).</li>
-            <li><b>Autopilot</b> — agree the rules once; Ray runs Build + Train and only checks back for held rules and your final approval. You decide 3 times.</li>
-            <li><b>Built-in trust</b> — every change shows a diff and the policy clause or alert evidence behind it, can be undone, and lands in the Trail. Nothing goes live without a signature.</li>
-            <li><b>Who acts next</b> — every use case shows the next owner; hand Train to your analyst lead with full context. <b>Needs you</b> lists only what needs a person.</li>
-            <li><b>Mobile ready</b> — on a phone the Studio becomes one column with a Talk / Package switch.</li>
+            <li><b>Talk, don't configure</b> — set up a use case by chatting or speaking to Ray (🎙). One sentence like “Set up UK transaction screening on autopilot with our AML policy” picks the job, the policy and the mode.</li>
+            <li><b>One thing at a time</b> — the bar above the input always shows the single next action (“Your turn · Sign off Build”) and can do it in one tap. Finished steps shrink to one-line receipts you can reopen.</li>
+            <li><b>Chat + living package</b> — the package builds on the right: How Ray works · Your rules · Report · Evidence · History. Tabs appear only when they have content; changed steps glow; tap a step to talk about it.</li>
+            <li><b>Four stages, few stops</b> — Build → Train → Prove → Operate. Step by step needs about 3 taps per stage; Autopilot needs 3 decisions in total.</li>
+            <li><b>Proof, one at a time</b> — every change shows Before / Now and the policy clause behind it, with Undo and Why. Suggestions are reviewed one by one with “See the alerts” evidence.</li>
+            <li><b>Built for the auditor</b> — History filters Decisions / Changes / By Ray, restores any version and downloads the full trail. Nothing goes live without a signature.</li>
+            <li><b>Phone ready</b> — chat first; the package opens as a bottom sheet that peeks when Ray changes something.</li>
           </ul></div>}
         {concept&&screen!=='studio'&&(screen==='dashboard'
           ?<div className="cpop"><h4>About this page — Investigations dashboard</h4><ul>

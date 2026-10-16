@@ -1,280 +1,326 @@
-/* Ray Studio — UI part 1: chat cards + living package (text/babel) */
+/* Ray Studio v2 — UI part 1: chat cards + living package (text/babel) */
 (function(){
 const {useState,useEffect,useRef}=React;
 const D=window.RSD,E=window.RSE;
 const U=window.RSU=window.RSU||{};
 
 U.md=(t)=>{if(!t)return null;
-  const parts=String(t).split('\n');
-  return parts.map((line,li)=>{
-    const out=[];let rest=line,k=0;
-    const re=/\*\*(.+?)\*\*|\*(.+?)\*/;let m;
+  return String(t).split('\n').map((line,li)=>{
+    const out=[];let rest=line,k=0;const re=/\*\*(.+?)\*\*|\*(.+?)\*/;let m;
     while((m=re.exec(rest))){if(m.index)out.push(rest.slice(0,m.index));
       out.push(m[1]!==undefined?<b key={k++}>{m[1]}</b>:<em key={k++}>{m[2]}</em>);rest=rest.slice(m.index+m[0].length);}
-    out.push(rest);
-    return <React.Fragment key={li}>{li>0&&<br/>}{out}</React.Fragment>;
-  });
+    out.push(rest);return <React.Fragment key={li}>{li>0&&<br/>}{out}</React.Fragment>;});
 };
 const P=(who)=>D.PEOPLE[who]||D.PEOPLE.you;
+U.P=P;
 U.Av=({who})=><span className={'st-av '+(who==='ray'?'ray':who==='you'?'you':'')} title={P(who).n+' · '+P(who).r}>{P(who).i}</span>;
-const Sign=({uc,label})=><div className="st-sign"><i className="ti ti-signature"></i><div><b>{label||'Signed by you · Compliance lead'}</b><span>{E.now()} · version {E.cur(uc)?E.cur(uc).n:1} · logged in the trail</span></div></div>;
-const Chosen=({c})=>c?<div className="chosen"><i className="ti ti-check"></i>{c}</div>:null;
+const Signed=({c,label})=><div className="signed"><i className="ti ti-signature"></i><div><b>{label||'Signed by you · Compliance lead'}</b><span>{c.when||E.now()}{c.ver?' · version '+c.ver:''} · recorded in History</span></div></div>;
+const Hd=({t,right})=><div className="cd-h">{t}<span className="sp"></span>{right}</div>;
+const Btns=({children})=><div className="btns">{children}</div>;
+const Stp=({st,i,label,note})=><div className={'stp '+st}><span className="ic">{st==='ok'?<i className="ti ti-check"></i>:st==='run'?<i className="ti ti-loader-2"></i>:i+1}</span>{label}{note&&<span className="nt">{note}</span>}</div>;
+
+/* one-line receipt for finished cards — tap to see the full record */
+const RCPT={tpl:['Job'],mode:['Mode'],agree:['Rules','ti-file-certificate'],setup:['Using'],policy:['Policy'],report:['Report'],read:['Read'],progress:['Drafted'],
+  sign:['Signed','ti-signature'],handoff:['Train owner'],nudge:['Handoff'],tdata:['Practice data'],replay:['Practice'],sugs:['Suggestions'],round:['Next'],autorun:['Autopilot'],
+  handback:['Held rule'],final:['Final approval','ti-signature'],shadow:['Shadow run'],shadowrun:['Shadow run'],approvals:['Sign-off','ti-signature'],checklist:['Checklist'],authority:['Authority'],comment:['Dana’s comment'],change:['Changed','ti-git-commit']};
+function Receipt({c,children}){
+  const [open,setOpen]=useState(false);
+  const r=RCPT[c.type]||['Done'];
+  return <>
+    <div className="st-rc" onClick={()=>setOpen(o=>!o)} title={open?'Hide details':'Show details'}>
+      <i className={'ti '+(r[1]||'ti-circle-check')+' ok'}></i><span><b>{r[0]}</b> · {c.choice||'Done'}</span><span className="sp"></span>
+      {c.when&&<span style={{fontSize:11,color:'var(--ink-3)'}}>{c.when}</span>}<i className={'ti ex '+(open?'ti-chevron-up':'ti-chevron-down')}></i></div>
+    {open&&children}</>;
+}
 
 /* ---------- cards ---------- */
 function Card({uc,m,onBrowse}){
+  const c=m.card;
+  const body=<CardBody uc={uc} m={m} onBrowse={onBrowse}/>;
+  if(c.type==='change'&&E.cur(uc)&&c.ver!==E.cur(uc).n)return <Receipt c={{type:'change',choice:'v'+c.ver+' · '+(c.summary||'Changed'),when:m.at}}><div className="cd">{body}</div></Receipt>;
+  if(c.done&&c.type!=='change')return <Receipt c={c}><div className="cd">{body}</div></Receipt>;
+  return <div className="cd" data-mid={m.id}>{body}</div>;
+}
+
+function CardBody({uc,m,onBrowse}){
   const c=m.card,done=!!c.done,id=m.id;
-  const wrap=(title,icon,body)=><div className={'st-card'+(done?' done':'')}>{title&&<h4><i className={'ti '+icon}></i>{title}</h4>}{body}</div>;
   switch(c.type){
   case 'tpl':{
     const recs=['ts-example','ts-uk','tm-retail','pep-am'].map(i=>D.TEMPLATES.find(t=>t.id===i));
-    return wrap('Pick a job','ti-briefcase',<>
-      {done?<Chosen c={c.choice}/>:<>
-      <div className="st-opts two">{recs.map(t=>{const cat=D.CATS[t.cat];return(
-        <button key={t.id} className="st-opt" onClick={()=>E.pickTpl(uc,id,t.id)}>
-          <b><i className={'ti '+cat.ic} style={{color:cat.c}}></i>{t.t}</b><span>{t.d}</span>{t.ex&&<em>Real-world example</em>}</button>);})}</div>
-      <div className="acts"><button className="st-chip" onClick={()=>onBrowse&&onBrowse(tid=>E.pickTpl(uc,id,tid))}><i className="ti ti-layout-grid"></i>Browse all {D.TEMPLATES.length} jobs</button></div></>}</>);}
+    return <><Hd t="Pick a job"/>
+      <div className="opts two">{recs.map(t=>{const cat=D.CATS[t.cat];return(
+        <button key={t.id} className="opt" disabled={done} onClick={()=>E.pickTpl(uc,id,t.id)}>
+          <b><i className={'ti '+cat.ic} style={{color:cat.c}}></i>{t.t}</b><span>{t.d}</span></button>);})}</div>
+      {!done&&<Btns><button className="st-btn ghost sm" onClick={()=>onBrowse&&onBrowse(tid=>E.pickTpl(uc,id,tid))}><i className="ti ti-layout-grid"></i>See all {D.TEMPLATES.length} jobs</button></Btns>}</>;}
   case 'mode':
-    return wrap('How hands-on?','ti-steering-wheel',done?<Chosen c={c.choice}/>:
-      <div className="st-opts two">
-        <button className="st-opt rec" onClick={()=>E.pickMode(uc,id,'auto')}><em>Fastest</em><b><i className="ti ti-sparkles" style={{color:'var(--t-violet)'}}></i>Autopilot</b><span>You decide 3 times — the job, the rules, the final approval. I do the policy, report, refining and tuning.</span></button>
-        <button className="st-opt" onClick={()=>E.pickMode(uc,id,'guide')}><em>Full control</em><b><i className="ti ti-route" style={{color:'var(--t-act)'}}></i>Guide me</b><span>We go step by step and you approve each one. Best for detailed bank policies.</span></button>
-      </div>);
+    return <><Hd t="How hands-on?"/>
+      <div className="opts two">
+        <button className="opt" disabled={done} onClick={()=>E.pickMode(uc,id,'auto')}><em>Fastest</em><b><i className="ti ti-sparkles" style={{color:'var(--t-violet)'}}></i>Autopilot</b><span>You decide 3 times. Ray does the rest and checks back for approvals.</span></button>
+        <button className="opt" disabled={done} onClick={()=>E.pickMode(uc,id,'guide')}><em>Full control</em><b><i className="ti ti-route"></i>Step by step</b><span>You confirm each step. Best for detailed bank policies.</span></button>
+      </div></>;
   case 'agree':{
     const t=E.tplOf(uc)||{};
-    const rows=[['ti-briefcase','Job',t.t],['ti-book','Manual',uc.hasDocs!==false?'Your AML policy (3 documents)':'ThetaRay template'],['ti-file-text','Report','ThetaRay predefined layout'],
-      ['ti-adjustments','Refining','I draft it myself — practice on your real alerts gives better feedback, with evidence'],['ti-database','Practice data','Last 6 months · 1,000 closed alerts'],
-      ['ti-player-stop','Stop rule','I rerun until a round gains less than 1%'],['ti-tool','Technical fixes','I fix code and data issues myself and log each one'],
-      ['ti-lock','I’ll hold','Sanctions & risk thresholds, anything about filing — I ask you','you'],['ti-signature','You sign','The final approval. Nothing goes live without you.','you']];
-    return wrap('The rules we agree once','ti-file-certificate',<>
-      <div className="st-agree">{rows.map(r=><div key={r[1]} className={'r'+(r[3]?' you':'')}><i className={'ti '+r[0]}></i><span className="k">{r[1]}</span><span className="v">{r[2]}</span></div>)}</div>
-      {done?<Chosen c={c.choice}/>:<div className="acts"><button className="st-btn ai" onClick={()=>E.agree(uc,id)}><i className="ti ti-check"></i>Agree &amp; start</button><button className="st-btn ghost" onClick={()=>E.agree(uc,id,true)}>Guide me instead</button></div>}</>);}
+    const rows=[['ti-briefcase','Job',t.t],['ti-book','Policy',uc.hasDocs!==false?'Your AML policy (3 documents)':'ThetaRay template'],['ti-school','Practice','1,000 closed alerts, until a round gains < 1%'],
+      ['ti-tool','Fixes','Technical issues: Ray fixes and logs them'],['ti-lock','Held for you','Sanctions & risk thresholds, anything about filing','you'],['ti-signature','You sign','The final approval — nothing goes live without you','you']];
+    return <><Hd t="Rules we agree once"/>
+      <div className="kv">{rows.map(r=><div key={r[1]} className={'r'+(r[3]?' you':'')}><i className={'ti '+r[0]}></i><span className="k">{r[1]}</span><span className="v">{r[2]}</span></div>)}</div>
+      {!done&&<Btns><button className="st-btn ai" onClick={()=>E.agree(uc,id)}><i className="ti ti-check"></i>Agree &amp; start</button><button className="st-btn ghost" onClick={()=>E.agree(uc,id,true)}>Go step by step instead</button></Btns>}</>;}
+  case 'setup':{
+    const su=uc.setup||{docs:true,report:'predefined'};
+    return <><Hd t="Ray will use"/>
+      <div className="kv">
+        <div className="r"><i className="ti ti-book"></i><span className="k">Policy</span><span className="v"><div className="seg2"><button className={su.docs?'on':''} onClick={()=>E.setSetup(uc,'docs',true)}>Your documents</button><button className={!su.docs?'on':''} onClick={()=>E.setSetup(uc,'docs',false)}>ThetaRay template</button></div></span></div>
+        <div className="r"><i className="ti ti-file-text"></i><span className="k">Report</span><span className="v"><div className="seg2"><button className={su.report==='predefined'?'on':''} onClick={()=>E.setSetup(uc,'report','predefined')}>Predefined</button><button className={su.report==='upload'?'on':''} onClick={()=>E.setSetup(uc,'report','upload')}>Your layout</button></div></span></div>
+      </div>
+      {su.docs&&<label className="drop"><i className="ti ti-cloud-upload"></i><span>Drop your policy files here — or use our <b>3 sample documents</b></span><input type="file" multiple hidden onChange={()=>E.setupGo(uc,id)}/></label>}
+      <Btns><button className="st-btn pri" onClick={()=>E.setupGo(uc,id)}><i className="ti ti-wand"></i>Build version 1</button></Btns></>;}
   case 'policy':
-    return wrap('Your manual','ti-book',done?<Chosen c={c.choice}/>:<>
-      <label className="st-drop"><i className="ti ti-cloud-upload"></i><b>Drop your policy &amp; procedures</b><br/>PDF, Word, Excel or Markdown
-        <input type="file" multiple hidden onChange={()=>E.policyChoice(uc,id,'sample')}/></label>
-      <div className="acts"><button className="st-btn pri sm" onClick={()=>E.policyChoice(uc,id,'sample')}><i className="ti ti-files"></i>Use our sample policy (3 files)</button><button className="st-btn sm" onClick={()=>E.policyChoice(uc,id,'skip')}>Skip — use the template</button></div></>);
-  case 'read':
-    return wrap(null,null,<div className="st-files">{uc.files.map(f=><div key={f.name} className="st-file"><span className="ext" style={{background:f.c}}>{f.ext}</span>
-      <div className="nm"><b>{f.name}</b><span>{f.pct>=100?'Found '+f.found:'Reading…'}</span>{f.pct<100&&<div className="st-prog"><i style={{width:f.pct+'%'}}></i></div>}</div>{f.pct>=100&&<i className="ti ti-circle-check ok"></i>}</div>)}</div>);
+    return <><Hd t="Your policy"/><Btns><button className="st-btn pri sm" disabled={done} onClick={()=>E.policyChoice(uc,id,'sample')}>Use sample policy</button><button className="st-btn sm" disabled={done} onClick={()=>E.policyChoice(uc,id,'skip')}>Use the template</button></Btns></>;
   case 'report':
-    return wrap('Investigation report','ti-file-text',done?<Chosen c={c.choice}/>:
-      <div className="st-opts two">
-        <button className="st-opt" onClick={()=>E.reportChoice(uc,id,'predefined')}><em>Recommended</em><b>Predefined layout</b><span>Built for this job by ThetaRay. Evidence table, decision, rationale and trail.</span></button>
-        <button className="st-opt" onClick={()=>E.reportChoice(uc,id,'upload')}><b>Upload your own</b><span>Use your bank’s report template. I’ll map every section.</span></button>
-      </div>);
+    return <><Hd t="Report"/><Btns><button className="st-btn pri sm" disabled={done} onClick={()=>E.reportChoice(uc,id,'predefined')}>Predefined</button><button className="st-btn sm" disabled={done} onClick={()=>E.reportChoice(uc,id,'upload')}>Your layout</button></Btns></>;
+  case 'read':
+    return <div className="files">{uc.files.map(f=><div key={f.name} className="sfile"><span className="ext" style={{background:f.c}}>{f.ext}</span>
+      <div className="nm"><b>{f.name}</b><span>{f.pct>=100?'Found '+f.found:'Reading…'}</span>{f.pct<100&&<div className="sprog"><i style={{width:f.pct+'%'}}></i></div>}</div>{f.pct>=100&&<i className="ti ti-circle-check ok"></i>}</div>)}</div>;
   case 'progress':
-    return wrap(null,null,<div className="st-steps">{c.steps.map((s,i)=>{const st=i<c.at||done?'ok':i===c.at?'run':'';return(
-      <div key={s} className={'st-step '+st}><span className="ic">{st==='ok'?<i className="ti ti-check"></i>:st==='run'?<i className="ti ti-loader-2"></i>:i+1}</span>{s}</div>);})}</div>);
+    return <div className="stps">{c.steps.map((s,i)=><Stp key={s} i={i} label={s} st={i<c.at||done?'ok':i===c.at?'run':''}/>)}</div>;
   case 'change':
-    return wrap(null,null,<>
-      <div className="st-diff"><span className="a">{c.diff[0]}</span><i className="ti ti-arrow-right"></i><span className="b">{c.diff[1]}</span></div>
-      <div className="st-proof"><i className="ti ti-shield-check"></i><div>{c.generic?<>Added as an instruction. <b>Practice on your real alerts will show whether it helps</b> — I’ll bring evidence.</>:<>Backed by <b>§{c.clause.no} {c.clause.t}</b> — {c.clause.src}</>}</div></div>
-      <div className="acts"><button className="st-btn sm" onClick={()=>E.undo(uc)} disabled={E.cur(uc).n!==c.ver}><i className="ti ti-arrow-back-up"></i>Undo</button>
-        <button className="st-btn sm ghost" onClick={()=>E.say(uc,'Why?')}><i className="ti ti-help-circle"></i>Why?</button>
-        <button className="st-btn sm ghost" onClick={()=>E.setTab(uc,'workflow')}><i className="ti ti-eye"></i>Show me</button>
-        {uc.step==='b.refine'&&<button className="st-btn sm ok" onClick={()=>E.askApply(uc)}><i className="ti ti-check"></i>Looks good</button>}</div></>);
+    return <>
+      <div className="diff"><div className="a"><span className="lb">Before</span><span>{c.diff[0]}</span></div><div className="b"><span className="lb">Now</span><span>{c.diff[1]}</span></div></div>
+      <div className="proof"><i className="ti ti-shield-check"></i><div>{c.generic?<>Added as an instruction — <b>practice on your real alerts will show if it helps</b>.</>:<>Backed by <b>§{c.clause.no} {c.clause.t}</b> · {c.clause.src}</>}</div></div>
+      <Btns><button className="st-btn sm" onClick={()=>E.undo(uc)}><i className="ti ti-arrow-back-up"></i>Undo</button>
+        <button className="st-btn ghost sm" onClick={()=>E.say(uc,'Why?')}>Why?</button>
+        <button className="st-btn ghost sm" onClick={()=>E.pulse(uc,E.cur(uc).changed,'workflow')}>Show me</button></Btns></>;
   case 'sign':{
     const v=E.cur(uc)?E.cur(uc).n:1;
-    const lines={build:['Locks version '+v+' as the starting point','Generates the MRM document and analyst user guide','Touches no real alert'],
-      train:['Version '+v+' becomes the tuned baseline','Next stage: Prove, on live alerts with no effect','Touches no real alert'],
-      operate:['New alerts follow version '+v+' from now on','Starting authority: '+D.AUTHORITY.find(a=>a.id===uc.operate.auth).t,'Roll back in one tap, anytime']}[c.what];
-    const title={build:'Sign off Build',train:'Sign off Train',operate:'Go live'}[c.what];
-    return wrap(title,'ti-signature',<>
-      <div className="st-steps">{lines.map(l=><div key={l} className="st-step ok"><span className="ic"><i className="ti ti-check"></i></span>{l}</div>)}</div>
-      {done?<Sign uc={uc}/>:<div className="acts"><button className={'st-btn '+(c.what==='operate'?'ai':'ok')} onClick={()=>E.sign(uc,id,c.what)}><i className={'ti '+(c.what==='operate'?'ti-player-play':'ti-signature')}></i>{c.what==='operate'?'Sign & go live':'Approve & sign'}</button>
-        {c.what==='build'&&<button className="st-btn ghost" onClick={()=>{E.doneCard(uc,id,'Kept refining');uc.step='b.refine';E.emit();}}>Keep refining</button>}</div>}</>);}
+    const lines={build:['Locks version '+v+' as the starting point','Generates the MRM document and user guide','Touches no real alert'],
+      train:['Version '+v+' becomes the tuned baseline','Next: Prove, on live alerts with no effect','Touches no real alert'],
+      operate:['New alerts follow version '+v,'Starting authority: '+D.AUTHORITY.find(a=>a.id===uc.operate.auth).t,'Roll back in one tap, anytime']}[c.what];
+    return <><Hd t={{build:'Sign off Build',train:'Sign off Train',operate:'Go live'}[c.what]}/>
+      <div className="stps">{lines.map((l,i)=><Stp key={l} i={i} label={l} st="ok"/>)}</div>
+      {done?<Signed c={c}/>:<Btns><button className={'st-btn '+(c.what==='operate'?'ai':'ok')} onClick={()=>E.sign(uc,id,c.what)}><i className={'ti '+(c.what==='operate'?'ti-player-play':'ti-signature')}></i>{c.what==='operate'?'Sign & go live':'Approve & sign'}</button>
+        {c.what==='build'&&<button className="st-btn ghost" onClick={()=>{E.doneCard(uc,id,'Kept refining');uc.step='b.refine';E.emit();}}>Keep refining</button>}</Btns>}</>;}
   case 'handoff':
-    return wrap('Who runs Train?','ti-users',done?<Chosen c={c.choice}/>:
-      <div className="st-opts two">
-        <button className="st-opt" onClick={()=>E.handoff(uc,id,'me')}><b><U.Av who="you"/>I’ll do it</b><span>Small team? Continue right now.</span></button>
-        <button className="st-opt" onClick={()=>E.handoff(uc,id,'dana')}><em>Usual owner</em><b><U.Av who="dana"/>Dana Levi</b><span>Analyst team lead — knows how alerts are decided. Gets full context.</span></button>
-      </div>);
+    return <><Hd t="Who runs Train?"/><div className="opts two">
+      <button className="opt" disabled={done} onClick={()=>E.handoff(uc,id,'me')}><b><U.Av who="you"/>Me</b><span>Continue right now.</span></button>
+      <button className="opt" disabled={done} onClick={()=>E.handoff(uc,id,'dana')}><em>Usual owner</em><b><U.Av who="dana"/>Dana Levi</b><span>Analyst team lead. Gets the full context.</span></button></div></>;
   case 'nudge':
-    return wrap(null,null,done?<Chosen c={c.choice}/>:<div className="acts" style={{marginTop:0}}>
-      <button className="st-btn sm" onClick={()=>{E.log(uc,'Nudged Dana Levi','you','you');E.logMsg(uc,'Nudge sent to Dana','ti-bell');}}><i className="ti ti-bell"></i>Nudge Dana now</button>
-      <button className="st-btn sm ghost" onClick={()=>E.takeBack(uc,id)}>Take it back &amp; continue myself</button></div>);
-  case 'tdata':{
-    const ch=(k,opts)=><div className="acts" style={{marginTop:6}}>{opts.map(o=><button key={o} className={'st-chip'+(uc.train[k]===o?' ai':'')} disabled={done} onClick={()=>E.setTrain(uc,k,o)}>{o}</button>)}</div>;
-    return wrap('Practice cases','ti-database',done?<Chosen c={c.choice}/>:<>
-      <div style={{fontSize:11,fontWeight:800,color:'var(--ink-3)'}}>PERIOD</div>{ch('period',['Last 3 months','Last 6 months','Last 12 months'])}
-      <div style={{fontSize:11,fontWeight:800,color:'var(--ink-3)',marginTop:8}}>HOW MANY</div>{ch('size',['500 alerts','1,000 alerts','All 2,140 alerts'])}
-      <div className="acts"><button className="st-btn pri" onClick={()=>E.startReplay(uc,id,false)}><i className="ti ti-player-play"></i>Start practice</button>
-        <button className="st-btn ghost sm" onClick={()=>E.startReplay(uc,id,true)}><i className="ti ti-upload"></i>Use a labeled CSV instead</button></div></>);}
+    return <Btns><button className="st-btn sm" disabled={done} onClick={()=>{E.log(uc,'Nudged Dana Levi','you','you');E.logMsg(uc,'Nudge sent to Dana','ti-bell');}}><i className="ti ti-bell"></i>Nudge Dana</button>
+      <button className="st-btn ghost sm" disabled={done} onClick={()=>E.takeBack(uc,id)}>Do it myself</button></Btns>;
+  case 'tdata':
+    return <><Hd t="Practice cases"/>
+      <div className="kv">
+        <div className="r"><i className="ti ti-calendar"></i><span className="k">Period</span><span className="v"><div className="seg2">{['Last 3 months','Last 6 months','Last 12 months'].map(o=><button key={o} className={uc.train.period===o?'on':''} onClick={()=>E.setTrain(uc,'period',o)}>{o.replace('Last ','')}</button>)}</div></span></div>
+        <div className="r"><i className="ti ti-stack-2"></i><span className="k">Alerts</span><span className="v"><div className="seg2">{['500 alerts','1,000 alerts','All 2,140 alerts'].map(o=><button key={o} className={uc.train.size===o?'on':''} onClick={()=>E.setTrain(uc,'size',o)}>{o.replace(' alerts','')}</button>)}</div></span></div>
+      </div>
+      <Btns><button className="st-btn pri" onClick={()=>E.startReplay(uc,id,false)}><i className="ti ti-player-play"></i>Start practice</button>
+        <button className="st-btn ghost sm" onClick={()=>E.startReplay(uc,id,true)}>Use a labeled CSV</button></Btns></>;
   case 'replay':
-    return wrap('Practice round '+c.round,'ti-school',<>
-      <div style={{display:'flex',justifyContent:'space-between',fontSize:12}}><span>{c.done.toLocaleString()} / {c.n.toLocaleString()} alerts replayed</span><b style={{color:'var(--t-ok)'}}>{c.agree}% agree</b></div>
-      <div className="st-prog"><i style={{width:(c.done/c.n*100)+'%'}}></i></div>{done&&<Chosen c={c.choice}/>}</>);
-  case 'diffs':
-    return wrap('Where we differed','ti-git-compare',<table className="st-tbl"><thead><tr><th>Alert</th><th>Analyst</th><th>Ray</th><th>Why</th></tr></thead>
-      <tbody>{D.DIFFS.map(r=><tr key={r[0]}><td className="code">{r[0]}</td><td>{r[1]}</td><td><b>{r[2]}</b></td><td style={{color:'var(--ink-2)'}}>{r[3]}</td></tr>)}</tbody></table>);
-  case 'sugs':{
-    const list=E.tuneSet(uc);const tech=list.filter(s=>s.cat==='bug'||s.cat==='data');const judg=list.filter(s=>!(s.cat==='bug'||s.cat==='data'));
-    return wrap('Ray’s suggestions','ti-bulb',<>
-      {tech.map(s=><div key={s.id} className="st-sug auto yes"><div className="h"><span className={'st-pill '+D.TUNE_CAT[s.cat][1]}>{D.TUNE_CAT[s.cat][0]}</span>{s.t}<span className="sp"></span><span className="st-pill ok"><i className="ti ti-check"></i>Fixed by Ray</span></div></div>)}
-      {judg.map(s=>{const st=uc.train.sugs[s.id];return(
-        <div key={s.id} className={'st-sug'+(st==='yes'?' yes':st==='no'?' no':'')}>
-          <div className="h"><span className={'st-pill '+D.TUNE_CAT[s.cat][1]}>{D.TUNE_CAT[s.cat][0]}</span>{s.t}<span className="sp"></span><span className={'st-pill '+(s.imp==='High'?'risk':'warn')}>{s.imp}</span></div>
-          <div className="st-diff" style={{marginTop:8}}><span className="a">{s.cur}</span><i className="ti ti-arrow-right"></i><span className="b">{s.sug}</span></div>
-          <div className="ev"><i className="ti ti-chart-dots"></i><span><b>Evidence:</b> {s.ev}</span></div>
-          {st?<Chosen c={st==='yes'?'Accepted':'Rejected'}/>:<div className="acts"><button className="st-btn sm ok" onClick={()=>E.decide(uc,id,s.id,true)}>Accept</button><button className="st-btn sm" onClick={()=>E.decide(uc,id,s.id,false)}>Reject</button></div>}
-        </div>);})}
-      {done?<Chosen c={c.choice}/>:<div className="acts"><button className="st-btn sm ai" onClick={()=>E.acceptAll(uc,id)}><i className="ti ti-checks"></i>Accept all remaining</button></div>}</>);}
+    return <><Hd t={'Practice round '+c.round} right={<b style={{color:'var(--t-ok)',fontSize:13,textTransform:'none',letterSpacing:0}}>{c.agree}% agree</b>}/>
+      <div style={{fontSize:12.5,color:'var(--ink-2)'}}>{c.cnt.toLocaleString()} of {c.n.toLocaleString()} alerts replayed</div>
+      <div className="sprog ai"><i style={{width:(c.cnt/c.n*100)+'%'}}></i></div></>;
+  case 'sugs':return <Sugs uc={uc} m={m}/>;
   case 'round':
-    return wrap(null,null,done?<Chosen c={c.choice}/>:<div className="acts" style={{marginTop:0}}>
-      <button className="st-btn pri" onClick={()=>E.round(uc,id,true)}><i className="ti ti-refresh"></i>Run round {uc.train.rounds.length+1}</button>
-      <button className="st-btn ghost" onClick={()=>E.round(uc,id,false)}>Sign off now</button></div>);
+    return <Btns><button className="st-btn pri" disabled={done} onClick={()=>E.round(uc,id,true)}><i className="ti ti-refresh"></i>Run round {uc.train.rounds.length+1}</button>
+      <button className="st-btn ghost" disabled={done} onClick={()=>E.round(uc,id,false)}>Sign off now</button></Btns>;
   case 'autorun':
-    return wrap('Autopilot','ti-sparkles',<div className="st-steps">{c.steps.map((s,i)=>{const st=i<c.at||done?'ok':i===c.at?'run':'';return(
-      <div key={s} className={'st-step '+st}><span className="ic">{st==='ok'?<i className="ti ti-check"></i>:st==='run'?<i className="ti ti-loader-2"></i>:i+1}</span>{s}{c.notes[i]&&<span className="who" style={{color:'var(--ink-3)'}}>{c.notes[i]}</span>}</div>);})}</div>);
+    return <><Hd t="Autopilot" right={!done&&<span className="st-pill ai">Working</span>}/>
+      <div className="stps">{c.steps.map((s,i)=><Stp key={s} i={i} label={s} note={c.notes[i]} st={i<c.at||done?'ok':i===c.at?'run':''}/>)}</div></>;
   case 'handback':{const s=c.sug;const n=E.cur(uc).wf.nodes.find(x=>x.id===s.node);
-    return wrap('Held for you: '+s.t,'ti-hand-stop',<>
-      <div className="st-diff"><span className="a">{s.cur}</span><i className="ti ti-arrow-right"></i><span className="b">{s.sug}</span></div>
-      <div className="st-proof"><i className="ti ti-chart-dots"></i><div><b>Evidence from your alerts:</b> {s.ev}.<br/><b>Where:</b> step “{n?n.t:'—'}” · <b>Why held:</b> you asked me to hold sanctions and risk thresholds.</div></div>
-      {done?<Chosen c={c.choice}/>:<div className="acts"><button className="st-btn ok sm" onClick={()=>E.handback(uc,id,true)}>Accept change</button><button className="st-btn sm" onClick={()=>E.handback(uc,id,false)}>Keep my rule</button><button className="st-btn ghost sm" onClick={()=>E.pulse(uc,[s.node],'workflow')}><i className="ti ti-eye"></i>Show me</button></div>}</>);}
+    return <><Hd t="Held for you" right={<span className="st-pill risk">{s.imp} impact</span>}/>
+      <div className="sug-t">{s.t}</div>
+      <div className="diff"><div className="a"><span className="lb">Today</span><span>{s.cur}</span></div><div className="b"><span className="lb">Ray</span><span>{s.sug}</span></div></div>
+      <Evidence s={s} where={n?n.t:null}/>
+      {!done&&<Btns><button className="st-btn ok sm" onClick={()=>E.handback(uc,id,true)}>Accept change</button><button className="st-btn sm" onClick={()=>E.handback(uc,id,false)}>Keep my rule</button></Btns>}</>;}
   case 'final':{const r=uc.train.rounds;
-    const items=[['ti-book','Read your manual · '+uc.policy.length+' clauses, each linked to its source'],['ti-file-text','Used the predefined report layout'],['ti-git-branch','Drafted the workflow and tuned it to version '+c.ver],
-      ['ti-school','Practiced '+r.length+' rounds on 1,000 closed alerts: '+r.map(x=>x.agree+'%').join(' → ')],['ti-tool','Fixed 2 technical issues (logged, reversible)'],['ti-bulb','Applied '+c.acc+' of 5 improvements, each with evidence'],['ti-lock','Held 1 rule for you — your decision is recorded']];
-    return wrap('What I did, in plain words','ti-list-details',<>
-      <div className="st-steps">{items.map(it=><div key={it[1]} className="st-step ok"><span className="ic"><i className={'ti '+it[0]}></i></span>{it[1]}</div>)}</div>
-      <div className="st-proof"><i className="ti ti-shield-check"></i><div>Every action is in the <b>trail</b>, versioned and reversible — ready to hand to an auditor. No real alert was touched.</div></div>
-      {done?<Sign uc={uc}/>:<div className="acts"><button className="st-btn ok" onClick={()=>E.finalSign(uc,id)}><i className="ti ti-signature"></i>Approve &amp; sign</button><button className="st-btn ghost" onClick={()=>E.setTab(uc,'trail')}>Open the trail</button></div>}</>);}
+    const items=['Read your policy — '+uc.policy.length+' clauses, each linked to its source','Used the predefined report layout','Built and tuned the workflow to version '+c.ver,
+      'Practiced '+r.length+' rounds: '+r.map(x=>x.agree+'%').join(' → '),'Fixed 2 technical issues, applied '+c.acc+' of 5 improvements','Held 1 rule for you — your decision is recorded'];
+    return <><Hd t="What I did"/>
+      <div className="stps">{items.map((it,i)=><Stp key={it} i={i} label={it} st="ok"/>)}</div>
+      <div className="proof"><i className="ti ti-shield-check"></i><div>Every action is in <b>History</b>, versioned and reversible. No real alert was touched.</div></div>
+      {done?<Signed c={c}/>:<Btns><button className="st-btn ok" onClick={()=>E.finalSign(uc,id)}><i className="ti ti-signature"></i>Approve &amp; sign</button></Btns>}</>;}
   case 'shadow':
-    return wrap('Shadow run','ti-eye-check',done?<Chosen c={c.choice}/>:<>
-      <div className="st-opts" style={{gridTemplateColumns:'repeat(3,1fr)'}}>{['2 weeks','4 weeks','6 weeks'].map(d=>
-        <button key={d} className={'st-opt'+(uc.prove.dur===d?' sel':'')} onClick={()=>E.setProve(uc,'dur',d)}>{d==='4 weeks'&&<em>Recommended</em>}<b>{d}</b><span>{d==='2 weeks'?'Quick proof':d==='4 weeks'?'Most use cases':'Low volume'}</span></button>)}</div>
-      <div className="acts" style={{marginTop:8}}>{['25%','50%','100%'].map(p=><button key={p} className={'st-chip'+(uc.prove.cov.startsWith(p)?' ai':'')} onClick={()=>E.setProve(uc,'cov',p+' of new alerts')}>{p} of new alerts</button>)}</div>
-      <div className="st-proof"><i className="ti ti-target-arrow"></i><div><b>Targets to pass:</b> agreement ≥ 85% · escalation recall ≥ 95% · 0 missed SARs. Analysts see nothing; no alert changes.</div></div>
-      <div className="acts"><button className="st-btn ai" onClick={()=>E.startShadow(uc,id)}><i className="ti ti-player-play"></i>Start shadow run</button></div></>);
+    return <><Hd t="Shadow run"/>
+      <div className="kv">
+        <div className="r"><i className="ti ti-calendar"></i><span className="k">Length</span><span className="v"><div className="seg2">{['2 weeks','4 weeks','6 weeks'].map(d=><button key={d} className={uc.prove.dur===d?'on':''} onClick={()=>E.setProve(uc,'dur',d)}>{d}</button>)}</div></span></div>
+        <div className="r"><i className="ti ti-percentage"></i><span className="k">New alerts</span><span className="v"><div className="seg2">{['25%','50%','100%'].map(p=><button key={p} className={uc.prove.cov.startsWith(p)?'on':''} onClick={()=>E.setProve(uc,'cov',p+' of new alerts')}>{p}</button>)}</div></span></div>
+        <div className="r"><i className="ti ti-target-arrow"></i><span className="k">To pass</span><span className="v">Agreement ≥ 85% · escalations caught ≥ 95% · 0 missed SARs</span></div>
+      </div>
+      <Btns><button className="st-btn ai" onClick={()=>E.startShadow(uc,id)}><i className="ti ti-player-play"></i>Start shadow run</button></Btns></>;
   case 'shadowrun':{const p=uc.prove,f=Math.min(1,p.day/p.total);
-    return wrap('Day '+p.day+' of '+p.total,'ti-eye-check',<>
-      <div className="st-shadowbar"><i style={{width:(f*100)+'%'}}></i></div>
-      <div className="st-mini" style={{marginTop:8}}>
-        <div className="k"><b>{Math.round(4100*f).toLocaleString()}</b><span>alerts shadowed</span></div>
-        <div className="k"><b style={{color:'var(--t-ok)'}}>{p.day?91:'—'}{p.day?'%':''}</b><span>agreement</span></div>
-        <div className="k"><b style={{color:'var(--t-ok)'}}>{p.day?98:'—'}{p.day?'%':''}</b><span>escalation recall</span></div>
-        <div className="k"><b>0</b><span>alerts affected</span></div></div>
-      {done?<Chosen c={c.choice}/>:<div className="acts"><button className="st-btn sm" onClick={()=>E.fastForward(uc)}><i className="ti ti-player-track-next"></i>Fast-forward to the end (demo)</button></div>}</>);}
+    return <><Hd t={'Day '+p.day+' of '+p.total} right={<span className="st-pill ai">No effect on alerts</span>}/>
+      <div className="sbar"><i style={{width:(f*100)+'%'}}></i></div>
+      <div className="mini">
+        <div className="k"><b>{Math.round(4100*f).toLocaleString()}</b><span>alerts</span></div>
+        <div className="k"><b style={{color:'var(--t-ok)'}}>{p.day?'91%':'—'}</b><span>agreement</span></div>
+        <div className="k"><b style={{color:'var(--t-ok)'}}>{p.day?'98%':'—'}</b><span>escalations caught</span></div>
+        <div className="k"><b>0</b><span>alerts changed</span></div></div>
+      {!done&&<Btns><button className="st-btn sm" onClick={()=>E.fastForward(uc)}><i className="ti ti-player-track-next"></i>Skip to the end (demo)</button></Btns>}</>;}
   case 'approvals':{
     const ppl=[['mlro','Sarah Klein','MLRO'],['fcc','Lior Ben-Ami','Head of Financial Crime Compliance']];
-    return wrap('Proof of concept sign-off','ti-users',<>
-      <table className="st-tbl"><tbody>{[['Agreement','91%','≥ 85%'],['Escalation recall','98%','≥ 95%'],['Missed SARs','0','0']].map(r=><tr key={r[0]}><td>{r[0]}</td><td><b>{r[1]}</b></td><td style={{color:'var(--ink-3)'}}>target {r[2]}</td><td><span className="st-pill ok">Met</span></td></tr>)}</tbody></table>
-      <div style={{marginTop:10,display:'flex',flexDirection:'column',gap:6}}>{ppl.map(p=><div key={p[0]} className="st-file"><U.Av who={p[0]}/><div className="nm"><b>{p[1]}</b><span>{p[2]}</span></div>
-        {uc.prove.signed[p[0]]?<span className="st-pill ok"><i className="ti ti-signature"></i>Signed {uc.prove.signed[p[0]]}</span>:c.requested?<span className="st-pill warn">Waiting…</span>:<span className="st-pill">Not requested</span>}</div>)}</div>
-      {done?<Chosen c={c.choice}/>:!c.requested&&<div className="acts"><button className="st-btn pri" onClick={()=>E.requestSignoff(uc,id)}><i className="ti ti-send"></i>Request both signatures</button></div>}</>);}
+    return <><Hd t="Sign-off" right={<span className="st-pill ok">3 of 3 targets met</span>}/>
+      <div className="files">{ppl.map(p=><div key={p[0]} className="sfile"><U.Av who={p[0]}/><div className="nm"><b>{p[1]}</b><span>{p[2]}</span></div>
+        {uc.prove.signed[p[0]]?<span className="st-pill ok"><i className="ti ti-signature"></i>Signed {uc.prove.signed[p[0]]}</span>:c.requested?<span className="st-pill warn">Waiting…</span>:<span className="st-pill">Not asked yet</span>}</div>)}</div>
+      {!done&&!c.requested&&<Btns><button className="st-btn pri" onClick={()=>E.requestSignoff(uc,id)}><i className="ti ti-send"></i>Request both signatures</button></Btns>}</>;}
   case 'checklist':
-    return wrap('Go-live checklist','ti-checklist',<>
+    return <><Hd t="Go-live checklist"/>
       {D.CHECKLIST.map((it,i)=>{const st=uc.operate.chk[i];return(
-        <div key={i} className={'st-check'+(st?' on':'')} onClick={()=>!done&&E.toggleCheck(uc,id,i)}><span className="bx">{st&&<i className="ti ti-check"></i>}</span>{it.t}
-          <span className="by">{st==='ray'?'✦ proven from the trail':st==='you'?'confirmed by you':'tap to confirm'}</span></div>);})}
-      {done&&<Chosen c={c.choice}/>}</>);
+        <div key={i} className={'chk'+(st?' on':' todo')} onClick={()=>!done&&E.toggleCheck(uc,id,i)}><span className="bx">{st&&<i className="ti ti-check"></i>}</span>{it.t}
+          <span className="by">{st==='ray'?'✦ proven by Ray':st==='you'?'you':'tap to confirm'}</span></div>);})}</>;
   case 'authority':
-    return wrap('Starting authority','ti-stairs-up',done?<Chosen c={c.choice}/>:
-      <div className="st-ladder">{D.AUTHORITY.map((a,i)=><button key={a.id} className="st-opt" onClick={()=>E.pickAuth(uc,id,a.id)}>{i===0&&<em>Recommended to start</em>}<b><i className={'ti '+a.ic}></i>{i+1}. {a.t}</b><span>{a.d}</span></button>)}</div>);
+    return <><Hd t="Starting authority"/><div className="opts">{D.AUTHORITY.map((a,i)=><button key={a.id} className="opt" disabled={done} onClick={()=>E.pickAuth(uc,id,a.id)}>{i===0&&<em>Recommended to start</em>}<b><i className={'ti '+a.ic}></i>{a.t}</b><span>{a.d}</span></button>)}</div></>;
   case 'comment':
-    return wrap(null,null,<>
-      <div className="st-proof" style={{marginTop:0}}><U.Av who={c.who}/><div><b>{P(c.who).n}</b> · {P(c.who).r}<br/>“{c.text}”</div></div>
-      {done?<Chosen c={c.choice}/>:<div className="acts"><button className="st-btn ok sm" onClick={()=>E.applyComment(uc,id,true)}><i className="ti ti-check"></i>Apply Dana’s change</button><button className="st-btn sm" onClick={()=>E.applyComment(uc,id,false)}>Discuss</button></div>}</>);
+    return <><div className="proof" style={{marginTop:0}}><U.Av who={c.who}/><div><b>{P(c.who).n}</b> · {P(c.who).r}<br/>“{c.text}”</div></div>
+      {!done&&<Btns><button className="st-btn ok sm" onClick={()=>E.applyComment(uc,id,true)}><i className="ti ti-check"></i>Apply it</button><button className="st-btn sm" onClick={()=>E.applyComment(uc,id,false)}>Discuss</button></Btns>}</>;
   default:return null;
   }
+}
+
+/* evidence line with drill-down into the alerts behind a claim */
+function Evidence({s,where}){
+  const [open,setOpen]=useState(false);
+  const n=parseInt((s.ev.match(/\d+/)||['3'])[0]);
+  const rows=Array.from({length:Math.min(3,n)}).map((_,i)=>['A-'+(21000+((s.id.charCodeAt(1)*97+i*131)%900)),i%2?'Escalated':'Closed',i%2?'Closed':'Escalated']);
+  return <>
+    <div className="evb"><i className="ti ti-chart-dots"></i><span>{s.ev}{where?' · step “'+where+'”':''} · <button onClick={()=>setOpen(o=>!o)}>{open?'Hide':'See the '+n+' alerts'}</button></span></div>
+    {open&&<table className="stbl"><thead><tr><th>Alert</th><th>Analyst</th><th>Ray before</th></tr></thead><tbody>{rows.map(r=><tr key={r[0]}><td className="code">{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>)}
+      {n>3&&<tr><td colSpan="3" style={{color:'var(--ink-3)'}}>+ {n-3} more in Evidence</td></tr>}</tbody></table>}</>;
+}
+
+/* suggestions: one at a time */
+function Sugs({uc,m}){
+  const c=m.card,id=m.id;
+  const [tOpen,setT]=useState(false);
+  const list=E.tuneSet(uc),tech=list.filter(s=>s.cat==='bug'||s.cat==='data'),judg=list.filter(s=>!(s.cat==='bug'||s.cat==='data'));
+  const idx=judg.findIndex(s=>!uc.train.sugs[s.id]);
+  if(c.done||idx<0)return <><Hd t="Suggestions"/><div className="stps">{judg.map(x=><div key={x.id} className="stp ok"><span className="ic">{uc.train.sugs[x.id]==='yes'?<i className="ti ti-check"></i>:<i className="ti ti-x"></i>}</span>{x.t}<span className="nt">{uc.train.sugs[x.id]==='yes'?'Accepted':'Rejected'}</span></div>)}</div></>;
+  const s=judg[idx];
+  return <>
+    <Hd t={'Suggestion '+(idx+1)+' of '+judg.length} right={<div className="pager">{judg.map((x,i)=><i key={x.id} className={uc.train.sugs[x.id]==='yes'?'yes':uc.train.sugs[x.id]==='no'?'no':i===idx?'on':''}></i>)}</div>}/>
+    <div style={{display:'flex',gap:6,marginBottom:4}}><span className={'st-pill '+D.TUNE_CAT[s.cat][1]}>{D.TUNE_CAT[s.cat][0]}</span><span className={'st-pill '+(s.imp==='High'?'risk':'warn')}>{s.imp} impact</span></div>
+    <div className="sug-t">{s.t}</div>
+    <div className="diff"><div className="a"><span className="lb">Today</span><span>{s.cur}</span></div><div className="b"><span className="lb">Ray</span><span>{s.sug}</span></div></div>
+    <Evidence key={s.id} s={s}/>
+    <Btns><button className="st-btn ok" onClick={()=>E.decide(uc,id,s.id,true)}><i className="ti ti-check"></i>Accept</button><button className="st-btn" onClick={()=>E.decide(uc,id,s.id,false)}>Reject</button>
+      <span style={{flex:1}}></span><button className="st-btn ghost sm" onClick={()=>E.acceptAll(uc,id)}>Accept all</button></Btns>
+    <div className="st-rc" style={{marginTop:12}} onClick={()=>setT(o=>!o)}><i className="ti ti-tool ok"></i><span><b>{tech.length} technical fixes</b> already applied by Ray</span><span className="sp"></span><i className={'ti ex '+(tOpen?'ti-chevron-up':'ti-chevron-down')}></i></div>
+    {tOpen&&<div className="stps" style={{padding:'10px 4px 0'}}>{tech.map(x=><div key={x.id} className="stp ok"><span className="ic"><i className="ti ti-check"></i></span>{x.t}</div>)}</div>}
+  </>;
 }
 U.Card=Card;
 
 /* ---------- living package ---------- */
-const NW=184,GAP=22,RH=116,NH=62;
+const NW=184,GAP=22,NH=60;
 function Flow({uc,onNode}){
   const v=E.cur(uc);
   const ref=useRef(null);const [cw,setCw]=useState(0);
-  useEffect(()=>{if(!ref.current||!uc.pulse.ids.length)return;const el=ref.current.querySelector('[data-nid="'+uc.pulse.ids[uc.pulse.ids.length-1]+'"]');const sc=ref.current.closest('.st-pbody');
+  const narrow=cw>0&&cw<520;
+  useEffect(()=>{if(!ref.current||!window.ResizeObserver)return;const ro=new ResizeObserver(e=>setCw(e[0].contentRect.width));ro.observe(ref.current);return()=>ro.disconnect();},[!!v,narrow]);
+  useEffect(()=>{if(!ref.current||!uc.pulse.ids.length)return;const el=ref.current.querySelector('[data-nid="'+uc.pulse.ids[uc.pulse.ids.length-1]+'"]');const sc=ref.current.closest('.pbody');
     if(el&&sc){const top=el.getBoundingClientRect().top-sc.getBoundingClientRect().top+sc.scrollTop;sc.scrollTop=Math.max(0,top-sc.clientHeight/2+40);}},[uc.pulse.t]);
-  useEffect(()=>{if(!ref.current||!window.ResizeObserver)return;const ro=new ResizeObserver(e=>setCw(e[0].contentRect.width));ro.observe(ref.current);return()=>ro.disconnect();},[!!v,cw>0&&cw<520]);
-  if(!v)return <div className="st-empty"><i className="ti ti-git-branch"></i><b>Your workflow appears here as we talk</b><span>Pick a job and Ray drafts it step by step — every step linked to your policy.</span></div>;
-  const wf=v.wf,rows=wf.nodes.reduce((a,n)=>Math.max(a,n.r),0)+1;
-  const pos=n=>({x:n.c*(NW+GAP),y:n.r*RH});
-  const W=3*NW+2*GAP,H=rows*RH;
-  const fresh=Date.now()-uc.pulse.t<3500;
-  if(cw&&cw<520){
+  if(!v)return null;
+  const wf=v.wf,fresh=Date.now()-uc.pulse.t<3500;
+  const cls=n=>'nd'+(v.changed.includes(n.id)?' chg':'')+(fresh&&uc.pulse.ids.includes(n.id)?(uc.pulse.fresh?' new':' pulse'):'');
+  const inner=n=>{const k=D.KIND[n.k]||D.KIND.user;return <>
+    <div className="h"><span className="ni" style={{background:k[1]+'1f',color:k[1]}}><i className={'ti '+k[0]}></i></span><span className="nt">{n.t}</span>{n.ai&&<span className="ai" title="Ray decides or drafts with AI"></span>}</div>
+    <div className="nm"><span>{n.role} · {n.sla}</span>{n.pol&&<span className="pol">§{n.pol}</span>}</div>
+    {n.tuned?<div className="why">Tuned: {n.tuned}</div>:v.changed.includes(n.id)?<div className="why">Changed in v{v.n}{n.note?': '+n.note:''}</div>:null}</>;};
+  if(narrow){
     const order=[...wf.nodes].sort((a,b)=>a.r-b.r||a.c-b.c);
-    return <div className="st-flowwrap" ref={ref}><div className="st-vlist">{order.map(n=>{const k=D.KIND[n.k]||D.KIND.user,ch=v.changed.includes(n.id),pl=fresh&&uc.pulse.ids.includes(n.id);
+    return <div className="flowwrap" ref={ref}><div className="vlist">{order.map(n=>{
       const outs=wf.edges.filter(e=>e[0]===n.id&&e[2]).map(e=>{const t=wf.nodes.find(x=>x.id===e[1]);return t?e[2]+' → '+t.t:null;}).filter(Boolean);
-      return <div key={n.id} data-nid={n.id} className={'st-node st-vnode'+(ch?' chg':'')+(pl?' pulse':'')} onClick={()=>onNode&&onNode(n)}>
-        <span className={'src'+(n.ai?' ai':'')}>{n.ai?'✦ AI':'Rule'}</span>
-        <div className="h"><span className="ni" style={{background:k[1]+'22',color:k[1]}}><i className={'ti '+k[0]}></i></span><span className="nt">{n.t}</span></div>
-        <div className="nm"><span><b>{n.role}</b></span><span>{n.sla}</span>{n.pol&&<span className="pol">§{n.pol}</span>}</div>
-        {n.tuned&&<div className="why" style={{display:'block'}}>✦ Tuned: {n.tuned}</div>}
-        {!n.tuned&&ch&&<div className="why">Updated in v{v.n}</div>}
-        {outs.map(o=><div key={o} className="br"><i className="ti ti-corner-down-right"></i>{o}</div>)}
-      </div>;})}</div></div>;
+      return <div key={n.id} data-nid={n.id} className={cls(n)+' v'} onClick={()=>onNode&&onNode(n)}>{inner(n)}{outs.map(o=><div key={o} className="br"><i className="ti ti-corner-down-right"></i>{o}</div>)}</div>;})}</div></div>;
   }
-  return <div className="st-flowwrap" ref={ref}>
-    <div className="st-flow" style={{width:W,height:H}}>
+  const rows=wf.nodes.reduce((a,n)=>Math.max(a,n.r),0)+1;
+  const nh=n=>{const lines=Math.min(3,Math.ceil(n.t.length/21));const why=n.tuned||v.changed.includes(n.id);return 20+Math.max(22,lines*16)+21+(why?(n.tuned&&n.tuned.length>30?36:22):0);};
+  const rowH=Array.from({length:rows}).map((_,r)=>Math.max(NH,...wf.nodes.filter(n=>n.r===r).map(nh)));
+  const rowY=rowH.reduce((acc,h,i)=>{acc.push(i?acc[i-1]+rowH[i-1]+52:0);return acc;},[]);
+  const pos=n=>({x:n.c*(NW+GAP),y:rowY[n.r]});
+  const W=3*NW+2*GAP,H=rowY[rows-1]+rowH[rows-1]+6;
+  return <div className="flowwrap" ref={ref}>
+    <div className="flow" style={{width:W,height:H}}>
       <svg width={W} height={H}>{wf.edges.map((e,i)=>{const a=wf.nodes.find(n=>n.id===e[0]),b=wf.nodes.find(n=>n.id===e[1]);if(!a||!b)return null;
-        const p=pos(a),q=pos(b),x1=p.x+NW/2,y1=p.y+NH,x2=q.x+NW/2,y2=q.y;
-        return <g key={i}><path d={`M${x1} ${y1} C${x1} ${y1+24},${x2} ${y2-24},${x2} ${y2-2}`}/><path d={`M${x2-4} ${y2-7} L${x2} ${y2-1} L${x2+4} ${y2-7}`}/>
-          {e[2]&&<text x={(x1+x2)/2+(x1===x2?6:0)} y={(y1+y2)/2+3} textAnchor={x1===x2?'start':'middle'}>{e[2]}</text>}</g>;})}</svg>
-      {wf.nodes.map(n=>{const p=pos(n),k=D.KIND[n.k]||D.KIND.user,ch=v.changed.includes(n.id),pl=fresh&&uc.pulse.ids.includes(n.id);
-        return <div key={n.id} data-nid={n.id} className={'st-node'+(ch?' chg':'')+(pl?(uc.pulse.fresh?' new':' pulse'):'')} style={{left:p.x,top:p.y}} onClick={()=>onNode&&onNode(n)} title="Ask Ray about this step">
-          <span className={'src'+(n.ai?' ai':'')}>{n.ai?'✦ AI':'Rule'}</span>
-          <div className="h"><span className="ni" style={{background:k[1]+'22',color:k[1]}}><i className={'ti '+k[0]}></i></span><span className="nt">{n.t}</span></div>
-          <div className="nm"><span><b>{n.role}</b></span><span>{n.sla}</span>{n.pol&&<span className="pol">§{n.pol}</span>}</div>
-          {n.tuned&&<div className="why" style={{display:'block'}}>✦ Tuned: {n.tuned}</div>}
-          {!n.tuned&&ch&&<div className="why">Updated in v{v.n}{n.note?': '+n.note.slice(0,46):''}</div>}
-        </div>;})}
+        const p=pos(a),q=pos(b),x1=p.x+NW/2,y1=p.y+nh(a),x2=q.x+NW/2,y2=q.y;
+        return <g key={i}><path d={`M${x1} ${y1} C${x1} ${y1+26},${x2} ${y2-26},${x2} ${y2-2}`}/>
+          {e[2]&&<text x={x1===x2?x1+7:(x1+x2)/2} y={y1+(y2-y1)/2+3} textAnchor={x1===x2?'start':'middle'}>{e[2]}</text>}</g>;})}</svg>
+      {wf.nodes.map(n=>{const p=pos(n);return <div key={n.id} data-nid={n.id} className={cls(n)} style={{left:p.x,top:p.y}} onClick={()=>onNode&&onNode(n)} title="Tap to talk to Ray about this step">{inner(n)}</div>;})}
     </div>
-    <div className="st-legend"><span><span className="st-pill ai">✦ AI</span>Ray decides or drafts</span><span><span className="st-pill">Rule</span>Fixed rule</span><span><span className="st-pill ok">§</span>Linked policy clause</span><span>Tap a step to talk about it</span></div>
+    <div className="legend"><span><span className="ai"></span>Ray decides with AI</span><span><b style={{color:'var(--t-act)'}}>§</b> Your policy clause</span><span><i className="ti ti-hand-finger"></i>Tap a step to talk about it</span></div>
   </div>;
 }
-function Policy({uc}){
-  if(!uc.policy.length)return <div className="st-empty"><i className="ti ti-book"></i><b>Hand Ray your manual</b><span>Your policy clauses appear here, each with its source page. Everything Ray builds points back to them.</span></div>;
-  return <>{uc.hasDocs&&uc.files.length>0&&<div className="st-banner ok"><i className="ti ti-files"></i>{uc.files.length} documents read · {uc.policy.length} clauses extracted<span className="sp"></span></div>}
-    {uc.policy.map(c=><div key={c.no} className={'st-clause'+(uc.policyHl.includes(c.no)&&uc.lastChange&&uc.lastChange.clause.no===c.no?' hl':'')}>
+function Rules({uc}){
+  return <>{uc.hasDocs&&uc.files.length>0&&<div className="sect"><i className="ti ti-files"></i>{uc.files.length} documents · {uc.policy.length} clauses</div>}
+    {uc.policy.map(c=><div key={c.no} className={'cl'+(uc.lastChange&&uc.lastChange.clause.no===c.no?' hl':'')}>
       <div className="h"><span className="no">§{c.no}</span>{c.t}</div><p>{c.p}</p><div className="s"><i className="ti ti-paperclip"></i>{c.src}</div></div>)}</>;
 }
 function Report({uc}){
-  if(!uc.report)return <div className="st-empty"><i className="ti ti-file-text"></i><b>The investigation report Ray writes</b><span>Choose a layout and preview what Ray will write on every alert.</span></div>;
-  return <div className="st-doc"><div className="dh"><i className="ti ti-file-text" style={{fontSize:20,color:'var(--t-act)'}}></i><b>Investigation report · {uc.name}</b><span className="st-pill act">{uc.report==='upload'?'Your layout':'Predefined'}</span></div>
-    {D.REPORT.map((r,i)=><div key={r.h} className="ds"><h5>{i+1}. {r.h}</h5><p>{r.p}</p><div className="ln" style={{width:(92-i*7)+'%'}}></div><div className="ln" style={{width:(70-i*5)+'%'}}></div></div>)}</div>;
+  return <div className="sdoc"><div className="dh"><i className="ti ti-file-text" style={{fontSize:20,color:'var(--ink-3)'}}></i><b>Investigation report</b><span className="st-pill">{uc.report==='upload'?'Your layout':'Predefined'}</span></div>
+    {D.REPORT.map((r,i)=><div key={r.h} className="ds"><h5>{i+1}. {r.h}</h5><p>{r.p}</p><div className="ln" style={{width:(92-i*7)+'%'}}></div></div>)}</div>;
 }
-function Results({uc}){
+function Evid({uc}){
   const r=uc.train.rounds,p=uc.prove,live=uc.operate.live;
-  if(!r.length&&!p.day&&!live)return <div className="st-empty"><i className="ti ti-chart-bar"></i><b>Evidence, not promises</b><span>Once Ray practices on your closed alerts, its results versus your analysts show up here.</span></div>;
-  const kp=(v,l,c,tg)=><div className="st-kpi"><b style={{color:c||'inherit'}}>{v}</b><span>{l}</span>{tg&&<span className="tg" style={{color:'var(--t-ok)'}}>{tg}</span>}</div>;
+  const kp=(v,l,tg)=><div className="kp"><b>{v}</b><span>{l}</span>{tg&&<span className="tg">{tg}</span>}</div>;
   return <>
-    {live&&<><div className="st-live"><span className="p"></span>Live · version {E.cur(uc).n} · {D.AUTHORITY.find(a=>a.id===uc.operate.auth).t}<span style={{flex:1}}></span><button className="st-btn sm" onClick={()=>E.rollback(uc)}><i className="ti ti-arrow-back-up"></i>Roll back</button></div>
-      <div className="st-kpis">{kp('3,912','alerts, last 7 days')}{kp('31%','closed by Ray')}{kp('3.1 h','avg. time to decision')}{kp('0','SLA breaches','var(--t-ok)')}</div></>}
-    {p.day>0&&<div className="st-panel"><h5><i className="ti ti-eye-check" style={{color:'var(--violet2)'}}></i>Prove · shadow run · day {p.day} of {p.total}</h5>
-      <div className="st-shadowbar"><i style={{width:(p.day/p.total*100)+'%'}}></i></div>
-      <div className="st-kpis" style={{marginTop:12}}>{kp(Math.round(4100*Math.min(1,p.day/p.total)).toLocaleString(),'alerts shadowed')}{kp('91%','agreement','var(--t-ok)','target ≥ 85% · met')}{kp('98%','escalation recall','var(--t-ok)','target ≥ 95% · met')}{kp('0','missed SARs','var(--t-ok)','target 0 · met')}</div>
-      <table className="st-tbl"><thead><tr><th>Alert</th><th>Analysts</th><th>Ray</th><th>Note</th></tr></thead><tbody>{D.SHADOW_DIFFS.map(d=><tr key={d[0]}><td className="code">{d[0]}</td><td>{d[1]}</td><td><b>{d[2]}</b></td><td style={{color:'var(--ink-2)'}}>{d[3]}</td></tr>)}</tbody></table></div>}
-    {r.length>0&&<div className="st-panel"><h5><i className="ti ti-school" style={{color:'var(--act)'}}></i>Train · Ray vs. your analysts on closed alerts</h5>
-      <div className="st-kpis">{kp(r[r.length-1].agree+'%','agreement','var(--t-ok)')}{kp('34%','false positives Ray would close')}{kp(r.length>1?'0':'2','escalations Ray missed',r.length>1?'var(--t-ok)':'var(--t-risk)')}{kp('2.1 min','avg. Ray decision')}</div>
-      <div className="st-rounds">{r.map(x=><div key={x.n} className="r"><b>{x.agree}%</b><i style={{height:((x.agree-70)*3.2)+'px'}}></i><span>Round {x.n}</span></div>)}</div>
-      <table className="st-tbl" style={{marginTop:12}}><thead><tr><th>Alert</th><th>Analyst</th><th>Ray</th><th>Why Ray differs</th></tr></thead><tbody>{D.DIFFS.map(d=><tr key={d[0]}><td className="code">{d[0]}</td><td>{d[1]}</td><td><b>{d[2]}</b></td><td style={{color:'var(--ink-2)'}}>{d[3]}</td></tr>)}</tbody></table></div>}
+    {live&&<><div className="livebar"><span className="p"></span>Live · version {E.cur(uc).n} · {D.AUTHORITY.find(a=>a.id===uc.operate.auth).t}<span className="sp"></span><button className="st-btn sm" onClick={()=>E.rollback(uc)}><i className="ti ti-arrow-back-up"></i>Roll back</button></div>
+      <div className="kp4">{kp('3,912','alerts, last 7 days')}{kp('31%','closed by Ray')}{kp('3.1 h','avg. time to decision')}{kp('0','SLA breaches')}</div></>}
+    {p.day>0&&<div className="pn"><h5><i className="ti ti-eye-check" style={{color:'var(--violet2)'}}></i>Prove · shadow run<span className="sp"></span><span className="st-pill">Day {p.day} of {p.total}</span></h5>
+      <div className="sbar"><i style={{width:(p.day/p.total*100)+'%'}}></i></div>
+      <div className="kp4">{kp(Math.round(4100*Math.min(1,p.day/p.total)).toLocaleString(),'alerts')}{kp('91%','agreement','target 85% · met')}{kp('98%','escalations caught','target 95% · met')}{kp('0','missed SARs','target 0 · met')}</div>
+      <table className="stbl"><thead><tr><th>Alert</th><th>Analysts</th><th>Ray</th><th>Why</th></tr></thead><tbody>{D.SHADOW_DIFFS.map(d=><tr key={d[0]}><td className="code">{d[0]}</td><td>{d[1]}</td><td><b>{d[2]}</b></td><td style={{color:'var(--ink-2)'}}>{d[3]}</td></tr>)}</tbody></table></div>}
+    {r.length>0&&<div className="pn"><h5><i className="ti ti-school" style={{color:'var(--act)'}}></i>Train · Ray vs. your analysts</h5>
+      <div className="kp4">{kp(r[r.length-1].agree+'%','agreement')}{kp('34%','false positives Ray closes')}{kp(r.length>1?'0':'2','escalations missed')}{kp('2.1 min','per decision')}</div>
+      <div className="rounds">{r.map(x=><div key={x.n} className="r"><b>{x.agree}%</b><i style={{height:((x.agree-70)*3.6)+'px'}}></i><span>Round {x.n}</span></div>)}</div>
+      <table className="stbl" style={{marginTop:14}}><thead><tr><th>Alert</th><th>Analyst</th><th>Ray</th><th>Why Ray differs</th></tr></thead><tbody>{D.DIFFS.map(d=><tr key={d[0]}><td className="code">{d[0]}</td><td>{d[1]}</td><td><b>{d[2]}</b></td><td style={{color:'var(--ink-2)'}}>{d[3]}</td></tr>)}</tbody></table></div>}
   </>;
 }
-function Trail({uc}){
+const isDecision=t=>t.kind==='sign'||/^(Accepted|Rejected|Agreed|Chose|Signed|Requested|Starting authority|Go-live|GO LIVE|Handed|Rolled back)/i.test(t.text);
+const isChange=t=>/^v\d+:|Drafted|Applied|Added|Restored|fixes/i.test(t.text);
+function History({uc}){
+  const [f,setF]=useState('all');
+  const F=[['all','All'],['dec','Decisions'],['chg','Changes'],['ray','By Ray']];
+  const match=(t,k)=>k==='all'||(k==='dec'&&isDecision(t))||(k==='chg'&&isChange(t))||(k==='ray'&&t.who==='ray');
+  const list=uc.trail.filter(t=>match(t,f));
   const icon={sign:'ti-signature',ray:'ti-sparkles',you:'ti-user'};
+  const download=()=>{
+    const rows=[['Time','Who','Role','Version','Action']].concat([...uc.trail].reverse().map(t=>[t.at,P(t.who).n,P(t.who).r,t.ver,t.text]));
+    const csv=rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download=uc.name.replace(/[^a-z0-9]+/gi,'_').toLowerCase()+'_audit_trail.csv';document.body.appendChild(a);a.click();a.remove();
+    E.log(uc,'Downloaded the audit trail for the auditor','you','you');E.emit();
+  };
   return <>
-    <div className="st-banner"><i className="ti ti-shield-lock"></i>Every action is logged, versioned and reversible. Nothing goes live without a human signature.<span className="sp"></span>
-      <button className="st-btn sm" onClick={()=>{E.log(uc,'Exported audit pack (trail + versions + MRM document)','you','you');E.logMsg(uc,'Audit pack exported','ti-download');}}><i className="ti ti-download"></i>Export for auditor</button></div>
-    {uc.versions.length>0&&<div className="st-vers">{uc.versions.map(v=><button key={v.n} className={v.n===E.cur(uc).n?'on':''} title={v.summary} onClick={()=>v.n!==E.cur(uc).n&&E.restore(uc,v.n)}>v{v.n}{v.n===E.cur(uc).n?' · current':' · restore'}</button>)}</div>}
-    <div className="st-trail">{uc.trail.map(t=><div key={t.id} className={'st-tr '+t.kind}><i className={'ti '+(icon[t.kind]||'ti-point')}></i>
-      <div className="w"><b>{t.text}</b><span>{P(t.who).n} · {t.at}</span></div><span className="v">{t.ver}</span></div>)}</div>
-    {!uc.trail.length&&<div className="st-empty"><i className="ti ti-history"></i><b>Nothing yet</b><span>Every choice, change and signature will be recorded here.</span></div>}
+    <div className="hist-top"><div className="seg2">{F.map(([k,l])=><button key={k} className={f===k?'on':''} onClick={()=>setF(k)}>{l} <span style={{opacity:.6}}>{uc.trail.filter(t=>match(t,k)).length}</span></button>)}</div>
+      <span className="sp"></span><button className="st-btn sm" onClick={download}><i className="ti ti-download"></i>Download for auditor</button></div>
+    {uc.versions.length>0&&<div className="vers">{uc.versions.map(v=><button key={v.n} className={v.n===E.cur(uc).n?'on':''} title={v.summary} onClick={()=>v.n!==E.cur(uc).n&&E.restore(uc,v.n)}>v{v.n}{v.n===E.cur(uc).n?' · current':' · restore'}</button>)}</div>}
+    {list.length?<div className="trl">{list.map(t=><div key={t.id} className={'tr '+t.kind}><span className="ic"><i className={'ti '+(icon[t.kind]||'ti-point')}></i></span>
+      <div className="w">{t.text}<span>{P(t.who).n} · {t.at}</span></div><span className="v">{t.ver}</span></div>)}</div>
+      :<div className="st-empty" style={{minHeight:200}}><i className="ti ti-history"></i><b>Nothing here yet</b><span>Every choice, change and signature is recorded — it can’t be edited or deleted.</span></div>}
   </>;
 }
-U.Package=function({uc,onNode}){
-  const tabs=[['workflow','Workflow','ti-git-branch',uc.versions.length?E.cur(uc).wf.nodes.length+' steps':null],['policy','Policy','ti-book',uc.policy.length||null],['report','Report','ti-file-text',null],
-    ['results','Results','ti-chart-bar',null],['trail','Trail','ti-history',uc.trail.length||null]];
+U.tabsFor=uc=>{
+  const t=[];
+  if(uc.versions.length)t.push(['workflow','How Ray works','ti-git-branch']);
+  if(uc.policy.length)t.push(['policy','Your rules','ti-book']);
+  if(uc.report)t.push(['report','Report','ti-file-text']);
+  if(uc.train.rounds.length||uc.prove.day||uc.operate.live)t.push(['results','Evidence','ti-chart-bar']);
+  if(t.length)t.push(['trail','History','ti-history']);
+  return t;
+};
+U.Package=function({uc,onNode,open,onClose}){
+  const tabs=U.tabsFor(uc);
+  const tab=tabs.find(t=>t[0]===uc.tab)?uc.tab:(tabs[0]||[])[0];
   const v=E.cur(uc);
-  return <div className="st-pkg">
-    <div className="st-ptabs">{tabs.map(t=><button key={t[0]} className={'st-ptab'+(uc.tab===t[0]?' on':'')} onClick={()=>E.setTab(uc,t[0])}><i className={'ti '+t[2]}></i>{t[1]}{t[3]&&<span className="c">{t[3]}</span>}</button>)}
-      <span className="sp"></span>{v&&<span className="st-ver"><i className="ti ti-git-commit"></i>v{v.n} · {P(v.by).n} · {v.at}</span>}</div>
-    <div className="st-pbody">
-      {uc.tab==='workflow'&&<Flow uc={uc} onNode={onNode}/>}
-      {uc.tab==='policy'&&<Policy uc={uc}/>}
-      {uc.tab==='report'&&<Report uc={uc}/>}
-      {uc.tab==='results'&&<Results uc={uc}/>}
-      {uc.tab==='trail'&&<Trail uc={uc}/>}
+  return <div className={'pkg'+(open?' open':'')}>
+    {tabs.length>0&&<div className="ptabs">{tabs.map(t=><button key={t[0]} className={'ptab'+(tab===t[0]?' on':'')} onClick={()=>E.setTab(uc,t[0])}><i className={'ti '+t[2]}></i>{t[1]}</button>)}
+      <span className="sp"></span>{v&&<span className="ver"><i className="ti ti-git-commit"></i>v{v.n} · {v.at}</span>}</div>}
+    <button className="st-ib sheet-x" onClick={onClose} title="Close"><i className="ti ti-x"></i></button>
+    <div className="pbody">
+      {!tabs.length&&<div className="st-empty"><i className="ti ti-package"></i><b>Your use case appears here as you talk</b><span>Ray builds it like onboarding a new investigator — four simple stages, and you sign each one.</span>
+        <div className="steps4">{D.STAGES.map(s=><div key={s.k}><b><span className="st-dot" style={{'--c':s.c}}></span>{s.t}</b><span>{s.sub}</span></div>)}</div></div>}
+      {tab==='workflow'&&<Flow uc={uc} onNode={onNode}/>}
+      {tab==='policy'&&<Rules uc={uc}/>}
+      {tab==='report'&&<Report uc={uc}/>}
+      {tab==='results'&&<Evid uc={uc}/>}
+      {tab==='trail'&&<History uc={uc}/>}
     </div>
   </div>;
 };

@@ -7,19 +7,18 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 
 /* ---------- sign-offs ---------- */
 E.sign=async(uc,msgId,what)=>{
-  E.doneCard(uc,msgId,'Signed');
   const v=E.cur(uc).n;
-  E.logMsg(uc,'Signed by you · v'+v+' · '+now(),'ti-signature');
+  E.doneCard(uc,msgId,{build:'Build',train:'Train',operate:'Go-live'}[what]+' · version '+v);
   if(what==='build'){
     uc.done.build=true;uc.stage='train';
     E.log(uc,'Signed off Build · v'+v+' · MRM document + user guide generated','you','sign');
-    await E.ray(uc,'Signed — Build is complete and the MRM document and user guide are in the trail. Next is **Train**: I practice on cases your analysts already closed. This stage is usually owned by your **analyst team lead**. Who takes it?',{type:'handoff'});
+    await E.ray(uc,'Signed — Build is complete; the MRM document and user guide are in History. Next, **Train**: I practice on cases your analysts already closed. Who runs it?',{type:'handoff'});
     uc.step='b.handoff';E.setNext(uc,'you','Choose who runs Train');return;
   }
   if(what==='train'){
     uc.done.train=true;uc.stage='prove';
     E.log(uc,'Signed off Train · v'+v+' is the tuned baseline','you','sign');
-    await E.ray(uc,'Train is signed off. Now **Prove**: I sit next to your analysts on **new live alerts** — they see nothing, nothing changes. Pick how long:',{type:'shadow'});
+    await E.ray(uc,'Train is signed off. Now **Prove**: I work next to your analysts on new live alerts — nothing changes for them.',{type:'shadow'});
     uc.step='p.setup';E.setNext(uc,'you','Set up the shadow run');return;
   }
   if(what==='operate'){
@@ -48,7 +47,7 @@ E.takeBack=async(uc,msgId)=>{E.doneCard(uc,msgId,'Taken back');await E.startTrai
 E.tuneSet=uc=>{const l=D.TUNE[(E.tplOf(uc)||{}).cat==='scr'?'scr':'tm'];return uc.tpl==='ts-example'?l:l.map(x=>x.alt?Object.assign({},x,{node:x.alt}):x);};
 E.startTrain=async(uc)=>{
   uc.stage='train';uc.step='t.setup';
-  await E.ray(uc,'Let’s see how I do on **cases your analysts already decided**. I’ll replay them and compare my decisions with theirs. I suggest the last 6 months, 1,000 alerts — same mix as your real queue.',{type:'tdata'});
+  await E.ray(uc,'Let me practice on **cases your analysts already decided**, and compare my calls with theirs.',{type:'tdata'});
   E.setNext(uc,'you','Start practice');
 };
 E.startReplay=async(uc,msgId,csv)=>{
@@ -57,23 +56,23 @@ E.startReplay=async(uc,msgId,csv)=>{
   const N=csv?600:parseInt(uc.train.size.replace(/\D/g,''))||1000;
   E.log(uc,'Practice round '+(uc.train.rounds.length+1)+' started on '+N+' closed alerts','you','you');
   const round=uc.train.rounds.length+1,target=round===1?87:91;
-  const m=await E.ray(uc,'Practicing…',{type:'replay',n:N,done:0,agree:0,round},{fast:true});
+  const m=await E.ray(uc,'Practicing…',{type:'replay',n:N,cnt:0,agree:0,round},{fast:true});
   E.setTab(uc,'results');
-  for(let i=1;i<=12;i++){await wait(220);m.card.done=Math.round(N*i/12);m.card.agree=Math.round(target-6+6*i/12);emit();}
+  for(let i=1;i<=12;i++){await wait(220);m.card.cnt=Math.round(N*i/12);m.card.agree=Math.round(target-6+6*i/12);emit();}
   uc.train.rounds.push({n:round,agree:target});
   E.doneCard(uc,m.id,target+'% agreement');
   E.log(uc,'Round '+round+' done · '+target+'% agreement with analysts','ray');
   if(round===1){
-    await E.ray(uc,'I agreed with your analysts on **87%** of '+N.toLocaleString()+' alerts. Here’s where we differed — with the reason for each:',{type:'diffs'});
+    await E.ray(uc,'I agreed with your analysts on **87%** of '+N.toLocaleString()+' alerts. The differences are in *Evidence*.');
     const sugs=E.tuneSet(uc);
     sugs.filter(x=>x.cat==='bug'||x.cat==='data').forEach(x=>{uc.train.sugs[x.id]='yes';});
     E.applyTune(uc,'ray','Technical fixes: '+sugs.filter(x=>x.cat==='bug'||x.cat==='data').map(x=>x.t).join('; '));
     uc.step='t.sugs';
-    await E.ray(uc,'I have **5 improvements**. Two are technical (a code bug and a data gap) — not compliance judgment, so I fixed them and logged it; you can undo. **Three need your call:**',{type:'sugs'});
+    await E.ray(uc,'I fixed **2 technical issues** myself. **3 improvements need your call** — one at a time:',{type:'sugs'});
     E.setNext(uc,'you','Decide 3 suggestions');
   }else{
     uc.step='t.sign';
-    await E.ray(uc,'Round '+round+': **91%** (+4%). No suggestion left that adds more than 1% — my **stop rule** says we’re done practicing. Ready to sign off Train?',{type:'sign',what:'train'});
+    await E.ray(uc,'Round '+round+': **91%** (+4%). Nothing left that adds 1% — my stop rule says we’re done.',{type:'sign',what:'train'});
     E.setNext(uc,'you','Sign off Train');
   }
 };
@@ -101,7 +100,7 @@ async function finishSugs(uc,msgId){
   E.doneCard(uc,msgId,acc+' of 5 accepted');
   const v=E.applyTune(uc,'you','Applied your tuning decisions');
   uc.step='t.round';
-  await E.ray(uc,(v?'Applied — that’s **version '+v.n+'**. ':'Nothing new to apply. ')+'Shall I run another practice round to prove the changes help? It takes about a minute.',{type:'round'});
+  await E.ray(uc,(v?'Applied — **version '+v.n+'**. ':'Nothing new to apply. ')+'Run one more practice round to prove it helps?',{type:'round'});
   E.setNext(uc,'you','Run round 2 or sign off');
 }
 E.round=async(uc,msgId,again)=>{
@@ -118,7 +117,7 @@ E.startShadow=async(uc,msgId)=>{
   uc.stage='prove';uc.step='p.run';uc.prove.running=true;uc.prove.day=0;
   E.log(uc,'Shadow run started · '+uc.prove.dur+' · '+uc.prove.cov+' · no effect on alerts','you','you');
   E.setNext(uc,'ray','Shadowing live alerts');
-  const m=await E.ray(uc,'Shadow run started. Your analysts work as usual; I decide in parallel and **change nothing**.',{type:'shadowrun'},{fast:true});
+  const m=await E.ray(uc,'Shadow run started — I decide in parallel and **change nothing**.',{type:'shadowrun'},{fast:true});
   uc.prove.msgId=m.id;E.setTab(uc,'results');
   for(let d=1;d<=9&&uc.prove.day<uc.prove.total;d++){await wait(320);if(uc.prove.day>=uc.prove.total)return;uc.prove.day=d;emit();}
 };
@@ -129,7 +128,7 @@ E.fastForward=async(uc)=>{
   uc.prove.running=false;E.doneCard(uc,uc.prove.msgId,'Completed · day '+uc.prove.total);
   E.log(uc,'Shadow run complete · 91% agreement · 98% escalation recall · 0 missed SARs','ray');
   uc.step='p.sign';
-  await E.ray(uc,'The shadow run is complete and **all targets are met**. Going live needs two signatures:',{type:'approvals'});
+  await E.ray(uc,'Shadow run complete — **all targets met**. Going live needs two signatures:',{type:'approvals'});
   E.setNext(uc,'you','Request sign-off');
 };
 E.requestSignoff=async(uc,msgId)=>{
@@ -147,7 +146,7 @@ E.requestSignoff=async(uc,msgId)=>{
 E.startOperate=async(uc)=>{
   uc.stage='operate';uc.step='o.check';
   D.CHECKLIST.forEach((c,i)=>{if(c.ray)uc.operate.chk[i]='ray';});
-  await E.ray(uc,'Both signed — Prove is complete. Last stretch: the **go-live checklist**. I ticked what I can prove from the trail; two items only you can confirm.',{type:'checklist'});
+  await E.ray(uc,'Both signed — Prove is complete. Last stretch: I ticked what I can prove; **2 items need you**.',{type:'checklist'});
   E.setNext(uc,'you','Confirm 2 checklist items');
 };
 E.toggleCheck=async(uc,msgId,i)=>{
@@ -156,7 +155,7 @@ E.toggleCheck=async(uc,msgId,i)=>{
   if(D.CHECKLIST.every((c,j)=>uc.operate.chk[j])){
     E.doneCard(uc,msgId,'All 5 confirmed');E.log(uc,'Go-live checklist complete','you','you');
     uc.step='o.auth';
-    await E.ray(uc,'Checklist done. **How much authority do I start with?** Like any new hire — start small, earn more. You can change this anytime.',{type:'authority'});
+    await E.ray(uc,'Checklist done. **How much authority do I start with?** Start small, grow with trust.',{type:'authority'});
     E.setNext(uc,'you','Choose starting authority');
   }
 };
@@ -164,7 +163,7 @@ E.pickAuth=async(uc,msgId,id)=>{
   uc.operate.auth=id;E.doneCard(uc,msgId,D.AUTHORITY.find(a=>a.id===id).t);
   E.log(uc,'Starting authority: '+D.AUTHORITY.find(a=>a.id===id).t,'you','you');
   uc.step='o.go';
-  await E.ray(uc,'Everything is ready. This is the only step that affects real alerts — **your signature makes it live**.',{type:'sign',what:'operate'});
+  await E.ray(uc,'Ready. This is the only step that affects real alerts — **your signature makes it live**.',{type:'sign',what:'operate'});
   E.setNext(uc,'you','Go live');
 };
 E.rollback=async(uc)=>{

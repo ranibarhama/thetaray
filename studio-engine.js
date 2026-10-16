@@ -37,7 +37,7 @@ E.ray=async(uc,text,card,opts)=>{
   return push(uc,{from:'ray',text,card:card||null});
 };
 E.you=(uc,text,via)=>push(uc,{from:'you',text,via});
-E.doneCard=(uc,msgId,choice)=>{uc.need=null;const m=uc.msgs.find(x=>x.id===msgId);if(m&&m.card){m.card.done=true;m.card.choice=choice;}emit();};
+E.doneCard=(uc,msgId,choice)=>{uc.need=null;const m=uc.msgs.find(x=>x.id===msgId);if(m&&m.card){m.card.done=true;m.card.choice=choice;m.card.when=now();m.card.ver=m.card.ver||(uc.versions.length?uc.versions.length:null);}emit();};
 E.setNext=(uc,who,what)=>{uc.next={who,what};emit();};
 E.setTab=(uc,tab)=>{uc.tab=tab;emit();};
 E.pulse=(uc,ids,tab)=>{uc.pulse={ids,t:Date.now()};if(tab)uc.tab=tab;emit();};
@@ -78,7 +78,7 @@ async function interpretOpening(uc,s){
   if(auto){
     uc.mode='auto';uc.hasDocs=docs;
     E.log(uc,'Template chosen by voice/text: '+t.t,'you','you');
-    await E.ray(uc,'Got it — from one sentence I understood three things:\n✓ **Job:** '+t.t+'\n✓ **Manual:** '+(docs?'your AML policy (3 documents)':'ThetaRay’s proven template')+'\n✓ **Mode:** Autopilot — you decide 3 times, I do the rest.\nHere are the rules I’ll follow. Nothing goes live without your signature.',{type:'agree'});
+    await E.ray(uc,'Got it — **'+t.t+'** on **Autopilot**, using '+(docs?'your AML policy':'the ThetaRay template')+'. You’ll decide 3 times; I do the rest. Here are the rules I’ll follow:',{type:'agree'});
     E.setNext(uc,'you','Agree the rules');return;
   }
   await chooseTpl(uc,t.id,'text',docs);
@@ -89,7 +89,7 @@ async function chooseTpl(uc,tplId,how,docsHint){
   uc.tpl=t.id;uc.name=t.t;uc.step='b.mode';
   E.log(uc,'Chose the job: '+t.t,'you','you');
   E.logMsg(uc,'Job chosen · '+t.t,'ti-briefcase');
-  await E.ray(uc,'**'+t.t+'** — good choice. It’s a proven ThetaRay setup ('+t.reg+'). How hands-on do you want to be?',{type:'mode',docsHint:!!docsHint});
+  await E.ray(uc,'**'+t.t+'** it is. How hands-on do you want to be?',{type:'mode',docsHint:!!docsHint});
   E.setNext(uc,'you','Choose how hands-on');
 }
 
@@ -108,6 +108,13 @@ E.say=async(uc,text,via)=>{
     if(wantsAuto(s)){await E.pickMode(uc,null,'auto');return;}
     if(has(s,['guide','step','myself','manual','me'])){await E.pickMode(uc,null,'guide');return;}
   }
+  if(st==='b.setup'){
+    if(has(s,['skip','template','default','no doc']))E.setSetup(uc,'docs',false);
+    if(has(s,['our doc','my doc','our policy','upload']))E.setSetup(uc,'docs',true);
+    if(has(s,['own report','our report','report template']))E.setSetup(uc,'report','upload');
+    const m=[...uc.msgs].reverse().find(x=>x.card&&x.card.type==='setup'&&!x.card.done);
+    if(m){await E.setupGo(uc,m.id);return;}
+  }
   if(st==='b.policy'){
     if(has(s,['skip','template','default','no doc'])){await E.policyChoice(uc,null,'skip');return;}
     await E.policyChoice(uc,null,'sample');return;
@@ -125,34 +132,45 @@ E.say=async(uc,text,via)=>{
 /* ---------- BUILD (guided) ---------- */
 E.pickTpl=async(uc,msgId,tplId)=>{E.doneCard(uc,msgId,D.TEMPLATES.find(t=>t.id===tplId).t);await chooseTpl(uc,tplId,'card');};
 E.pickMode=async(uc,msgId,mode)=>{
-  if(msgId)E.doneCard(uc,msgId,mode==='auto'?'Autopilot':'Guide me step by step');
+  if(msgId)E.doneCard(uc,msgId,mode==='auto'?'Autopilot':'Step by step');
   uc.mode=mode;E.log(uc,mode==='auto'?'Switched on Autopilot':'Chose guided setup','you','you');
   if(mode==='auto'){
     uc.step='b.agree';
-    await E.ray(uc,'Autopilot it is. Before I start, let’s **agree the rules once** — this is what I’ll do on my own, and where I’ll stop and ask you.',{type:'agree'});
+    await E.ray(uc,'Autopilot. Let’s **agree the rules once** — what I do alone, and where I stop and ask you.',{type:'agree'});
     E.setNext(uc,'you','Agree the rules');return;
   }
-  uc.step='b.policy';
-  await E.ray(uc,'Let’s go step by step. First, **hand me your manual** — your policy and procedures. I’ll adapt the ThetaRay template to them. Prefer the template as-is? Skip it.',{type:'policy'});
-  E.setNext(uc,'you','Add your policy');
+  uc.step='b.setup';uc.setup={docs:true,report:'predefined'};
+  await E.ray(uc,'Step by step it is. Here’s what I’ll use to build version 1 — change anything, then I’ll draft it.',{type:'setup'});
+  E.setNext(uc,'you','Confirm what Ray uses');
 };
-E.policyChoice=async(uc,msgId,choice)=>{
+E.setSetup=(uc,k,v)=>{uc.setup[k]=v;E.emit();};
+E.setupGo=async(uc,msgId)=>{
+  const su=uc.setup||{docs:true,report:'predefined'};
+  E.doneCard(uc,msgId,(su.docs?'Your policy documents':'ThetaRay template policy')+' · '+(su.report==='upload'?'your report layout':'predefined report'));
+  uc.step='b.reading';E.setNext(uc,'ray','Reading and drafting');
+  await E.policyChoice(uc,null,su.docs?'sample':'skip',true);
+  uc.report=su.report;
+  E.log(uc,'Report layout: '+(su.report==='upload'?'your layout (Investigation_Report_Template.docx)':'ThetaRay predefined'),'you','you');
+  await E.buildV1(uc);
+};
+E.policyChoice=async(uc,msgId,choice,fromSetup)=>{
   if(msgId)E.doneCard(uc,msgId,choice==='skip'?'Use the ThetaRay template':'Your documents');
   uc.hasDocs=choice!=='skip';
   const files=uc.tpl==='ts-example'?D.EX_FILES:D.SAMPLE_FILES;
   if(uc.hasDocs){
     uc.files=clone(files).map(f=>Object.assign(f,{pct:0}));
-    const m=await E.ray(uc,'Reading your manual…',{type:'read'},{fast:true});
+    const m=await E.ray(uc,'Reading your documents…',{type:'read'},{fast:true});
     for(let i=0;i<uc.files.length;i++){for(let p=25;p<=100;p+=25){await wait(170);uc.files[i].pct=p;emit();}}
     uc.policy=D.buildPolicy(uc.tpl,true);uc.policyHl=uc.policy.map(c=>c.no);E.pulse(uc,[],'policy');
     E.doneCard(uc,m.id,'Read');
     E.log(uc,'Read '+uc.files.length+' documents · extracted '+uc.policy.length+' policy clauses','ray');
-    await E.ray(uc,'Done. I found **'+uc.policy.length+' policy clauses** and linked each to its page — see the **Policy** tab. Everything I build will point back to these.');
+    await E.ray(uc,'Read. **'+uc.policy.length+' policy clauses**, each linked to its page in *Your rules*.');
   }else{
     uc.policy=D.buildPolicy(uc.tpl,false);uc.policyHl=[];E.setTab(uc,'policy');
     E.log(uc,'Using ThetaRay template policy ('+uc.policy.length+' clauses)','ray');
-    await E.ray(uc,'No problem — I’ll use the **ThetaRay template policy** ('+uc.policy.length+' clauses). You can add your documents anytime.');
+    if(!fromSetup)await E.ray(uc,'I’ll use the **ThetaRay template policy** ('+uc.policy.length+' clauses).');
   }
+  if(fromSetup)return;
   uc.step='b.report';
   await E.ray(uc,'How should my **investigation report** look? It’s what I write on every alert.',{type:'report'});
   E.setNext(uc,'you','Choose the report layout');
@@ -165,7 +183,7 @@ E.reportChoice=async(uc,msgId,choice)=>{
 };
 E.buildV1=async(uc)=>{
   const wf=D.buildWorkflow(uc.tpl);
-  const m=await E.ray(uc,'Drafting your workflow…',{type:'progress',steps:['Mapping policy clauses to steps','Assigning roles and SLAs','Linking data sources','Writing the report template'],at:0},{fast:true});
+  const m=await E.ray(uc,'Drafting version 1…',{type:'progress',steps:['Mapping policy clauses to steps','Assigning roles and SLAs','Linking data sources','Writing the report template'],at:0},{fast:true});
   uc.tab='workflow';
   const v=E.addVersion(uc,{nodes:[],edges:[]},'ray','First draft from '+(uc.hasDocs?'your policy':'the template'));
   for(let i=0;i<wf.nodes.length;i++){await wait(230);v.wf.nodes.push(wf.nodes[i]);v.wf.edges=wf.edges.filter(e=>v.wf.nodes.find(n=>n.id===e[0])&&v.wf.nodes.find(n=>n.id===e[1]));
@@ -174,7 +192,7 @@ E.buildV1=async(uc)=>{
   E.log(uc,'Drafted workflow v1 · '+wf.nodes.length+' steps, every step linked to a policy clause','ray');
   E.logMsg(uc,'Version 1 created · logged','ti-git-commit');
   uc.step='b.refine';
-  await E.ray(uc,'Here’s **version 1** — '+wf.nodes.length+' steps, each linked to a clause in your policy. Want to change anything? **Just say it in your own words** — like you’d correct a new hire. Or tap a step to ask about it.',null);
+  await E.ray(uc,'**Version 1 is ready** — '+wf.nodes.length+' steps, each tied to a policy clause. Tell me what to change in your own words, or sign it off.',null);
   E.setNext(uc,'you','Review version 1');
 };
 
@@ -234,7 +252,7 @@ E.refine=async(uc,text,fromWho)=>{
   E.pulse(uc,changed,'workflow');
   E.log(uc,'v'+v.n+': '+summary+(fromWho==='dana'?' (Dana’s comment)':''),fromWho||'you','you');
   E.logMsg(uc,'Version '+v.n+' created · logged · reversible','ti-git-commit');
-  await E.ray(uc,'Done — that’s **version '+v.n+'**.',{type:'change',diff,clause:cl,ver:v.n,generic:!intent});
+  await E.ray(uc,'Done — **version '+v.n+'**.',{type:'change',diff,clause:cl,ver:v.n,generic:!intent,summary});
   E.setNext(uc,'you','Review version '+v.n);
 };
 async function explain(uc){
@@ -258,7 +276,7 @@ E.restore=async(uc,n)=>{
 };
 E.askApply=async(uc)=>{
   uc.step='b.apply';
-  await E.ray(uc,'Ready to sign off **Build**? This doesn’t touch a single real alert — it locks version '+E.cur(uc).n+' as the starting point for practice. I’ll generate the **MRM document** and the **analyst user guide** from it.',{type:'sign',what:'build'});
+  await E.ray(uc,'Ready to sign off **Build**? No real alert is touched.',{type:'sign',what:'build'});
   E.setNext(uc,'you','Sign off Build');
 };
 
@@ -274,7 +292,7 @@ E.agree=async(uc,msgId,changeIt)=>{
 };
 E.autoRun=async(uc)=>{
   const steps=['Read your manual','Report layout','Draft workflow v1','Sign-ready Build package','Practice round 1','Apply technical fixes','Practice round 2','Practice round 3 — stop rule'];
-  const m=await E.ray(uc,'On it. You can watch the package build on the right — or leave and I’ll ping you.',{type:'autorun',steps,at:0,notes:[]},{fast:true});
+  const m=await E.ray(uc,'On it — watch it build on the right, or leave and I’ll ping you.',{type:'autorun',steps,at:0,notes:[]},{fast:true});
   const tick=async(i,note,ms)=>{m.card.at=i;if(note)m.card.notes[i-1]=note;emit();await wait(ms||900);};
   await tick(0,null,700);
   uc.hasDocs=uc.hasDocs!==false;uc.policy=D.buildPolicy(uc.tpl,uc.hasDocs);uc.policyHl=uc.policy.map(c=>c.no);
@@ -301,7 +319,7 @@ E.autoRun=async(uc)=>{
   E.doneCard(uc,m.id,'Done');
   const held=sugs.find(x=>x.held);
   uc.step='b.handback';
-  await E.ray(uc,'Build and Train are done. **One thing needs you** — it touches a rule you asked me to hold, so I didn’t change it. Here’s the full context:',{type:'handback',sug:held});
+  await E.ray(uc,'Build and Train are done. **One rule needs you** — you asked me to hold it:',{type:'handback',sug:held});
   E.setNext(uc,'you','Decide 1 held rule');
 };
 E.handback=async(uc,msgId,yes)=>{
@@ -312,15 +330,14 @@ E.handback=async(uc,msgId,yes)=>{
   E.log(uc,(yes?'Accepted':'Rejected')+' held rule: '+held.t,'you','you');
   uc.step='b.final';
   const acc=E.tuneSet(uc).filter(x=>uc.train.sugs[x.id]==='yes').length;
-  await E.ray(uc,'Here’s everything I did, in plain words — so you can defend it.',{type:'final',acc,ver:E.cur(uc).n});
+  await E.ray(uc,'Here’s what I did, in plain words:',{type:'final',acc,ver:E.cur(uc).n});
   E.setNext(uc,'you','Final approval');
 };
 E.finalSign=async(uc,msgId)=>{
-  E.doneCard(uc,msgId,'Signed');
+  E.doneCard(uc,msgId,'Build + Train · version '+E.cur(uc).n);
   uc.done.build=true;uc.done.train=true;uc.stage='prove';
   E.log(uc,'Signed Build + Train · package v'+E.cur(uc).n+' is the baseline for Prove','you','sign');
-  E.logMsg(uc,'Signed by you · v'+E.cur(uc).n+' · '+now(),'ti-signature');
-  await E.ray(uc,'Signed. That was decision 3 of 3 — **you’re done with Build and Train**. Next I prove myself on live alerts, without touching them. Shall I start with the recommended setup?',{type:'shadow',auto:true});
+  await E.ray(uc,'Signed — decision 3 of 3. **Build and Train are done.** Next I prove myself on live alerts without touching them:',{type:'shadow',auto:true});
   uc.step='p.setup';E.setNext(uc,'you','Start Prove');
 };
 
