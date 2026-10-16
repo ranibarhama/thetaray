@@ -1,4 +1,4 @@
-/* Ray Studio v2 — UI part 1: chat cards + living package (text/babel) */
+/* Ray Studio v3 — UI part 1: Brief, Playbook, readiness, margin notes, Sign sheet, audit (text/babel) */
 (function(){
 const {useState,useEffect,useRef}=React;
 const D=window.RSD,E=window.RSE;
@@ -11,317 +11,245 @@ U.md=(t)=>{if(!t)return null;
       out.push(m[1]!==undefined?<b key={k++}>{m[1]}</b>:<em key={k++}>{m[2]}</em>);rest=rest.slice(m.index+m[0].length);}
     out.push(rest);return <React.Fragment key={li}>{li>0&&<br/>}{out}</React.Fragment>;});
 };
-const P=(who)=>D.PEOPLE[who]||D.PEOPLE.you;
-U.P=P;
-U.Av=({who})=><span className={'st-av '+(who==='ray'?'ray':who==='you'?'you':'')} title={P(who).n+' · '+P(who).r}>{P(who).i}</span>;
-const Signed=({c,label})=><div className="signed"><i className="ti ti-signature"></i><div><b>{label||'Signed by you · Compliance lead'}</b><span>{c.when||E.now()}{c.ver?' · version '+c.ver:''} · recorded in History</span></div></div>;
-const Hd=({t,right})=><div className="cd-h">{t}<span className="sp"></span>{right}</div>;
-const Btns=({children})=><div className="btns">{children}</div>;
-const Stp=({st,i,label,note})=><div className={'stp '+st}><span className="ic">{st==='ok'?<i className="ti ti-check"></i>:st==='run'?<i className="ti ti-loader-2"></i>:i+1}</span>{label}{note&&<span className="nt">{note}</span>}</div>;
+const P=w=>D.PEOPLE[w]||D.PEOPLE.you;U.P=P;
+U.Av=({who})=>who==='ray'?<span className="s3-orb sm">✦</span>:<span className={'s3-av'+(who==='you'?' you':'')} title={P(who).n+' · '+P(who).r}>{P(who).i}</span>;
+const WHO={'System':'The system','Ray':'Ray','Analyst L1':'A level-1 analyst','Analyst L2':'A level-2 analyst','Supervisor':'A supervisor','MLRO':'The MLRO'};
+const when=sla=>sla==='Instant'?'instantly':'within '+sla;
+const order=wf=>[...wf.nodes].sort((a,b)=>a.r-b.r||a.c-b.c);
+U.order=order;
 
-/* one-line receipt for finished cards — tap to see the full record */
-const RCPT={tpl:['Job'],mode:['Mode'],agree:['Rules','ti-file-certificate'],setup:['Using'],policy:['Policy'],report:['Report'],read:['Read'],progress:['Drafted'],
-  sign:['Signed','ti-signature'],handoff:['Train owner'],nudge:['Handoff'],tdata:['Practice data'],replay:['Practice'],sugs:['Suggestions'],round:['Next'],autorun:['Autopilot'],
-  handback:['Held rule'],final:['Final approval','ti-signature'],shadow:['Shadow run'],shadowrun:['Shadow run'],approvals:['Sign-off','ti-signature'],checklist:['Checklist'],authority:['Authority'],comment:['Dana’s comment'],change:['Changed','ti-git-commit']};
-function Receipt({c,children}){
-  const [open,setOpen]=useState(false);
-  const r=RCPT[c.type]||['Done'];
-  return <>
-    <div className="st-rc" onClick={()=>setOpen(o=>!o)} title={open?'Hide details':'Show details'}>
-      <i className={'ti '+(r[1]||'ti-circle-check')+' ok'}></i><span><b>{r[0]}</b> · {c.choice||'Done'}</span><span className="sp"></span>
-      {c.when&&<span style={{fontSize:11,color:'var(--ink-3)'}}>{c.when}</span>}<i className={'ti ex '+(open?'ti-chevron-up':'ti-chevron-down')}></i></div>
-    {open&&children}</>;
-}
+/* ---------- Brief ---------- */
+U.Brief=function({uc,onBrowse}){
+  const b=uc.brief,t=E.tplOf(uc),c=t?D.CATS[t.cat]:null;
+  const recs=['ts-example','ts-uk','tm-retail','pep-am'].map(i=>D.TEMPLATES.find(x=>x.id===i));
+  return <div className="s3-paper">
+    <div className="s3-kick"><i className="ti ti-file-description"></i>Brief</div>
+    <div className="s3-title">{t?'Teach Ray: '+t.t:'What should Ray learn?'}</div>
+    <p className="s3-lead">This is everything Ray needs to start. Change anything by tapping it — or just tell Ray.</p>
+    <div className="s3-brs">
+      <div className="s3-br"><div className="k"><i className="ti ti-briefcase"></i>Job</div><div className="v">
+        {t?<div className="s3-picked"><span className="ic" style={{background:c.c+'1f',color:c.c}}><i className={'ti '+c.ic}></i></span><div style={{flex:1,minWidth:0}}><b>{t.t}</b><small style={{marginTop:2}}>{t.r} · {t.reg}</small></div><button className="s3-b gh sm" onClick={()=>onBrowse(id=>E.setBrief(uc,'tpl',id))}>Change</button></div>
+          :<><div className="s3-jobs">{recs.map(x=>{const cc=D.CATS[x.cat];return <button key={x.id} className="s3-job" onClick={()=>E.setBrief(uc,'tpl',x.id)}><span className="ic" style={{background:cc.c+'1f',color:cc.c}}><i className={'ti '+cc.ic}></i></span>{x.t}</button>;})}</div>
+            <button className="s3-b gh sm" style={{marginTop:6}} onClick={()=>onBrowse(id=>E.setBrief(uc,'tpl',id))}><i className="ti ti-layout-grid"></i>See all {D.TEMPLATES.length} jobs</button></>}
+      </div></div>
+      <div className="s3-br"><div className="k"><i className="ti ti-book"></i>Policy</div><div className="v">
+        <div className="s3-seg"><button className={b.docs?'on':''} onClick={()=>E.setBrief(uc,'docs',true)}>Your documents</button><button className={!b.docs?'on':''} onClick={()=>E.setBrief(uc,'docs',false)}>ThetaRay template</button></div>
+        <small>{b.docs?'Ray reads your policy and procedures (3 sample documents in this demo) and ties every step to a clause.':'A proven ThetaRay default — you can add your documents later.'}</small></div></div>
+      <div className="s3-br"><div className="k"><i className="ti ti-file-text"></i>Report</div><div className="v">
+        <div className="s3-seg"><button className={b.report==='predefined'?'on':''} onClick={()=>E.setBrief(uc,'report','predefined')}>Predefined</button><button className={b.report==='upload'?'on':''} onClick={()=>E.setBrief(uc,'report','upload')}>Your layout</button></div></div></div>
+      <div className="s3-br"><div className="k"><i className="ti ti-school"></i>Practice on</div><div className="v">
+        <div className="s3-seg">{['Last 3 months','Last 6 months','Last 12 months'].map(o=><button key={o} className={b.period===o?'on':''} onClick={()=>E.setBrief(uc,'period',o)}>{o.replace('Last ','')}</button>)}</div>
+        <small>Closed alerts your analysts already decided — Ray compares its calls with theirs.</small></div></div>
+      <div className="s3-br you"><div className="k"><i className="ti ti-message-question"></i>Check with me</div><div className="v">
+        <div className="s3-levels">{['every','important','sign'].map(k=><button key={k} className={'s3-level'+(b.level===k?' on':'')} onClick={()=>E.setBrief(uc,'level',k)}>
+          {k==='important'&&<em>Recommended</em>}{k==='sign'&&<em>Autopilot</em>}<b><i className={'ti '+E.LV[k].ic}></i>{E.LV[k].t}</b><span>{E.LV[k].d}</span></button>)}</div></div></div>
+      <div className="s3-br you"><div className="k"><i className="ti ti-lock"></i>Always yours</div><div className="v" style={{color:'var(--ink-2)',fontSize:13.5}}>Sanctions and risk thresholds, anything about filing, and every signature. Nothing touches a real alert until you sign go-live.</div></div>
+    </div>
+    <div className="s3-start"><button className="s3-b ai lg" disabled={!uc.tpl} onClick={()=>E.startBrief(uc)}><i className="ti ti-player-play"></i>Start</button>
+      <span>Ray writes the playbook in front of you — about 10 seconds.</span></div>
+  </div>;
+};
 
-/* ---------- cards ---------- */
-function Card({uc,m,onBrowse}){
-  const c=m.card;
-  const body=<CardBody uc={uc} m={m} onBrowse={onBrowse}/>;
-  if(c.type==='change'&&E.cur(uc)&&c.ver!==E.cur(uc).n)return <Receipt c={{type:'change',choice:'v'+c.ver+' · '+(c.summary||'Changed'),when:m.at}}><div className="cd">{body}</div></Receipt>;
-  if(c.done&&c.type!=='change')return <Receipt c={c}><div className="cd">{body}</div></Receipt>;
-  return <div className="cd" data-mid={m.id}>{body}</div>;
-}
-
-function CardBody({uc,m,onBrowse}){
-  const c=m.card,done=!!c.done,id=m.id;
-  switch(c.type){
-  case 'tpl':{
-    const recs=['ts-example','ts-uk','tm-retail','pep-am'].map(i=>D.TEMPLATES.find(t=>t.id===i));
-    return <><Hd t="Pick a job"/>
-      <div className="opts two">{recs.map(t=>{const cat=D.CATS[t.cat];return(
-        <button key={t.id} className="opt" disabled={done} onClick={()=>E.pickTpl(uc,id,t.id)}>
-          <b><i className={'ti '+cat.ic} style={{color:cat.c}}></i>{t.t}</b><span>{t.d}</span></button>);})}</div>
-      {!done&&<Btns><button className="st-btn ghost sm" onClick={()=>onBrowse&&onBrowse(tid=>E.pickTpl(uc,id,tid))}><i className="ti ti-layout-grid"></i>See all {D.TEMPLATES.length} jobs</button></Btns>}</>;}
-  case 'mode':
-    return <><Hd t="How hands-on?"/>
-      <div className="opts two">
-        <button className="opt" disabled={done} onClick={()=>E.pickMode(uc,id,'auto')}><em>Fastest</em><b><i className="ti ti-sparkles" style={{color:'var(--t-violet)'}}></i>Autopilot</b><span>You decide 3 times. Ray does the rest and checks back for approvals.</span></button>
-        <button className="opt" disabled={done} onClick={()=>E.pickMode(uc,id,'guide')}><em>Full control</em><b><i className="ti ti-route"></i>Step by step</b><span>You confirm each step. Best for detailed bank policies.</span></button>
-      </div></>;
-  case 'agree':{
-    const t=E.tplOf(uc)||{};
-    const rows=[['ti-briefcase','Job',t.t],['ti-book','Policy',uc.hasDocs!==false?'Your AML policy (3 documents)':'ThetaRay template'],['ti-school','Practice','1,000 closed alerts, until a round gains < 1%'],
-      ['ti-tool','Fixes','Technical issues: Ray fixes and logs them'],['ti-lock','Held for you','Sanctions & risk thresholds, anything about filing','you'],['ti-signature','You sign','The final approval — nothing goes live without you','you']];
-    return <><Hd t="Rules we agree once"/>
-      <div className="kv">{rows.map(r=><div key={r[1]} className={'r'+(r[3]?' you':'')}><i className={'ti '+r[0]}></i><span className="k">{r[1]}</span><span className="v">{r[2]}</span></div>)}</div>
-      {!done&&<Btns><button className="st-btn ai" onClick={()=>E.agree(uc,id)}><i className="ti ti-check"></i>Agree &amp; start</button><button className="st-btn ghost" onClick={()=>E.agree(uc,id,true)}>Go step by step instead</button></Btns>}</>;}
-  case 'setup':{
-    const su=uc.setup||{docs:true,report:'predefined'};
-    return <><Hd t="Ray will use"/>
-      <div className="kv">
-        <div className="r"><i className="ti ti-book"></i><span className="k">Policy</span><span className="v"><div className="seg2"><button className={su.docs?'on':''} onClick={()=>E.setSetup(uc,'docs',true)}>Your documents</button><button className={!su.docs?'on':''} onClick={()=>E.setSetup(uc,'docs',false)}>ThetaRay template</button></div></span></div>
-        <div className="r"><i className="ti ti-file-text"></i><span className="k">Report</span><span className="v"><div className="seg2"><button className={su.report==='predefined'?'on':''} onClick={()=>E.setSetup(uc,'report','predefined')}>Predefined</button><button className={su.report==='upload'?'on':''} onClick={()=>E.setSetup(uc,'report','upload')}>Your layout</button></div></span></div>
-      </div>
-      {su.docs&&<label className="drop"><i className="ti ti-cloud-upload"></i><span>Drop your policy files here — or use our <b>3 sample documents</b></span><input type="file" multiple hidden onChange={()=>E.setupGo(uc,id)}/></label>}
-      <Btns><button className="st-btn pri" onClick={()=>E.setupGo(uc,id)}><i className="ti ti-wand"></i>Build version 1</button></Btns></>;}
-  case 'policy':
-    return <><Hd t="Your policy"/><Btns><button className="st-btn pri sm" disabled={done} onClick={()=>E.policyChoice(uc,id,'sample')}>Use sample policy</button><button className="st-btn sm" disabled={done} onClick={()=>E.policyChoice(uc,id,'skip')}>Use the template</button></Btns></>;
-  case 'report':
-    return <><Hd t="Report"/><Btns><button className="st-btn pri sm" disabled={done} onClick={()=>E.reportChoice(uc,id,'predefined')}>Predefined</button><button className="st-btn sm" disabled={done} onClick={()=>E.reportChoice(uc,id,'upload')}>Your layout</button></Btns></>;
-  case 'read':
-    return <div className="files">{uc.files.map(f=><div key={f.name} className="sfile"><span className="ext" style={{background:f.c}}>{f.ext}</span>
-      <div className="nm"><b>{f.name}</b><span>{f.pct>=100?'Found '+f.found:'Reading…'}</span>{f.pct<100&&<div className="sprog"><i style={{width:f.pct+'%'}}></i></div>}</div>{f.pct>=100&&<i className="ti ti-circle-check ok"></i>}</div>)}</div>;
-  case 'progress':
-    return <div className="stps">{c.steps.map((s,i)=><Stp key={s} i={i} label={s} st={i<c.at||done?'ok':i===c.at?'run':''}/>)}</div>;
-  case 'change':
-    return <>
-      <div className="diff"><div className="a"><span className="lb">Before</span><span>{c.diff[0]}</span></div><div className="b"><span className="lb">Now</span><span>{c.diff[1]}</span></div></div>
-      <div className="proof"><i className="ti ti-shield-check"></i><div>{c.generic?<>Added as an instruction — <b>practice on your real alerts will show if it helps</b>.</>:<>Backed by <b>§{c.clause.no} {c.clause.t}</b> · {c.clause.src}</>}</div></div>
-      <Btns><button className="st-btn sm" onClick={()=>E.undo(uc)}><i className="ti ti-arrow-back-up"></i>Undo</button>
-        <button className="st-btn ghost sm" onClick={()=>E.say(uc,'Why?')}>Why?</button>
-        <button className="st-btn ghost sm" onClick={()=>E.pulse(uc,E.cur(uc).changed,'workflow')}>Show me</button></Btns></>;
-  case 'sign':{
-    const v=E.cur(uc)?E.cur(uc).n:1;
-    const lines={build:['Locks version '+v+' as the starting point','Generates the MRM document and user guide','Touches no real alert'],
-      train:['Version '+v+' becomes the tuned baseline','Next: Prove, on live alerts with no effect','Touches no real alert'],
-      operate:['New alerts follow version '+v,'Starting authority: '+D.AUTHORITY.find(a=>a.id===uc.operate.auth).t,'Roll back in one tap, anytime']}[c.what];
-    return <><Hd t={{build:'Sign off Build',train:'Sign off Train',operate:'Go live'}[c.what]}/>
-      <div className="stps">{lines.map((l,i)=><Stp key={l} i={i} label={l} st="ok"/>)}</div>
-      {done?<Signed c={c}/>:<Btns><button className={'st-btn '+(c.what==='operate'?'ai':'ok')} onClick={()=>E.sign(uc,id,c.what)}><i className={'ti '+(c.what==='operate'?'ti-player-play':'ti-signature')}></i>{c.what==='operate'?'Sign & go live':'Approve & sign'}</button>
-        {c.what==='build'&&<button className="st-btn ghost" onClick={()=>{E.doneCard(uc,id,'Kept refining');uc.step='b.refine';E.emit();}}>Keep refining</button>}</Btns>}</>;}
-  case 'handoff':
-    return <><Hd t="Who runs Train?"/><div className="opts two">
-      <button className="opt" disabled={done} onClick={()=>E.handoff(uc,id,'me')}><b><U.Av who="you"/>Me</b><span>Continue right now.</span></button>
-      <button className="opt" disabled={done} onClick={()=>E.handoff(uc,id,'dana')}><em>Usual owner</em><b><U.Av who="dana"/>Dana Levi</b><span>Analyst team lead. Gets the full context.</span></button></div></>;
-  case 'nudge':
-    return <Btns><button className="st-btn sm" disabled={done} onClick={()=>{E.log(uc,'Nudged Dana Levi','you','you');E.logMsg(uc,'Nudge sent to Dana','ti-bell');}}><i className="ti ti-bell"></i>Nudge Dana</button>
-      <button className="st-btn ghost sm" disabled={done} onClick={()=>E.takeBack(uc,id)}>Do it myself</button></Btns>;
-  case 'tdata':
-    return <><Hd t="Practice cases"/>
-      <div className="kv">
-        <div className="r"><i className="ti ti-calendar"></i><span className="k">Period</span><span className="v"><div className="seg2">{['Last 3 months','Last 6 months','Last 12 months'].map(o=><button key={o} className={uc.train.period===o?'on':''} onClick={()=>E.setTrain(uc,'period',o)}>{o.replace('Last ','')}</button>)}</div></span></div>
-        <div className="r"><i className="ti ti-stack-2"></i><span className="k">Alerts</span><span className="v"><div className="seg2">{['500 alerts','1,000 alerts','All 2,140 alerts'].map(o=><button key={o} className={uc.train.size===o?'on':''} onClick={()=>E.setTrain(uc,'size',o)}>{o.replace(' alerts','')}</button>)}</div></span></div>
-      </div>
-      <Btns><button className="st-btn pri" onClick={()=>E.startReplay(uc,id,false)}><i className="ti ti-player-play"></i>Start practice</button>
-        <button className="st-btn ghost sm" onClick={()=>E.startReplay(uc,id,true)}>Use a labeled CSV</button></Btns></>;
-  case 'replay':
-    return <><Hd t={'Practice round '+c.round} right={<b style={{color:'var(--t-ok)',fontSize:13,textTransform:'none',letterSpacing:0}}>{c.agree}% agree</b>}/>
-      <div style={{fontSize:12.5,color:'var(--ink-2)'}}>{c.cnt.toLocaleString()} of {c.n.toLocaleString()} alerts replayed</div>
-      <div className="sprog ai"><i style={{width:(c.cnt/c.n*100)+'%'}}></i></div></>;
-  case 'sugs':return <Sugs uc={uc} m={m}/>;
-  case 'round':
-    return <Btns><button className="st-btn pri" disabled={done} onClick={()=>E.round(uc,id,true)}><i className="ti ti-refresh"></i>Run round {uc.train.rounds.length+1}</button>
-      <button className="st-btn ghost" disabled={done} onClick={()=>E.round(uc,id,false)}>Sign off now</button></Btns>;
-  case 'autorun':
-    return <><Hd t="Autopilot" right={!done&&<span className="st-pill ai">Working</span>}/>
-      <div className="stps">{c.steps.map((s,i)=><Stp key={s} i={i} label={s} note={c.notes[i]} st={i<c.at||done?'ok':i===c.at?'run':''}/>)}</div></>;
-  case 'handback':{const s=c.sug;const n=E.cur(uc).wf.nodes.find(x=>x.id===s.node);
-    return <><Hd t="Held for you" right={<span className="st-pill risk">{s.imp} impact</span>}/>
-      <div className="sug-t">{s.t}</div>
-      <div className="diff"><div className="a"><span className="lb">Today</span><span>{s.cur}</span></div><div className="b"><span className="lb">Ray</span><span>{s.sug}</span></div></div>
-      <Evidence s={s} where={n?n.t:null}/>
-      {!done&&<Btns><button className="st-btn ok sm" onClick={()=>E.handback(uc,id,true)}>Accept change</button><button className="st-btn sm" onClick={()=>E.handback(uc,id,false)}>Keep my rule</button></Btns>}</>;}
-  case 'final':{const r=uc.train.rounds;
-    const items=['Read your policy — '+uc.policy.length+' clauses, each linked to its source','Used the predefined report layout','Built and tuned the workflow to version '+c.ver,
-      'Practiced '+r.length+' rounds: '+r.map(x=>x.agree+'%').join(' → '),'Fixed 2 technical issues, applied '+c.acc+' of 5 improvements','Held 1 rule for you — your decision is recorded'];
-    return <><Hd t="What I did"/>
-      <div className="stps">{items.map((it,i)=><Stp key={it} i={i} label={it} st="ok"/>)}</div>
-      <div className="proof"><i className="ti ti-shield-check"></i><div>Every action is in <b>History</b>, versioned and reversible. No real alert was touched.</div></div>
-      {done?<Signed c={c}/>:<Btns><button className="st-btn ok" onClick={()=>E.finalSign(uc,id)}><i className="ti ti-signature"></i>Approve &amp; sign</button></Btns>}</>;}
-  case 'shadow':
-    return <><Hd t="Shadow run"/>
-      <div className="kv">
-        <div className="r"><i className="ti ti-calendar"></i><span className="k">Length</span><span className="v"><div className="seg2">{['2 weeks','4 weeks','6 weeks'].map(d=><button key={d} className={uc.prove.dur===d?'on':''} onClick={()=>E.setProve(uc,'dur',d)}>{d}</button>)}</div></span></div>
-        <div className="r"><i className="ti ti-percentage"></i><span className="k">New alerts</span><span className="v"><div className="seg2">{['25%','50%','100%'].map(p=><button key={p} className={uc.prove.cov.startsWith(p)?'on':''} onClick={()=>E.setProve(uc,'cov',p+' of new alerts')}>{p}</button>)}</div></span></div>
-        <div className="r"><i className="ti ti-target-arrow"></i><span className="k">To pass</span><span className="v">Agreement ≥ 85% · escalations caught ≥ 95% · 0 missed SARs</span></div>
-      </div>
-      <Btns><button className="st-btn ai" onClick={()=>E.startShadow(uc,id)}><i className="ti ti-player-play"></i>Start shadow run</button></Btns></>;
-  case 'shadowrun':{const p=uc.prove,f=Math.min(1,p.day/p.total);
-    return <><Hd t={'Day '+p.day+' of '+p.total} right={<span className="st-pill ai">No effect on alerts</span>}/>
-      <div className="sbar"><i style={{width:(f*100)+'%'}}></i></div>
-      <div className="mini">
-        <div className="k"><b>{Math.round(4100*f).toLocaleString()}</b><span>alerts</span></div>
-        <div className="k"><b style={{color:'var(--t-ok)'}}>{p.day?'91%':'—'}</b><span>agreement</span></div>
-        <div className="k"><b style={{color:'var(--t-ok)'}}>{p.day?'98%':'—'}</b><span>escalations caught</span></div>
-        <div className="k"><b>0</b><span>alerts changed</span></div></div>
-      {!done&&<Btns><button className="st-btn sm" onClick={()=>E.fastForward(uc)}><i className="ti ti-player-track-next"></i>Skip to the end (demo)</button></Btns>}</>;}
-  case 'approvals':{
-    const ppl=[['mlro','Sarah Klein','MLRO'],['fcc','Lior Ben-Ami','Head of Financial Crime Compliance']];
-    return <><Hd t="Sign-off" right={<span className="st-pill ok">3 of 3 targets met</span>}/>
-      <div className="files">{ppl.map(p=><div key={p[0]} className="sfile"><U.Av who={p[0]}/><div className="nm"><b>{p[1]}</b><span>{p[2]}</span></div>
-        {uc.prove.signed[p[0]]?<span className="st-pill ok"><i className="ti ti-signature"></i>Signed {uc.prove.signed[p[0]]}</span>:c.requested?<span className="st-pill warn">Waiting…</span>:<span className="st-pill">Not asked yet</span>}</div>)}</div>
-      {!done&&!c.requested&&<Btns><button className="st-btn pri" onClick={()=>E.requestSignoff(uc,id)}><i className="ti ti-send"></i>Request both signatures</button></Btns>}</>;}
-  case 'checklist':
-    return <><Hd t="Go-live checklist"/>
-      {D.CHECKLIST.map((it,i)=>{const st=uc.operate.chk[i];return(
-        <div key={i} className={'chk'+(st?' on':' todo')} onClick={()=>!done&&E.toggleCheck(uc,id,i)}><span className="bx">{st&&<i className="ti ti-check"></i>}</span>{it.t}
-          <span className="by">{st==='ray'?'✦ proven by Ray':st==='you'?'you':'tap to confirm'}</span></div>);})}</>;
-  case 'authority':
-    return <><Hd t="Starting authority"/><div className="opts">{D.AUTHORITY.map((a,i)=><button key={a.id} className="opt" disabled={done} onClick={()=>E.pickAuth(uc,id,a.id)}>{i===0&&<em>Recommended to start</em>}<b><i className={'ti '+a.ic}></i>{a.t}</b><span>{a.d}</span></button>)}</div></>;
-  case 'comment':
-    return <><div className="proof" style={{marginTop:0}}><U.Av who={c.who}/><div><b>{P(c.who).n}</b> · {P(c.who).r}<br/>“{c.text}”</div></div>
-      {!done&&<Btns><button className="st-btn ok sm" onClick={()=>E.applyComment(uc,id,true)}><i className="ti ti-check"></i>Apply it</button><button className="st-btn sm" onClick={()=>E.applyComment(uc,id,false)}>Discuss</button></Btns>}</>;
-  default:return null;
-  }
-}
-
-/* evidence line with drill-down into the alerts behind a claim */
-function Evidence({s,where}){
-  const [open,setOpen]=useState(false);
+/* ---------- Evidence drill-down ---------- */
+function Ev({s}){
+  const [o,setO]=useState(false);
   const n=parseInt((s.ev.match(/\d+/)||['3'])[0]);
   const rows=Array.from({length:Math.min(3,n)}).map((_,i)=>['A-'+(21000+((s.id.charCodeAt(1)*97+i*131)%900)),i%2?'Escalated':'Closed',i%2?'Closed':'Escalated']);
   return <>
-    <div className="evb"><i className="ti ti-chart-dots"></i><span>{s.ev}{where?' · step “'+where+'”':''} · <button onClick={()=>setOpen(o=>!o)}>{open?'Hide':'See the '+n+' alerts'}</button></span></div>
-    {open&&<table className="stbl"><thead><tr><th>Alert</th><th>Analyst</th><th>Ray before</th></tr></thead><tbody>{rows.map(r=><tr key={r[0]}><td className="code">{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>)}
-      {n>3&&<tr><td colSpan="3" style={{color:'var(--ink-3)'}}>+ {n-3} more in Evidence</td></tr>}</tbody></table>}</>;
+    <button className="s3-ev" onClick={e=>{e.stopPropagation();setO(x=>!x);}}><i className="ti ti-chart-dots"></i>{s.ev} · {o?'hide':'see the alerts'}</button>
+    {o&&<table className="s3-tbl" onClick={e=>e.stopPropagation()}><thead><tr><th>Alert</th><th>Analyst</th><th>Ray before</th></tr></thead><tbody>{rows.map(r=><tr key={r[0]}><td className="code">{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>)}
+      {n>3&&<tr><td colSpan="3" style={{color:'var(--ink-3)'}}>+ {n-3} more</td></tr>}</tbody></table>}</>;
 }
 
-/* suggestions: one at a time */
-function Sugs({uc,m}){
-  const c=m.card,id=m.id;
-  const [tOpen,setT]=useState(false);
-  const list=E.tuneSet(uc),tech=list.filter(s=>s.cat==='bug'||s.cat==='data'),judg=list.filter(s=>!(s.cat==='bug'||s.cat==='data'));
-  const idx=judg.findIndex(s=>!uc.train.sugs[s.id]);
-  if(c.done||idx<0)return <><Hd t="Suggestions"/><div className="stps">{judg.map(x=><div key={x.id} className="stp ok"><span className="ic">{uc.train.sugs[x.id]==='yes'?<i className="ti ti-check"></i>:<i className="ti ti-x"></i>}</span>{x.t}<span className="nt">{uc.train.sugs[x.id]==='yes'?'Accepted':'Rejected'}</span></div>)}</div></>;
-  const s=judg[idx];
-  return <>
-    <Hd t={'Suggestion '+(idx+1)+' of '+judg.length} right={<div className="pager">{judg.map((x,i)=><i key={x.id} className={uc.train.sugs[x.id]==='yes'?'yes':uc.train.sugs[x.id]==='no'?'no':i===idx?'on':''}></i>)}</div>}/>
-    <div style={{display:'flex',gap:6,marginBottom:4}}><span className={'st-pill '+D.TUNE_CAT[s.cat][1]}>{D.TUNE_CAT[s.cat][0]}</span><span className={'st-pill '+(s.imp==='High'?'risk':'warn')}>{s.imp} impact</span></div>
-    <div className="sug-t">{s.t}</div>
-    <div className="diff"><div className="a"><span className="lb">Today</span><span>{s.cur}</span></div><div className="b"><span className="lb">Ray</span><span>{s.sug}</span></div></div>
-    <Evidence key={s.id} s={s}/>
-    <Btns><button className="st-btn ok" onClick={()=>E.decide(uc,id,s.id,true)}><i className="ti ti-check"></i>Accept</button><button className="st-btn" onClick={()=>E.decide(uc,id,s.id,false)}>Reject</button>
-      <span style={{flex:1}}></span><button className="st-btn ghost sm" onClick={()=>E.acceptAll(uc,id)}>Accept all</button></Btns>
-    <div className="st-rc" style={{marginTop:12}} onClick={()=>setT(o=>!o)}><i className="ti ti-tool ok"></i><span><b>{tech.length} technical fixes</b> already applied by Ray</span><span className="sp"></span><i className={'ti ex '+(tOpen?'ti-chevron-up':'ti-chevron-down')}></i></div>
-    {tOpen&&<div className="stps" style={{padding:'10px 4px 0'}}>{tech.map(x=><div key={x.id} className="stp ok"><span className="ic"><i className="ti ti-check"></i></span>{x.t}</div>)}</div>}
-  </>;
-}
-U.Card=Card;
-
-/* ---------- living package ---------- */
-const NW=184,GAP=22,NH=60;
-function Flow({uc,onNode}){
-  const v=E.cur(uc);
-  const ref=useRef(null);const [cw,setCw]=useState(0);
-  const narrow=cw>0&&cw<520;
-  useEffect(()=>{if(!ref.current||!window.ResizeObserver)return;const ro=new ResizeObserver(e=>setCw(e[0].contentRect.width));ro.observe(ref.current);return()=>ro.disconnect();},[!!v,narrow]);
-  useEffect(()=>{if(!ref.current||!uc.pulse.ids.length)return;const el=ref.current.querySelector('[data-nid="'+uc.pulse.ids[uc.pulse.ids.length-1]+'"]');const sc=ref.current.closest('.pbody');
-    if(el&&sc){const top=el.getBoundingClientRect().top-sc.getBoundingClientRect().top+sc.scrollTop;sc.scrollTop=Math.max(0,top-sc.clientHeight/2+40);}},[uc.pulse.t]);
-  if(!v)return null;
-  const wf=v.wf,fresh=Date.now()-uc.pulse.t<3500;
-  const cls=n=>'nd'+(v.changed.includes(n.id)?' chg':'')+(fresh&&uc.pulse.ids.includes(n.id)?(uc.pulse.fresh?' new':' pulse'):'');
-  const inner=n=>{const k=D.KIND[n.k]||D.KIND.user;return <>
-    <div className="h"><span className="ni" style={{background:k[1]+'1f',color:k[1]}}><i className={'ti '+k[0]}></i></span><span className="nt">{n.t}</span>{n.ai&&<span className="ai" title="Ray decides or drafts with AI"></span>}</div>
-    <div className="nm"><span>{n.role} · {n.sla}</span>{n.pol&&<span className="pol">§{n.pol}</span>}</div>
-    {n.tuned?<div className="why">Tuned: {n.tuned}</div>:v.changed.includes(n.id)?<div className="why">Changed in v{v.n}{n.note?': '+n.note:''}</div>:null}</>;};
-  if(narrow){
-    const order=[...wf.nodes].sort((a,b)=>a.r-b.r||a.c-b.c);
-    return <div className="flowwrap" ref={ref}><div className="vlist">{order.map(n=>{
-      const outs=wf.edges.filter(e=>e[0]===n.id&&e[2]).map(e=>{const t=wf.nodes.find(x=>x.id===e[1]);return t?e[2]+' → '+t.t:null;}).filter(Boolean);
-      return <div key={n.id} data-nid={n.id} className={cls(n)+' v'} onClick={()=>onNode&&onNode(n)}>{inner(n)}{outs.map(o=><div key={o} className="br"><i className="ti ti-corner-down-right"></i>{o}</div>)}</div>;})}</div></div>;
-  }
-  const rows=wf.nodes.reduce((a,n)=>Math.max(a,n.r),0)+1;
-  const nh=n=>{const lines=Math.min(3,Math.ceil(n.t.length/21));const why=n.tuned||v.changed.includes(n.id);return 20+Math.max(22,lines*16)+21+(why?(n.tuned&&n.tuned.length>30?36:22):0);};
-  const rowH=Array.from({length:rows}).map((_,r)=>Math.max(NH,...wf.nodes.filter(n=>n.r===r).map(nh)));
-  const rowY=rowH.reduce((acc,h,i)=>{acc.push(i?acc[i-1]+rowH[i-1]+52:0);return acc;},[]);
-  const pos=n=>({x:n.c*(NW+GAP),y:rowY[n.r]});
-  const W=3*NW+2*GAP,H=rowY[rows-1]+rowH[rows-1]+6;
-  return <div className="flowwrap" ref={ref}>
-    <div className="flow" style={{width:W,height:H}}>
-      <svg width={W} height={H}>{wf.edges.map((e,i)=>{const a=wf.nodes.find(n=>n.id===e[0]),b=wf.nodes.find(n=>n.id===e[1]);if(!a||!b)return null;
-        const p=pos(a),q=pos(b),x1=p.x+NW/2,y1=p.y+nh(a),x2=q.x+NW/2,y2=q.y;
-        return <g key={i}><path d={`M${x1} ${y1} C${x1} ${y1+26},${x2} ${y2-26},${x2} ${y2-2}`}/>
-          {e[2]&&<text x={x1===x2?x1+7:(x1+x2)/2} y={y1+(y2-y1)/2+3} textAnchor={x1===x2?'start':'middle'}>{e[2]}</text>}</g>;})}</svg>
-      {wf.nodes.map(n=>{const p=pos(n);return <div key={n.id} data-nid={n.id} className={cls(n)} style={{left:p.x,top:p.y}} onClick={()=>onNode&&onNode(n)} title="Tap to talk to Ray about this step">{inner(n)}</div>;})}
+/* ---------- one playbook step ---------- */
+function Step({uc,v,n,idx,num,onStep,readOnly}){
+  const tracked=x=>x&&!readOnly&&x.ver>uc.signedVer;
+  const cg=tracked(n.chg)?n.chg:null;
+  const isNew=!readOnly&&n.isNew&&n.isNew>uc.signedVer;
+  const fresh=Date.now()-uc.pulse.t<3500&&uc.pulse.ids.includes(n.id);
+  const who=cg&&cg.f==='role'?<><del className="s3d">{WHO[cg.before]||cg.before}</del> <ins className="s3i">{WHO[cg.after]||cg.after}</ins></>:(WHO[n.role]||n.role);
+  const wh=cg&&cg.f==='sla'?<>within <del className="s3d">{cg.before}</del> <ins className="s3i">{cg.after}</ins></>:when(n.sla);
+  const title=cg&&cg.f==='title'?<><del className="s3d">{cg.before}</del> <ins className="s3i">{cg.after}</ins></>:n.t;
+  const outs=v.wf.edges.filter(e=>e[0]===n.id&&e[2]).map(e=>({l:e[2],to:idx[e[1]]})).filter(o=>o.to);
+  const pend=uc.train.rounds.length&&!readOnly?E.tuneSet(uc).filter(s=>s.node===n.id&&!uc.train.sugs[s.id]):[];
+  const cmt=!readOnly&&uc.comment&&uc.comment.node===n.id?uc.comment:null;
+  const tFresh=n.tuned&&!readOnly&&n.tunedVer>uc.signedVer;
+  return <div className={'s3-step'+(isNew?' new':'')+(fresh?(uc.pulse.fresh?' appear':' pulse'):'')} data-nid={n.id} onClick={()=>!readOnly&&onStep&&onStep(n,num)}>
+    <span className="num">{num}</span>
+    <div>
+      <div className="hd"><span className="t">{title}</span>{n.ai&&<span className="s3-aitag">✦ AI</span>}{n.pol&&<span className="s3-cl">§{n.pol}</span>}{isNew&&<span className="s3-pill ok">New</span>}</div>
+      <div className="s">{who} {n.ai&&n.role==='Ray'?'decides':'handles this'} {wh}.</div>
+      {outs.length>0&&<div className="br">{outs.map(o=><span key={o.l}><i className="ti ti-corner-down-right"></i>If {o.l.toLowerCase()} → <b>step {o.to.num}</b></span>)}</div>}
+      {n.note&&<div className="s3-tuned fresh"><i className="ti ti-message-2"></i><span>{cg&&cg.f==='note'?<ins className="s3i">Your instruction: “{n.note}”</ins>:'Your instruction: “'+n.note+'”'}</span></div>}
+      {n.tuned&&<div className={'s3-tuned'+(tFresh?' fresh':'')}><i className="ti ti-sparkles"></i><span>{tFresh?<ins className="s3i">{n.tuned}</ins>:n.tuned}{tFresh&&n.tunedBy==='ray'?<span className="s3-pill" style={{marginLeft:6}}>Fixed by Ray</span>:null}</span></div>}
+      {(cg||isNew)&&<div className="s3-chg"><i className="ti ti-git-commit"></i>{isNew?'Added':'Changed'} in v{(cg||{}).ver||n.isNew}{cg&&cg.by==='dana'?' from Dana’s suggestion':''}
+        {E.cur(uc).n===((cg||{}).ver||n.isNew)&&<> · <button onClick={e=>{e.stopPropagation();E.undo(uc);}}>Undo</button></>}
+        {uc.lastChange&&uc.lastChange.v===E.cur(uc).n&&<> · <button onClick={e=>{e.stopPropagation();E.say(uc,'Why?');}}>Why?</button></>}</div>}
+      {pend.map(s=>{const held=uc.level==='sign'&&s.held;return <div key={s.id} className={'s3-sug'+(held?' held':'')} onClick={e=>e.stopPropagation()}>
+        <div className="sh"><i className={'ti '+(held?'ti-hand-stop':'ti-sparkles')}></i>{held?'Held for you':'Ray suggests'}<span className="sp"></span><span className={'s3-pill '+(s.imp==='High'?'risk':'warn')}>{s.imp} impact</span></div>
+        <div className="st">{s.t}</div>
+        <div className="tx"><del className="s3d">{s.cur}</del><br/><ins className="s3i">{s.sug}</ins></div>
+        <div className="acts"><button className="s3-b ok sm" onClick={()=>E.decideSug(uc,s.id,true)}><i className="ti ti-check"></i>Accept</button><button className="s3-b sm" onClick={()=>E.decideSug(uc,s.id,false)}>Reject</button><Ev s={s}/></div>
+      </div>;})}
+      {cmt&&<div className="s3-sug dana" onClick={e=>e.stopPropagation()}>
+        <div className="sh"><U.Av who={cmt.who}/>{P(cmt.who).n} suggests<span className="sp"></span><span className="s3-pill">{P(cmt.who).r}</span></div>
+        <div className="tx" style={{marginTop:8}}>“{cmt.text}”<br/><span style={{color:'var(--ink-2)'}}>{WHO[n.role]} → </span><ins className="s3i">A supervisor</ins></div>
+        <div className="acts"><button className="s3-b ok sm" onClick={()=>E.applyComment3(uc,true)}><i className="ti ti-check"></i>Accept</button><button className="s3-b sm" onClick={()=>E.applyComment3(uc,false)}>Decline</button></div>
+      </div>}
     </div>
-    <div className="legend"><span><span className="ai"></span>Ray decides with AI</span><span><b style={{color:'var(--t-act)'}}>§</b> Your policy clause</span><span><i className="ti ti-hand-finger"></i>Tap a step to talk about it</span></div>
   </div>;
 }
-function Rules({uc}){
-  return <>{uc.hasDocs&&uc.files.length>0&&<div className="sect"><i className="ti ti-files"></i>{uc.files.length} documents · {uc.policy.length} clauses</div>}
-    {uc.policy.map(c=><div key={c.no} className={'cl'+(uc.lastChange&&uc.lastChange.clause.no===c.no?' hl':'')}>
-      <div className="h"><span className="no">§{c.no}</span>{c.t}</div><p>{c.p}</p><div className="s"><i className="ti ti-paperclip"></i>{c.src}</div></div>)}</>;
-}
-function Report({uc}){
-  return <div className="sdoc"><div className="dh"><i className="ti ti-file-text" style={{fontSize:20,color:'var(--ink-3)'}}></i><b>Investigation report</b><span className="st-pill">{uc.report==='upload'?'Your layout':'Predefined'}</span></div>
-    {D.REPORT.map((r,i)=><div key={r.h} className="ds"><h5>{i+1}. {r.h}</h5><p>{r.p}</p><div className="ln" style={{width:(92-i*7)+'%'}}></div></div>)}</div>;
-}
-function Evid({uc}){
+
+/* ---------- Is Ray ready? ---------- */
+function Ready({uc}){
+  const [o,setO]=useState(false);
   const r=uc.train.rounds,p=uc.prove,live=uc.operate.live;
-  const kp=(v,l,tg)=><div className="kp"><b>{v}</b><span>{l}</span>{tg&&<span className="tg">{tg}</span>}</div>;
-  return <>
-    {live&&<><div className="livebar"><span className="p"></span>Live · version {E.cur(uc).n} · {D.AUTHORITY.find(a=>a.id===uc.operate.auth).t}<span className="sp"></span><button className="st-btn sm" onClick={()=>E.rollback(uc)}><i className="ti ti-arrow-back-up"></i>Roll back</button></div>
-      <div className="kp4">{kp('3,912','alerts, last 7 days')}{kp('31%','closed by Ray')}{kp('3.1 h','avg. time to decision')}{kp('0','SLA breaches')}</div></>}
-    {p.day>0&&<div className="pn"><h5><i className="ti ti-eye-check" style={{color:'var(--violet2)'}}></i>Prove · shadow run<span className="sp"></span><span className="st-pill">Day {p.day} of {p.total}</span></h5>
-      <div className="sbar"><i style={{width:(p.day/p.total*100)+'%'}}></i></div>
-      <div className="kp4">{kp(Math.round(4100*Math.min(1,p.day/p.total)).toLocaleString(),'alerts')}{kp('91%','agreement','target 85% · met')}{kp('98%','escalations caught','target 95% · met')}{kp('0','missed SARs','target 0 · met')}</div>
-      <table className="stbl"><thead><tr><th>Alert</th><th>Analysts</th><th>Ray</th><th>Why</th></tr></thead><tbody>{D.SHADOW_DIFFS.map(d=><tr key={d[0]}><td className="code">{d[0]}</td><td>{d[1]}</td><td><b>{d[2]}</b></td><td style={{color:'var(--ink-2)'}}>{d[3]}</td></tr>)}</tbody></table></div>}
-    {r.length>0&&<div className="pn"><h5><i className="ti ti-school" style={{color:'var(--act)'}}></i>Train · Ray vs. your analysts</h5>
-      <div className="kp4">{kp(r[r.length-1].agree+'%','agreement')}{kp('34%','false positives Ray closes')}{kp(r.length>1?'0':'2','escalations missed')}{kp('2.1 min','per decision')}</div>
-      <div className="rounds">{r.map(x=><div key={x.n} className="r"><b>{x.agree}%</b><i style={{height:((x.agree-70)*3.6)+'px'}}></i><span>Round {x.n}</span></div>)}</div>
-      <table className="stbl" style={{marginTop:14}}><thead><tr><th>Alert</th><th>Analyst</th><th>Ray</th><th>Why Ray differs</th></tr></thead><tbody>{D.DIFFS.map(d=><tr key={d[0]}><td className="code">{d[0]}</td><td>{d[1]}</td><td><b>{d[2]}</b></td><td style={{color:'var(--ink-2)'}}>{d[3]}</td></tr>)}</tbody></table></div>}
-  </>;
+  if(!r.length&&!p.day&&!live)return null;
+  let tone,verdict,k,rows=D.DIFFS,bar=null;
+  if(live){tone='ok';verdict='Live and healthy';k=[['3,912','alerts this week'],['31%','closed by Ray'],['3.1 h','avg. decision time'],['0','SLA breaches']];rows=D.SHADOW_DIFFS;}
+  else if(p.day>0){const done=p.day>=p.total;tone=done?'ok':'ai';rows=D.SHADOW_DIFFS;
+    verdict=done?'Passed the shadow run — 3 of 3 targets met':'On track — day '+p.day+' of '+p.total+' on live alerts';
+    k=[[Math.round(4100*Math.min(1,p.day/p.total)).toLocaleString(),'live alerts shadowed'],['91%','agreement','target 85%'],['98%','escalations caught','target 95%'],['0','missed SARs','target 0']];bar=p.day/p.total;}
+  else{const a=r[r.length-1].agree,pend=E.tuneSet(uc).filter(x=>!uc.train.sugs[x.id]).length;tone=a>=90?'ok':'warn';
+    verdict=a>=90?'Ready — '+a+'% agreement, no missed escalations':'Not yet — '+a+'% agreement, target 90%'+(pend?' · '+pend+' suggestion'+(pend>1?'s':'')+' below close the gap':'');
+    k=[[a+'%','agreement with analysts'],['34%','false positives Ray closes'],[r.length>1?'0':'2','escalations missed'],['2.1 min','per decision']];}
+  const col={ok:'var(--ok)',warn:'var(--now)',ai:'var(--violet2)'}[tone];
+  return <div className={'s3-rd '+tone}>
+    <div className="rh"><span className="light" style={{background:col,boxShadow:'0 0 0 4px '+col+'33'}}></span><span className="q">Is Ray ready?</span><span style={{flex:1}}></span>
+      {r.length>0&&!p.day&&<div className="s3-rounds" title="Practice rounds">{r.map(x=><i key={x.n} style={{height:(x.agree-70)*1.6}}></i>)}</div>}</div>
+    <div className="verdict">{verdict}</div>
+    {bar!==null&&<div className="s3-bar"><i style={{width:(bar*100)+'%'}}></i></div>}
+    <div className="s3-kpis">{k.map(x=><div key={x[1]} className="s3-kpi"><b>{x[0]}</b><span>{x[1]}</span>{x[2]&&<span className="tg">{x[2]} · met</span>}</div>)}</div>
+    <button className="s3-ev" style={{marginTop:12}} onClick={()=>setO(x=>!x)}><i className={'ti '+(o?'ti-chevron-up':'ti-chevron-down')}></i>{o?'Hide':'Where Ray and your analysts differ'} ({rows.length})</button>
+    {o&&<table className="s3-tbl"><thead><tr><th>Alert</th><th>Analysts</th><th>Ray</th><th>Why</th></tr></thead><tbody>{rows.map(d=><tr key={d[0]}><td className="code">{d[0]}</td><td>{d[1]}</td><td><b>{d[2]}</b></td><td style={{color:'var(--ink-2)'}}>{d[3]}</td></tr>)}</tbody></table>}
+  </div>;
 }
-const isDecision=t=>t.kind==='sign'||/^(Accepted|Rejected|Agreed|Chose|Signed|Requested|Starting authority|Go-live|GO LIVE|Handed|Rolled back)/i.test(t.text);
-const isChange=t=>/^v\d+:|Drafted|Applied|Added|Restored|fixes/i.test(t.text);
-function History({uc}){
+
+/* ---------- optional flow view ---------- */
+function Flow({uc,v,onStep,idx}){
+  const NW=180,GAP=20,RH=104;const wf=v.wf,rows=wf.nodes.reduce((a,n)=>Math.max(a,n.r),0)+1;
+  const pos=n=>({x:n.c*(NW+GAP),y:n.r*RH}),W=3*NW+2*GAP,H=rows*RH-34;
+  return <div className="s3-flowwrap"><div className="s3-flow" style={{width:W,height:H}}>
+    <svg width={W} height={H}>{wf.edges.map((e,i)=>{const a=wf.nodes.find(n=>n.id===e[0]),b=wf.nodes.find(n=>n.id===e[1]);if(!a||!b)return null;const p=pos(a),q=pos(b),x1=p.x+NW/2,y1=p.y+56,x2=q.x+NW/2,y2=q.y;
+      return <g key={i}><path d={`M${x1} ${y1} C${x1} ${y1+22},${x2} ${y2-22},${x2} ${y2-2}`}/>{e[2]&&<text x={x1===x2?x1+7:(x1+x2)/2} y={(y1+y2)/2+3} textAnchor={x1===x2?'start':'middle'}>{e[2]}</text>}</g>;})}</svg>
+    {wf.nodes.map(n=>{const p=pos(n);return <div key={n.id} className={'s3-nd'+(v.changed.includes(n.id)?' chg':'')} style={{left:p.x,top:p.y}} onClick={()=>onStep&&onStep(n,idx[n.id].num)}>{idx[n.id].num}. {n.t}<span>{n.role} · {n.sla}</span></div>;})}
+  </div></div>;
+}
+
+/* ---------- the Playbook ---------- */
+U.Playbook=function({uc,onStep,viewVer,setViewVer}){
+  const [view,setView]=useState('steps');
+  const [rules,setRules]=useState(false);const [rep,setRep]=useState(false);
+  const cur=E.cur(uc);
+  const v=viewVer?uc.versions.find(x=>x.n===viewVer):cur;
+  const readOnly=!!viewVer&&viewVer!==cur.n;
+  const ord=order(v.wf);const idx={};ord.forEach((n,i)=>idx[n.id]={num:i+1,n});
+  const ref=useRef(null);
+  useEffect(()=>{if(!ref.current||!uc.pulse.ids.length)return;const el=ref.current.querySelector('[data-nid="'+uc.pulse.ids[uc.pulse.ids.length-1]+'"]');const sc=ref.current.closest('.s3-scroll');
+    if(el&&sc){const top=el.getBoundingClientRect().top-sc.getBoundingClientRect().top+sc.scrollTop;sc.scrollTop=Math.max(0,top-sc.clientHeight/3);}},[uc.pulse.t]);
+  const pending=uc.train.rounds.length?E.tuneSet(uc).filter(x=>!uc.train.sugs[x.id]).length:0;
+  const t=E.tplOf(uc);
+  return <div className="s3-paper" ref={ref}>
+    {readOnly&&<div className="s3-viewing"><i className="ti ti-history"></i>Viewing version {v.n} · {v.summary}<span className="sp"></span>
+      <button className="s3-b sm" onClick={()=>{E.restore(uc,v.n);setViewVer(null);}}>Restore</button><button className="s3-b pri sm" onClick={()=>setViewVer(null)}>Back to current</button></div>}
+    {!readOnly&&<Ready uc={uc}/>}
+    <div className="s3-pbh"><div><div className="s3-kick"><i className="ti ti-book-2"></i>Playbook · version {v.n}</div>
+      <div className="s3-title">{t?t.t:'Playbook'}</div>
+      <p className="s3-lead" style={{marginBottom:0}}>{ord.length} steps, each tied to your policy.{pending&&!readOnly?<> <b style={{color:'var(--t-violet)'}}>{pending} suggestion{pending>1?'s':''} to decide.</b></>:''}{uc.comment&&!readOnly?<> <b style={{color:'var(--t-act)'}}>1 suggestion from Dana.</b></>:''} Tap any step to talk about it.</p></div>
+      <span className="sp"></span><div className="s3-seg" style={{flex:'0 0 auto'}}><button className={view==='steps'?'on':''} onClick={()=>setView('steps')}>Steps</button><button className={view==='flow'?'on':''} onClick={()=>setView('flow')}>Flow</button></div></div>
+    <div className="s3-sect">
+      {view==='steps'?ord.map((n,i)=><Step key={n.id} uc={uc} v={v} n={n} idx={idx} num={i+1} onStep={onStep} readOnly={readOnly}/>):<Flow uc={uc} v={v} idx={idx} onStep={onStep}/>}
+    </div>
+    <div className="s3-sect"><h3><i className="ti ti-book"></i>Rules Ray follows · {uc.policy.length}<span className="sp"></span><button onClick={()=>setRules(x=>!x)}>{rules?'Hide':'Show'}<i className={'ti '+(rules?'ti-chevron-up':'ti-chevron-down')}></i></button></h3>
+      {!rules&&<div style={{fontSize:13.5,color:'var(--ink-2)'}}>From {uc.hasDocs&&uc.files.length?uc.files.map(f=>f.name).slice(0,2).join(', ')+(uc.files.length>2?' and '+(uc.files.length-2)+' more':''):'the ThetaRay template'} — every clause linked to its page.</div>}
+      {rules&&<div className="s3-fold">{uc.policy.map(c=><div key={c.no} className={'s3-clause'+(uc.lastChange&&uc.lastChange.clause.no===c.no?' hl':'')}><div className="h"><span className="s3-cl">§{c.no}</span>{c.t}</div><p>{c.p}</p><div className="src"><i className="ti ti-paperclip"></i>{c.src}</div></div>)}</div>}</div>
+    <div className="s3-sect"><h3><i className="ti ti-file-text"></i>What Ray writes on every alert<span className="sp"></span><button onClick={()=>setRep(x=>!x)}>{rep?'Hide':'Show'}<i className={'ti '+(rep?'ti-chevron-up':'ti-chevron-down')}></i></button></h3>
+      {!rep&&<div style={{fontSize:13.5,color:'var(--ink-2)'}}>A {uc.report==='upload'?'report in your own layout':'predefined report'}: {D.REPORT.map(r=>r.h.toLowerCase()).slice(0,4).join(', ')} and more.</div>}
+      {rep&&<div className="s3-fold">{D.REPORT.map((r,i)=><div key={r.h} className="s3-clause"><div className="h"><span className="s3-cl">{i+1}</span>{r.h}</div><p>{r.p}</p></div>)}</div>}</div>
+    <div className="s3-sect"><h3><i className="ti ti-shield-lock"></i>Limits &amp; sign-offs</h3>
+      <div className="s3-limits">
+        <div className="s3-lim"><b><i className="ti ti-hand-stop"></i>Always held for you</b>Sanctions and risk thresholds, anything about filing.</div>
+        <div className="s3-lim"><b><i className="ti ti-stairs-up"></i>Authority</b>{uc.operate.live?D.AUTHORITY.find(a=>a.id===uc.operate.auth).t:'None yet — Ray affects no real alert until go-live.'}</div>
+        <div className="s3-lim"><b><i className="ti ti-signature"></i>Who signs</b>You for Build and Train; the MLRO and Head of FCC before production.</div>
+        <div className="s3-lim"><b><i className="ti ti-history"></i>Signed versions</b>{uc.signs.length?uc.signs.filter((x,i,a)=>a.indexOf(x)===i).map(x=>'v'+x).join(', '):'None yet'}</div>
+      </div></div>
+  </div>;
+};
+
+/* ---------- Ray's margin notes ---------- */
+U.Note=function({uc,m,goStep}){
+  if(m.from==='log')return <div className="s3-log"><i className={'ti '+m.icon}></i>{m.text}</div>;
+  if(m.from==='you')return <div className="s3-n you"><div className="ub">{U.md(m.text)}{m.via==='voice'&&<span className="via"><i className="ti ti-microphone"></i>spoken</span>}</div></div>;
+  const c=m.card;let card=null;
+  if(c){const st=(i,at,done)=>i<at||done?'ok':i===at?'run':'';
+    if(c.type==='progress')card=<div className="s3-rc"><div className="s3-pl">{c.steps.map((s,i)=><div key={s} className={'s3-pi '+st(i,c.at,c.done)}><span className="ic">{st(i,c.at,c.done)==='ok'?<i className="ti ti-check"></i>:st(i,c.at,c.done)==='run'?<i className="ti ti-loader-2"></i>:i+1}</span>{s}</div>)}</div></div>;
+    if(c.type==='read')card=<div className="s3-rc"><div className="s3-pl">{uc.files.map(f=><div key={f.name} className={'s3-pi '+(f.pct>=100?'ok':'run')}><span className="ic">{f.pct>=100?<i className="ti ti-check"></i>:<i className="ti ti-loader-2"></i>}</span><span style={{minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{f.name}</span>{f.pct>=100&&<span className="nt">{f.found}</span>}</div>)}</div></div>;
+    if(c.type==='replay')card=<div className="s3-rc"><div style={{display:'flex',fontSize:12.5}}><span style={{flex:1}}>{c.cnt.toLocaleString()} / {c.n.toLocaleString()} alerts</span><b style={{color:'var(--t-ok)'}}>{c.agree}% agree</b></div><div className="s3-bar" style={{margin:'6px 0 0'}}><i style={{width:(c.cnt/c.n*100)+'%'}}></i></div></div>;
+    if(c.type==='shadowrun'){const p=uc.prove;card=<div className="s3-rc"><div style={{display:'flex',fontSize:12.5}}><span style={{flex:1}}>Day {p.day} of {p.total}</span><b style={{color:'var(--t-ok)'}}>{p.day?'91% agree':'—'}</b></div><div className="s3-bar" style={{margin:'6px 0 0'}}><i style={{width:(p.day/p.total*100)+'%'}}></i></div></div>;}
+    if(c.type==='confirm')card=c.done?null:<div style={{display:'flex',gap:8,marginTop:8}}><button className="s3-b pri sm" onClick={()=>E.confirm(uc,m.id,c.what)}>{c.label}</button></div>;
+    if(c.type==='change')card=<button className="s3-anchor" onClick={()=>goStep(c.anchor)}><i className="ti ti-arrow-left"></i>See it in the playbook</button>;
+    if(c.type==='anchor')card=<button className="s3-anchor" onClick={()=>goStep(c.anchor)}><i className="ti ti-arrow-left"></i>Go to step</button>;
+  }
+  return <div className="s3-n"><span className="s3-orb sm">✦</span><div className="bd">{m.text&&U.md(m.text)}{card}</div></div>;
+};
+
+/* ---------- one Sign sheet for every gate ---------- */
+U.SignSheet=function({uc,onClose}){
+  const [signing,setSigning]=useState(false);
+  const g=uc.gate;if(!g)return null;const v=E.cur(uc),r=uc.train.rounds;
+  const sign=fn=>{setSigning(true);setTimeout(()=>{fn();onClose();},900);};
+  const Ok=({items})=><div className="s3-ok-l">{items.map(x=><div key={x}><i className="ti ti-circle-check"></i><span>{x}</span></div>)}</div>;
+  const changes=uc.versions.filter(x=>x.n>uc.signedVer).length;
+  let kick,title,lead,body,cta;
+  if(g.what==='build'){kick='Sign off · Build';title='Approve the playbook';lead='This locks the starting point. Ray will practice on it next.';
+    body=<><h4>You’re approving</h4><Ok items={['Playbook version '+v.n+' — '+v.wf.nodes.length+' steps, each tied to a policy clause','Policy: '+(uc.hasDocs?uc.files.length+' documents, '+uc.policy.length+' clauses':'ThetaRay template'),'Report: '+(uc.report==='upload'?'your layout':'predefined layout'),changes+' change'+(changes===1?'':'s')+' since you last signed']}/>
+      <h4>Nothing changes for real alerts</h4><div style={{fontSize:13.5,color:'var(--ink-2)'}}>Ray generates the MRM document and analyst guide, then practices on closed alerts.</div></>;cta=['Sign',()=>E.signGate(uc)];}
+  else if(g.what==='train'||g.what==='buildtrain'){const acc=E.tuneSet(uc).filter(x=>uc.train.sugs[x.id]==='yes').length,rej=E.tuneSet(uc).filter(x=>uc.train.sugs[x.id]==='no').length;
+    kick='Sign off · '+(g.what==='buildtrain'?'Build + Train':'Train');title='Approve the practice results';lead='Ray practiced on closed alerts until it stopped improving.';
+    body=<><h4>Evidence</h4><div className="s3-kpis" style={{marginBottom:6}}><div className="s3-kpi"><b>{r[r.length-1].agree}%</b><span>agreement</span><span className="tg">target 90% · met</span></div><div className="s3-kpi"><b>0</b><span>escalations missed</span></div><div className="s3-kpi"><b>{r.length}</b><span>practice rounds</span></div><div className="s3-kpi"><b>{acc}/{acc+rej}</b><span>changes accepted</span></div></div>
+      <h4>You’re approving</h4><Ok items={['Playbook version '+v.n+' as the baseline for the shadow run','2 technical fixes Ray made, and '+acc+' improvements you accepted',(uc.level==='sign'?'Every Ray action is in the audit trail — nothing was hidden':'All changes are versioned and reversible')]}/></>;cta=['Sign',()=>E.signGate(uc)];}
+  else if(g.what==='prove'){const s=uc.prove.signed,both=s.mlro&&s.fcc;
+    kick='Sign-off · Prove';title='Approve production readiness';lead='The shadow run on live alerts passed. Two senior signatures are required.';
+    body=<><h4>Targets</h4><table className="s3-tbl"><tbody>{[['Agreement','91%','≥ 85%'],['Escalations caught','98%','≥ 95%'],['Missed SARs','0','0']].map(x=><tr key={x[0]}><td>{x[0]}</td><td><b>{x[1]}</b></td><td style={{color:'var(--ink-3)'}}>target {x[2]}</td><td><span className="s3-pill ok">Met</span></td></tr>)}</tbody></table>
+      <h4>Signatures</h4><div className="s3-ppl">{[['mlro','Sarah Klein','MLRO'],['fcc','Lior Ben-Ami','Head of Financial Crime Compliance']].map(p=><div key={p[0]} className="s3-p"><U.Av who={p[0]}/><div className="nm"><b>{p[1]}</b><span>{p[2]}</span></div>
+        {s[p[0]]?<span className="s3-pill ok"><i className="ti ti-signature"></i>Signed {s[p[0]]}</span>:uc.prove.requested?<span className="s3-pill warn">Waiting…</span>:<span className="s3-pill">Not asked yet</span>}</div>)}</div></>;
+    cta=both?null:uc.prove.requested?null:['Request both signatures',()=>E.requestSigs(uc),true];}
+  else if(g.what==='live'){const ok=D.CHECKLIST.every((c,i)=>uc.operate.chk[i]);
+    kick='Go live';title='Let Ray work on real alerts';lead='The only step that affects real alerts. You can roll back in one tap.';
+    body=<><h4>Checklist</h4>{D.CHECKLIST.map((it,i)=>{const st=uc.operate.chk[i];return <div key={i} className={'s3-chk'+(st?' on':' todo')} onClick={()=>E.toggleChk(uc,i)}><span className="bx">{st&&<i className="ti ti-check"></i>}</span>{it.t}<span className="by">{st==='ray'?'✦ proven by Ray':st==='you'?'you':'tap to confirm'}</span></div>;})}
+      <h4>Start Ray with</h4><div className="s3-seg">{D.AUTHORITY.map(a=><button key={a.id} className={uc.operate.auth===a.id?'on':''} onClick={()=>E.setAuth(uc,a.id)}>{a.t.replace(' high-confidence false positives',' clear FPs')}</button>)}</div>
+      <div style={{fontSize:12.5,color:'var(--ink-3)',marginTop:8}}>{D.AUTHORITY.find(a=>a.id===uc.operate.auth).d}</div></>;
+    cta=['Sign & go live',()=>E.goLive(uc),false,!ok];}
+  return <div className="s3-sheetbg" onClick={onClose}><div className="s3-sheet" onClick={e=>e.stopPropagation()}>
+    <div style={{display:'flex',alignItems:'center'}}><div className="s3-kick" style={{flex:1}}><i className="ti ti-signature"></i>{kick}</div><button className="s3-ib" onClick={onClose}><i className="ti ti-x"></i></button></div>
+    <h3>{title}</h3><p className="lead">{lead}</p>{body}
+    {g.what==='prove'&&uc.prove.signed.mlro&&uc.prove.signed.fcc&&<div className="s3-signed"><i className="ti ti-circle-check"></i>Both signed — continue to go-live.</div>}
+    {cta&&<div className="s3-sigrow">{!cta[2]&&<span className="s3-sigline">{signing?'You':' '}</span>}<span className="sp"></span>
+      <button className={'s3-b lg '+(g.what==='live'?'ai':cta[2]?'pri':'ok')} disabled={signing||cta[3]} onClick={()=>cta[2]?cta[1]():sign(cta[1])}>{signing?<><i className="ti ti-check"></i>Signed</>:<><i className={'ti '+(cta[2]?'ti-send':'ti-signature')}></i>{cta[0]}</>}</button></div>}
+  </div></div>;
+};
+
+/* ---------- audit drawer ---------- */
+const isDecision=t=>t.kind==='sign'||/^(Accepted|Rejected|Declined|Brief agreed|Signed|Requested|Check-with-me|GO LIVE|Handed|Took over|Rolled back)/i.test(t.text);
+const isChange=t=>/^v\d+:|Wrote|Applied|Added|Restored|fixes/i.test(t.text);
+U.Audit=function({uc,onClose,onView}){
   const [f,setF]=useState('all');
   const F=[['all','All'],['dec','Decisions'],['chg','Changes'],['ray','By Ray']];
   const match=(t,k)=>k==='all'||(k==='dec'&&isDecision(t))||(k==='chg'&&isChange(t))||(k==='ray'&&t.who==='ray');
-  const list=uc.trail.filter(t=>match(t,f));
-  const icon={sign:'ti-signature',ray:'ti-sparkles',you:'ti-user'};
-  const download=()=>{
-    const rows=[['Time','Who','Role','Version','Action']].concat([...uc.trail].reverse().map(t=>[t.at,P(t.who).n,P(t.who).r,t.ver,t.text]));
+  const list=uc.trail.filter(t=>match(t,f));const icon={sign:'ti-signature',ray:'ti-sparkles',you:'ti-user'};
+  const download=()=>{const rows=[['Time','Who','Role','Version','Action']].concat([...uc.trail].reverse().map(t=>[t.at,P(t.who).n,P(t.who).r,t.ver,t.text]));
     const csv=rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');
-    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-    a.download=uc.name.replace(/[^a-z0-9]+/gi,'_').toLowerCase()+'_audit_trail.csv';document.body.appendChild(a);a.click();a.remove();
-    E.log(uc,'Downloaded the audit trail for the auditor','you','you');E.emit();
-  };
-  return <>
-    <div className="hist-top"><div className="seg2">{F.map(([k,l])=><button key={k} className={f===k?'on':''} onClick={()=>setF(k)}>{l} <span style={{opacity:.6}}>{uc.trail.filter(t=>match(t,k)).length}</span></button>)}</div>
-      <span className="sp"></span><button className="st-btn sm" onClick={download}><i className="ti ti-download"></i>Download for auditor</button></div>
-    {uc.versions.length>0&&<div className="vers">{uc.versions.map(v=><button key={v.n} className={v.n===E.cur(uc).n?'on':''} title={v.summary} onClick={()=>v.n!==E.cur(uc).n&&E.restore(uc,v.n)}>v{v.n}{v.n===E.cur(uc).n?' · current':' · restore'}</button>)}</div>}
-    {list.length?<div className="trl">{list.map(t=><div key={t.id} className={'tr '+t.kind}><span className="ic"><i className={'ti '+(icon[t.kind]||'ti-point')}></i></span>
-      <div className="w">{t.text}<span>{P(t.who).n} · {t.at}</span></div><span className="v">{t.ver}</span></div>)}</div>
-      :<div className="st-empty" style={{minHeight:200}}><i className="ti ti-history"></i><b>Nothing here yet</b><span>Every choice, change and signature is recorded — it can’t be edited or deleted.</span></div>}
-  </>;
-}
-U.tabsFor=uc=>{
-  const t=[];
-  if(uc.versions.length)t.push(['workflow','How Ray works','ti-git-branch']);
-  if(uc.policy.length)t.push(['policy','Your rules','ti-book']);
-  if(uc.report)t.push(['report','Report','ti-file-text']);
-  if(uc.train.rounds.length||uc.prove.day||uc.operate.live)t.push(['results','Evidence','ti-chart-bar']);
-  if(t.length)t.push(['trail','History','ti-history']);
-  return t;
-};
-U.Package=function({uc,onNode,open,onClose}){
-  const tabs=U.tabsFor(uc);
-  const tab=tabs.find(t=>t[0]===uc.tab)?uc.tab:(tabs[0]||[])[0];
-  const v=E.cur(uc);
-  return <div className={'pkg'+(open?' open':'')}>
-    {tabs.length>0&&<div className="ptabs">{tabs.map(t=><button key={t[0]} className={'ptab'+(tab===t[0]?' on':'')} onClick={()=>E.setTab(uc,t[0])}><i className={'ti '+t[2]}></i>{t[1]}</button>)}
-      <span className="sp"></span>{v&&<span className="ver"><i className="ti ti-git-commit"></i>v{v.n} · {v.at}</span>}</div>}
-    <button className="st-ib sheet-x" onClick={onClose} title="Close"><i className="ti ti-x"></i></button>
-    <div className="pbody">
-      {!tabs.length&&<div className="st-empty"><i className="ti ti-package"></i><b>Your use case appears here as you talk</b><span>Ray builds it like onboarding a new investigator — four simple stages, and you sign each one.</span>
-        <div className="steps4">{D.STAGES.map(s=><div key={s.k}><b><span className="st-dot" style={{'--c':s.c}}></span>{s.t}</b><span>{s.sub}</span></div>)}</div></div>}
-      {tab==='workflow'&&<Flow uc={uc} onNode={onNode}/>}
-      {tab==='policy'&&<Rules uc={uc}/>}
-      {tab==='report'&&<Report uc={uc}/>}
-      {tab==='results'&&<Evid uc={uc}/>}
-      {tab==='trail'&&<History uc={uc}/>}
-    </div>
-  </div>;
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=uc.name.replace(/[^a-z0-9]+/gi,'_').toLowerCase()+'_audit_trail.csv';document.body.appendChild(a);a.click();a.remove();
+    E.log(uc,'Downloaded the audit trail','you','you');E.emit();};
+  return <><div className="s3-drawerbg" onClick={onClose}></div><div className="s3-drawer">
+    <div className="dh"><i className="ti ti-shield-check" style={{fontSize:20,color:'var(--t-ok)'}}></i><b>Audit trail</b><button className="s3-ib" onClick={onClose}><i className="ti ti-x"></i></button></div>
+    <div className="db">
+      <p style={{fontSize:13,color:'var(--ink-2)',margin:'0 0 14px'}}>Every action, decision and signature — who, when, which version. Entries can’t be edited or deleted.</p>
+      <div className="s3-dtop"><div className="s3-seg">{F.map(([k,l])=><button key={k} className={f===k?'on':''} onClick={()=>setF(k)}>{l} <span style={{opacity:.55}}>{uc.trail.filter(t=>match(t,k)).length}</span></button>)}</div>
+        <span className="sp"></span><button className="s3-b sm" onClick={download}><i className="ti ti-download"></i>Download</button></div>
+      {list.map(t=><div key={t.id} className={'s3-tr '+t.kind}><span className="ic"><i className={'ti '+(icon[t.kind]||'ti-point')}></i></span><div className="w">{t.text}<span>{P(t.who).n} · {t.at}</span></div>
+        <span className="v" style={{cursor:'pointer'}} onClick={()=>{const n=parseInt(String(t.ver).slice(1));if(n&&uc.versions.find(x=>x.n===n)){onView(n);onClose();}}}>{t.ver}</span></div>)}
+      {!list.length&&<div className="s3-empty"><i className="ti ti-history"></i><b>Nothing here yet</b></div>}
+    </div></div></>;
 };
 })();

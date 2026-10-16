@@ -164,7 +164,7 @@ E.policyChoice=async(uc,msgId,choice,fromSetup)=>{
     uc.policy=D.buildPolicy(uc.tpl,true);uc.policyHl=uc.policy.map(c=>c.no);E.pulse(uc,[],'policy');
     E.doneCard(uc,m.id,'Read');
     E.log(uc,'Read '+uc.files.length+' documents · extracted '+uc.policy.length+' policy clauses','ray');
-    await E.ray(uc,'Read. **'+uc.policy.length+' policy clauses**, each linked to its page in *Your rules*.');
+    await E.ray(uc,'Read. **'+uc.policy.length+' policy clauses**, each linked to its page.');
   }else{
     uc.policy=D.buildPolicy(uc.tpl,false);uc.policyHl=[];E.setTab(uc,'policy');
     E.log(uc,'Using ThetaRay template policy ('+uc.policy.length+' clauses)','ray');
@@ -218,30 +218,30 @@ E.refine=async(uc,text,fromWho)=>{
   const l1=findNode(wf,n=>/Analyst L1/.test(n.role))||wf.nodes[2];
   const target=uc.focusNode?findNode(wf,n=>n.id===uc.focusNode):null;
   let changed=[],diff=null,summary='';
-  const nid='x'+uid();
+  const nid='x'+uid(),NV=uc.versions.length+1;
   if(intent&&intent.id==='sla'){
-    const n=target||l1;const before=n.sla;n.sla=/^24/.test(before)?'4 hours (high risk)':'24 hours (risk > 80)';
+    const n=target||l1;const before=n.sla;n.sla=/^24/.test(before)?'4 hours (high risk)':'24 hours (risk > 80)';n.chg={f:'sla',before,after:n.sla,ver:NV};
     changed=[n.id];diff=[n.t+' · SLA '+before,n.t+' · SLA '+n.sla];summary='SLA on “'+n.t+'”: '+before+' → '+n.sla;
   }else if(intent&&intent.id==='four'){
     const f=findNode(wf,n=>n.k==='flag')||wf.nodes[wf.nodes.length-1];
-    insertBefore(wf,f,{id:nid,t:'Four-eyes supervisor check',k:'shield',ai:false,role:'Supervisor',sla:'24 hours',pol:clauseFor(uc,intent.clause).no});
+    insertBefore(wf,f,{id:nid,t:'Four-eyes supervisor check',k:'shield',ai:false,role:'Supervisor',sla:'24 hours',pol:clauseFor(uc,intent.clause).no,isNew:NV});
     changed=[nid];diff=['“'+f.t+'” right after the investigation','Supervisor checks first, then “'+f.t+'”'];summary='Added four-eyes check before “'+f.t+'”';
   }else if(intent&&intent.id==='rescreen'){
     const a=wf.nodes.find(n=>n.r===1)||wf.nodes[0];
-    insertAfter(wf,a,{id:nid,t:'Sanctions re-screening',k:'search2',ai:true,role:'Ray',sla:'Instant',pol:clauseFor(uc,intent.clause).no});
+    insertAfter(wf,a,{id:nid,t:'Sanctions re-screening',k:'search2',ai:true,role:'Ray',sla:'Instant',pol:clauseFor(uc,intent.clause).no,isNew:NV});
     changed=[nid];diff=['“'+a.t+'” goes straight to review','Re-screen against sanctions lists after “'+a.t+'”'];summary='Added sanctions re-screening after “'+a.t+'”';
   }else if(intent&&intent.id==='auto'){
     const a=wf.nodes.find(n=>n.r===1)||wf.nodes[0];
-    insertAfter(wf,a,{id:nid,t:'Auto-close repeat low-risk alerts',k:'bolt',ai:false,role:'System',sla:'Instant',pol:clauseFor(uc,intent.clause).no});
+    insertAfter(wf,a,{id:nid,t:'Auto-close repeat low-risk alerts',k:'bolt',ai:false,role:'System',sla:'Instant',pol:clauseFor(uc,intent.clause).no,isNew:NV});
     changed=[nid];diff=['Every alert reaches an analyst','Repeats of a pattern closed in the last 30 days close automatically'];summary='Added auto-close for repeat low-risk alerts';
   }else if(intent&&intent.id==='media'){
-    const a=wf.nodes.find(n=>n.r===1)||wf.nodes[0];a.t=a.t.replace(/ \+ adverse media$/,'')+' + adverse media';
+    const a=wf.nodes.find(n=>n.r===1)||wf.nodes[0];const bt=a.t;a.t=a.t.replace(/ \+ adverse media$/,'')+' + adverse media';a.chg={f:'title',before:bt,after:a.t,ver:NV};
     changed=[a.id];diff=['Enrichment: KYC + transaction history','Enrichment: KYC + history + adverse media'];summary='Connected adverse media to “'+a.t+'”';
   }else if(intent&&intent.id==='owner'){
-    const n=target||findNode(wf,x=>x.k==='users'&&x.role!=='Supervisor')||(l1&&l1.role!=='Supervisor'?l1:null)||findNode(wf,x=>x.role!=='Supervisor'&&x.role!=='System');const before=n.role;n.role='Supervisor';
+    const n=target||findNode(wf,x=>x.k==='users'&&x.role!=='Supervisor')||(l1&&l1.role!=='Supervisor'?l1:null)||findNode(wf,x=>x.role!=='Supervisor'&&x.role!=='System');const before=n.role;n.role='Supervisor';n.chg={f:'role',before,after:'Supervisor',ver:NV,by:fromWho||'you'};
     changed=[n.id];diff=[n.t+' · owner '+before,n.t+' · owner Supervisor'];summary='“'+n.t+'” now owned by the Supervisor';
   }else{
-    const n=target||l1;n.note=text;
+    const n=target||l1;n.note=text;n.chg={f:'note',after:text,ver:NV};
     changed=[n.id];diff=['“'+n.t+'” · standard instruction','“'+n.t+'” · + “'+text.slice(0,70)+(text.length>70?'…':'')+'”'];summary='Added your instruction to “'+n.t+'”';
   }
   uc.focusNode=null;
@@ -252,7 +252,7 @@ E.refine=async(uc,text,fromWho)=>{
   E.pulse(uc,changed,'workflow');
   E.log(uc,'v'+v.n+': '+summary+(fromWho==='dana'?' (Dana’s comment)':''),fromWho||'you','you');
   E.logMsg(uc,'Version '+v.n+' created · logged · reversible','ti-git-commit');
-  await E.ray(uc,'Done — **version '+v.n+'**.',{type:'change',diff,clause:cl,ver:v.n,generic:!intent,summary});
+  await E.ray(uc,'Done — **version '+v.n+'**.',{type:'change',diff,clause:cl,ver:v.n,generic:!intent,summary,anchor:changed[0]});
   E.setNext(uc,'you','Review version '+v.n);
 };
 async function explain(uc){
