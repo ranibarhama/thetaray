@@ -24,21 +24,26 @@ function useVoice(onFinal,scriptFor){
   return {st,start,stop};
 }
 
-/* one button: mic when empty, send when typing */
-function Composer({onSend,placeholder,scriptKey,big,prefill,autoFocus}){
-  const [txt,setTxt]=useState('');const ta=useRef(null);
-  const voice=useVoice((t,via)=>onSend(t,via),()=>SCRIPT[scriptKey()]||SCRIPT['o.live']);
+/* one button: says "Talk", morphs into send when you type */
+let VOICE_USED=false;
+function Composer({onSend,placeholder,scriptKey,big,prefill,autoFocus,hint}){
+  const [txt,setTxt]=useState('');const ta=useRef(null);const [,bump]=useState(0);
+  const voice=useVoice((t,via)=>{VOICE_USED=true;bump(x=>x+1);onSend(t,via);},()=>SCRIPT[scriptKey()]||SCRIPT['o.live']);
   useEffect(()=>{if(prefill&&prefill.text){setTxt(prefill.text);setTimeout(()=>{if(ta.current){ta.current.focus();ta.current.setSelectionRange(prefill.text.length,prefill.text.length);}},0);}},[prefill]);
   useEffect(()=>{if(ta.current){ta.current.style.height='auto';ta.current.style.height=Math.min(130,ta.current.scrollHeight)+'px';}},[txt]);
   const send=()=>{const t=txt.trim();if(!t)return;setTxt('');onSend(t,'text');};
-  const typing=!!txt.trim();
-  return <div className={'s3-cmp'+(big?' big':'')}>
-    {voice.st.on
-      ?<div className="s3-voice"><div className="s3-wave">{Array.from({length:11}).map((_,i)=><i key={i}></i>)}</div>
-        <div className="vt"><div className="vl">{voice.st.demo?'Voice demo · microphone unavailable here':'Listening…'}</div>{voice.st.interim||<em>Say what you want Ray to do…</em>}</div></div>
-      :<textarea ref={ta} rows={1} value={txt} autoFocus={autoFocus} placeholder={placeholder} onChange={e=>setTxt(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}}/>}
-    <button className={'s3-mic'+(voice.st.on?' on':typing?' send':'')} title={voice.st.on?'Stop and send':typing?'Send':'Talk to Ray'} onClick={()=>voice.st.on?voice.stop():typing?send():voice.start()}>
-      <i className={'ti '+(voice.st.on?'ti-player-stop-filled':typing?'ti-arrow-up':'ti-microphone')}></i></button>
+  const typing=!!txt.trim(),on=voice.st.on;
+  return <div className="s3-cw">
+    <div className={'s3-cmp'+(big?' big':'')+(on?' hearing':'')}>
+      {on
+        ?<div className="s3-voice"><div className="s3-wave">{Array.from({length:11}).map((_,i)=><i key={i}></i>)}</div>
+          <div className="vt"><div className="vl">{voice.st.demo?'Voice demo · microphone unavailable here':'Listening — just say it'}</div>{voice.st.interim||<em>“Change the SLA to 24 hours for high-risk alerts”…</em>}</div></div>
+        :<textarea ref={ta} rows={1} value={txt} autoFocus={autoFocus} placeholder={placeholder} onChange={e=>setTxt(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}}/>}
+      <button className={'s3-talk'+(on?' on':typing?' send':'')} title={on?'Stop and send':typing?'Send':'Tap and speak to Ray'}
+        onClick={()=>on?voice.stop():typing?send():voice.start()}>
+        {on?<><i className="ti ti-player-stop-filled"></i><span>Stop</span></>:typing?<i className="ti ti-arrow-up"></i>:<><i className="ti ti-microphone"></i><span>Talk</span></>}</button>
+    </div>
+    {hint&&!VOICE_USED&&!typing&&!on&&<div className="s3-hint"><span>Tap <b>Talk</b> and say it out loud — Ray understands plain language</span><i className="ti ti-corner-right-up"></i></div>}
   </div>;
 }
 
@@ -65,38 +70,88 @@ function statusLine(uc){
   if(uc.gate)return 'Ready for your signature';
   const st=D.STAGES.find(s=>s.k===uc.stage);return st.t+' · '+uc.next.what.toLowerCase();
 }
+const WHYNOW={nudge:'Nothing has moved for a day',comment:'A colleague is blocked on your answer',sigs:'Everything passed — only signatures left',open:'Ray is waiting on you'};
+
+/* one decision at a time — the rest peek behind it */
+function Stack({needs,act,onOpen}){
+  const [i,setI]=useState(0);const [fly,setFly]=useState(null);
+  const n=needs.length,idx=Math.min(i,Math.max(0,n-1));
+  useEffect(()=>{const f=e=>{if(e.key==='ArrowRight')setI(x=>Math.min(n-1,x+1));if(e.key==='ArrowLeft')setI(x=>Math.max(0,x-1));};
+    window.addEventListener('keydown',f);return()=>window.removeEventListener('keydown',f);},[n]);
+  if(!n)return <div className="s3-stack"><div className="s3-card clear">
+    <span className="s3-cic ok"><i className="ti ti-circle-check"></i></span>
+    <b>You’re all clear</b><span className="sub">Ray is working. It drops a card here the moment a decision or a signature needs you — and pings you if you’ve stepped away.</span></div></div>;
+  const u=needs[idx],a=u.need.acts||[['Open','open']];
+  const run=k=>{if(k==='open'){onOpen(u);return;}setFly(u.id);setTimeout(()=>{setFly(null);act(u,k);setI(x=>Math.max(0,Math.min(x,needs.length-2)));},260);};
+  const nav=n>1?<div className="s3-nav"><button className="s3-ib" disabled={idx===0} onClick={()=>setI(idx-1)}><i className="ti ti-chevron-left"></i></button>
+    <div className="s3-dots">{needs.map((x,k)=><i key={x.id} className={k===idx?'on':''} onClick={()=>setI(k)}></i>)}</div>
+    <button className="s3-ib" disabled={idx>=n-1} onClick={()=>setI(idx+1)}><i className="ti ti-chevron-right"></i></button></div>:null;
+  return <>{nav}<div className="s3-stack">
+    {needs.slice(idx+1,idx+3).map((x,k)=><div key={x.id} className="s3-peekcard" style={{'--n':k+1}}></div>)}
+    <div className={'s3-card'+(fly?' fly':'')} key={u.id}>
+      <div className="s3-chead"><span className={'s3-cic '+u.need.kind}><i className={'ti '+u.need.ic}></i></span>
+        <div style={{flex:1,minWidth:0}}><span className="s3-why">{WHYNOW[a[0][1]]||'Needs a person'}</span><b>{u.need.t}</b></div>
+        {n>1&&<span className="s3-count">{idx+1}/{n}</span>}</div>
+      <div className="s3-cbody">{u.need.d}</div>
+      <div className="s3-cfoot">
+        <button className="s3-b pri" onClick={()=>run(a[0][1])}>{a[0][0]}</button>
+        {a.slice(1).map(x=><button key={x[1]} className="s3-b" onClick={()=>run(x[1])}>{x[0]}</button>)}
+        <span className="sp"></span>
+        <span className="s3-uc"><Mini4 uc={u}/>{u.name}</span>
+      </div>
+    </div>
+  </div></>;
+}
+
+/* every investigation lives in one drawer, closed by default */
+function Drawer({onClose,onOpen,onNew}){
+  const S=E.state;const [q,setQ]=useState('');const [filt,setFilt]=useState('all');
+  const list=S.ucs.filter(u=>(filt==='all'||u.stage===filt)&&(!q||(u.name+statusLine(u)).toLowerCase().includes(q.toLowerCase())));
+  return <><div className="s3-dwbg" onClick={onClose}></div><div className="s3-dw">
+    <div className="s3-dwh"><div className="grip"></div>
+      <div className="row"><b>Your investigators</b><span className="s3-pill">{S.ucs.length}</span><span className="sp"></span><button className="s3-ib" onClick={onClose}><i className="ti ti-chevron-down"></i></button></div>
+      <div className="row"><div className="s3-search"><i className="ti ti-search" style={{color:'var(--ink-3)'}}></i><input value={q} autoFocus onChange={e=>setQ(e.target.value)} placeholder="Search"/></div>
+        <div className="s3-seg"><button className={filt==='all'?'on':''} onClick={()=>setFilt('all')}>All</button>{D.STAGES.map(x=><button key={x.k} className={filt===x.k?'on':''} onClick={()=>setFilt(x.k)}>{x.t}</button>)}</div></div></div>
+    <div className="s3-dwb">
+      <div className="s3-row s3-new" onClick={onNew}><span className="ic"><i className="ti ti-plus"></i></span>
+        <div className="main"><b>Teach Ray a new job</b><span>Describe it, or start from one of {D.TEMPLATES.length} ready-made jobs</span></div><i className="ti ti-chevron-right chev"></i></div>
+      {list.map(u=>{const t=E.tplOf(u)||{cat:'oth'},c=D.CATS[t.cat];return <div key={u.id} className="s3-row" onClick={()=>onOpen(u)}>
+      <span className="ic" style={{background:c.c+'1f',color:c.c}}><i className={'ti '+c.ic}></i></span>
+      <div className="main"><b>{u.name}</b><span>{statusLine(u)}</span></div>
+      <div className="meta">{u.need&&<span className="s3-pill warn hm">Needs you</span>}{u.mode==='auto'&&<span className="s3-pill ai hm"><i className="ti ti-sparkles"></i>Autopilot</span>}<Mini4 uc={u}/><span className="hm">{u.updated}</span><i className="ti ti-chevron-right chev"></i></div></div>;})}
+      {!list.length&&<div className="s3-row" style={{cursor:'default',color:'var(--ink-3)'}}>Nothing matches.</div>}</div>
+  </div></>;
+}
 
 function Today({onBrowse}){
-  const S=E.state;const [toast,setToast]=useState(null);const [filt,setFilt]=useState('all');
-  const needs=S.ucs.filter(u=>u.need);const list=S.ucs.filter(u=>filt==='all'||u.stage===filt);
+  const S=E.state;const [toast,setToast]=useState(null);const [drawer,setDrawer]=useState(false);
+  const needs=S.ucs.filter(u=>u.need);
   const flash=t=>{setToast(t);setTimeout(()=>setToast(null),2600);};
-  const act=(u,k,l)=>{if(k==='open'){E.open(u.id);return;}if(k==='take'){E.takeOver(u);E.open(u.id);return;}
-    if(k==='nudge'){E.nudge(u);flash('Nudge sent to Dana');}if(k==='comment'){E.applyComment3(u,true);flash('Dana’s change applied — v3 of '+u.name);}if(k==='sigs'){E.requestSigs(u);u.need=null;E.emit();flash('Signature requests sent to the MLRO and Head of FCC');}};
-  const sugs=[['ti-microphone','Set up UK transaction screening on autopilot with our AML policy'],['ti-route','Build retail transaction monitoring step by step'],['ti-flask','Start from the real-world screening example']];
+  const act=(u,k)=>{if(k==='take'){E.takeOver(u);E.open(u.id);return;}
+    if(k==='nudge'){E.nudge(u);flash('Nudge sent to Dana');}
+    if(k==='comment'){E.applyComment3(u,true);flash('Dana’s change applied to '+u.name);}
+    if(k==='sigs'){E.requestSigs(u);u.need=null;E.emit();flash('Signatures requested — MLRO and Head of FCC');}};
+  const sugs=[['ti-shield-check','UK transaction screening, on autopilot, with our AML policy'],['ti-route','Retail transaction monitoring, step by step'],['ti-flask','The real-world screening example']];
+  const live=S.ucs.filter(u=>u.operate.live).length,working=S.ucs.filter(u=>!u.operate.live&&(u.prove.running||u.next.who==='ray')).length;
   return <div className="s3-home">
     <div className="s3-hero"><div className="s3-hero-in">
       <div className="s3-orb lg">✦</div>
       <h1>What should Ray learn to investigate?</h1>
-      <p>Describe it once. Ray writes the playbook, practices on your cases and proves itself — you read, decide and sign.</p>
-      <Composer big autoFocus placeholder="Describe it in your own words — or tap the mic" scriptKey={()=>'home'} onSend={(t,via)=>E.createFromPrompt(t,via)}/>
-      <div className="s3-sugs">{sugs.map(s=><button key={s[1]} className="s3-chip" onClick={()=>E.createFromPrompt(s[1],'text')}><i className={'ti '+s[0]}></i>{s[1]}</button>)}</div>
-      <button className="s3-link" onClick={()=>onBrowse(id=>E.startFromTpl(id))}>or <u>browse all {D.TEMPLATES.length} jobs</u></button>
+      <p>Describe it once. Ray writes the playbook, practices on your closed cases and proves itself — you read, decide and sign.</p>
+      <Composer big autoFocus hint placeholder="Describe it in your own words…" scriptKey={()=>'home'} onSend={(t,via)=>E.createFromPrompt(t,via)}/>
+      <div className="s3-sugs">{sugs.map(x=><button key={x[1]} className="s3-chip" onClick={()=>E.createFromPrompt(x[1],'text')}><i className={'ti '+x[0]}></i>{x[1]}</button>)}
+        <button className="s3-chip" onClick={()=>onBrowse(id=>E.startFromTpl(id))}><i className="ti ti-layout-grid"></i>All {D.TEMPLATES.length} jobs</button></div>
     </div></div>
     <div className="s3-wrap">
-      <div className="s3-sec"><h2>Needs you</h2><span className="n">{needs.length?needs.length+' decision'+(needs.length>1?'s':''):'all caught up'}</span></div>
-      {needs.length?<div className="s3-today">{needs.map(u=><div key={u.id} className={'s3-dc '+u.need.kind}>
-        <div className="dt"><span className="ic"><i className={'ti '+u.need.ic}></i></span><b>{u.need.t}</b></div>
-        <div className="d">{u.need.d}</div>
-        <div className="acts">{(u.need.acts||[['Open','open']]).map((a,i)=><button key={a[1]} className={'s3-b sm'+(i===0?' pri':'')} onClick={()=>act(u,a[1],a[0])}>{a[0]}</button>)}</div></div>)}</div>
-        :<div className="s3-dc"><div className="dt"><span className="ic" style={{background:'var(--ok-sub)',color:'var(--t-ok)'}}><i className="ti ti-circle-check"></i></span><b>Nothing waiting on you</b></div><div className="d">Ray pings you here the moment a decision or signature is needed.</div></div>}
-      <div className="s3-sec"><h2>Your investigators</h2><span className="n">{S.ucs.length}</span><span className="sp"></span>
-        <div className="s3-seg"><button className={filt==='all'?'on':''} onClick={()=>setFilt('all')}>All</button>{D.STAGES.map(s=><button key={s.k} className={filt===s.k?'on':''} onClick={()=>setFilt(s.k)}>{s.t}</button>)}</div></div>
-      <div className="s3-list">{list.map(u=>{const t=E.tplOf(u)||{cat:'oth'},c=D.CATS[t.cat];return <div key={u.id} className="s3-row" onClick={()=>E.open(u.id)}>
-        <span className="ic" style={{background:c.c+'1f',color:c.c}}><i className={'ti '+c.ic}></i></span>
-        <div className="main"><b>{u.name}</b><span>{statusLine(u)}</span></div>
-        <div className="meta">{u.mode==='auto'&&<span className="s3-pill ai hm"><i className="ti ti-sparkles"></i>Autopilot</span>}<Mini4 uc={u}/><span className="hm">{u.updated}</span><i className="ti ti-chevron-right chev"></i></div></div>;})}
-        {!list.length&&<div className="s3-row" style={{cursor:'default',color:'var(--ink-3)'}}>Nothing in this stage yet.</div>}</div>
+      <div className="s3-sec"><h2>{needs.length?'Needs you':'Nothing needs you'}</h2>{needs.length>0&&<span className="n">{needs.length} decision{needs.length>1?'s':''} · one at a time</span>}</div>
+      <Stack needs={needs} act={act} onOpen={u=>E.open(u.id)}/>
     </div>
+    <button className="s3-dockbar" onClick={()=>setDrawer(true)}>
+      <span className="ic"><i className="ti ti-stack-2"></i></span>
+      <b>Your investigators</b><span className="s3-pill">{S.ucs.length}</span>
+      <span className="dots">{S.ucs.slice(0,6).map(u=>{const st=D.STAGES.find(x=>x.k===u.stage);return <i key={u.id} title={u.name+' · '+st.t} style={{background:u.operate.live?'var(--ok)':st.c}}></i>;})}</span>
+      <span className="sp"></span><span className="sum">{live} live · {working} working · {S.ucs.length-live-working} waiting</span><i className="ti ti-chevron-up"></i></button>
+    {drawer&&<Drawer onClose={()=>setDrawer(false)} onOpen={u=>{setDrawer(false);E.open(u.id);}} onNew={()=>{setDrawer(false);E.startBlank();}}/>}
     {toast&&<div className="s3-toast"><i className="ti ti-circle-check"></i>{toast}</div>}
   </div>;
 }
@@ -159,6 +214,7 @@ function Workspace({uc,onBrowse}){
         <hr/>
         <button onClick={()=>{setMenu(false);setAudit(true);}}><i className="ti ti-shield-check"></i><span>Audit trail<small>Every decision, downloadable</small></span></button>
         <button onClick={()=>{setMenu(false);E.say(uc,'Where are we?','text');if(mob)setRail(true);}}><i className="ti ti-map-pin"></i>Where are we?</button>
+        <button onClick={()=>{setMenu(false);E.startBlank();}}><i className="ti ti-plus"></i><span>Teach Ray a new job<small>Start another investigation</small></span></button>
         <button onClick={()=>{setMenu(false);E.close();}}><i className="ti ti-layout-list"></i>All investigators</button>
       </div>}
     </div>
@@ -178,7 +234,7 @@ function Workspace({uc,onBrowse}){
         <div className="s3-dock"><div className="s3-dock-in">
           {peek&&<div className="s3-peek" onClick={()=>setRail(true)}><span className="s3-orb sm">✦</span><span className="bd">{U.md(lastRay.text)}</span></div>}
           {quick.length>0&&<div className="s3-quick">{quick.map(q=><button key={q} className="s3-chip" onClick={()=>E.say(uc,q,'text')}>{q}</button>)}</div>}
-          <Composer prefill={prefill} placeholder={ph} scriptKey={()=>uc.step} onSend={(tx,via)=>E.say(uc,tx,via)}/>
+          <Composer hint prefill={prefill} placeholder={ph} scriptKey={()=>uc.step} onSend={(tx,via)=>E.say(uc,tx,via)}/>
         </div></div>
       </div>
       {mob&&rail&&<div className="s3-railbg" onClick={()=>setRail(false)}></div>}
