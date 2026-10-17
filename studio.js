@@ -237,7 +237,7 @@ function CopySheet({uc,onClose}){
 
 function Workspace({uc,onBrowse}){
   const [prefill,setPrefill]=useState(null);const [menu,setMenu]=useState(false);const [sheet,setSheet]=useState(false);const [audit,setAudit]=useState(false);
-  const [skip,setSkip]=useState(false);const [copy,setCopy]=useState(false);const [more,setMore]=useState(false);
+  const [skip,setSkip]=useState(false);const [copy,setCopy]=useState(false);const [more,setMore]=useState(false);const [railOff,setRailOff]=useState(false);
   const [rail,setRail]=useState(false);const [viewVer,setViewVer]=useState(null);
   const [mob,setMob]=useState(()=>window.matchMedia('(max-width:900px)').matches);
   const th=useRef(null);const seenMsgs=useRef(uc.msgs.length);
@@ -267,7 +267,8 @@ function Workspace({uc,onBrowse}){
         <i className={'ti '+E.LV[uc.step==='brief'?uc.brief.level:uc.level].ic}></i>
         <span className="lt"><em>Check with me</em>{E.LV[uc.step==='brief'?uc.brief.level:uc.level].t}</span>
         <i className="ti ti-chevron-down" style={{color:'var(--ink-3)'}}></i></button>
-      <button className="s3-ib" onClick={()=>{E.say(uc,'Where are we?','text');if(mob)setRail(true);}} title="Where are we?"><i className="ti ti-map-pin"></i></button>
+      <button className="s3-ib" onClick={()=>{E.say(uc,'Where are we?','text');if(mob)setRail(true);else setRailOff(false);}} title="Where are we?"><i className="ti ti-map-pin"></i></button>
+      <button className="s3-ib s3-railtog" onClick={()=>setRailOff(x=>!x)} title={railOff?'Show Ray':'Hide Ray'}><i className={'ti '+(railOff?'ti-layout-sidebar-right-expand':'ti-layout-sidebar-right-collapse')}></i></button>
       <button className="s3-ib s3-raybtn" onClick={()=>setRail(true)} title="Talk history"><i className="ti ti-message-circle"></i></button>
       <button className="s3-ib" onClick={()=>setMore(m=>!m)} title="More"><i className="ti ti-dots"></i></button>
       {menu&&<div className="s3-menu lv" onMouseLeave={()=>setMenu(false)}>
@@ -291,7 +292,7 @@ function Workspace({uc,onBrowse}){
       {uc.versions.length>0&&<div className="s3-vers"><span className="vl">Versions</span>{uc.versions.map(v=><button key={v.n} title={'v'+v.n+' · '+v.summary+(uc.signs.includes(v.n)?' · signed':'')} className={(viewVer===v.n?'view ':'')+(v.n===E.cur(uc).n&&!viewVer?'cur ':'')+(uc.signs.includes(v.n)?'sig':'')} onClick={()=>setViewVer(v.n===E.cur(uc).n?null:v.n)}>{v.n}</button>)}
         <button title="Audit trail" onClick={()=>setAudit(true)} style={{width:'auto',padding:'0 6px'}}><i className="ti ti-shield-check" style={{fontSize:15}}></i></button></div>}
     </div>
-    <div className="s3-body">
+    <div className={'s3-body'+(railOff?' norail':'')}>
       <div className="s3-main">
         <div className="s3-scroll">
           {uc.step==='brief'?<U.Brief uc={uc} onBrowse={onBrowse}/>
@@ -304,6 +305,7 @@ function Workspace({uc,onBrowse}){
           <Composer hint prefill={prefill} placeholder={ph} scriptKey={()=>uc.step} onSend={(tx,via)=>E.say(uc,tx,via)}/>
         </div></div>
       </div>
+      {!mob&&railOff&&<button className="s3-raytab" onClick={()=>setRailOff(false)} title="Show Ray"><span className="s3-orb sm">✦</span>{uc.typing?'…':'Ray'}</button>}
       {mob&&rail&&<div className="s3-railbg" onClick={()=>setRail(false)}></div>}
       <div className={'s3-rail'+(rail?' open':'')}>
         <div className="s3-rh"><span className={'s3-orb'+(working?' live':'')}>✦</span><div><b>Ray</b><span>{working?'Working on it…':'Here when you need me'}</span></div><span className="sp"></span><button className="s3-ib x" onClick={()=>setRail(false)}><i className="ti ti-x"></i></button></div>

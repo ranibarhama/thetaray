@@ -250,9 +250,14 @@ const OWNER={'System':['#6E7281','ti-settings-automation'],'Ray':['#6B4BC0','ti-
   'Analyst L2':['#1A4FBF','ti-user-check'],'Supervisor':['#9068C4','ti-users'],'MLRO':['#D93A3A','ti-flag']};
 const edgeTone=l=>!l?'':/no match|no concern|not a match|explained|release|clear|false positive/i.test(l)?'ok':/possible|suspicious|true match|escalat|confirm|unresolved|match/i.test(l)?'warn':'';
 function Flow({uc,v,idx,onStep,readOnly}){
-  const [z,setZ]=useState(1),[stamp,setStamp]=useState(false),[sel,setSel]=useState(null),[cm,setCm]=useState('');
+  const [z,setZ]=useState(1),[manual,setManual]=useState(false),[stamp,setStamp]=useState(false),[sel,setSel]=useState(null),[cm,setCm]=useState('');
   const NW=210,GAP=26,RH=132;const wf=v.wf,rows=wf.nodes.reduce((a,n)=>Math.max(a,n.r),0)+1;
   const pos=n=>({x:n.c*(NW+GAP),y:n.r*RH}),W=3*NW+2*GAP,H=rows*RH-40;
+  const wrapRef=useRef(null);const [fit,setFit]=useState(1);
+  useEffect(()=>{if(!wrapRef.current||!window.ResizeObserver)return;
+    const ro=new ResizeObserver(es=>{const cw=es[0].contentRect.width;setFit(Math.min(1,Math.max(.5,(cw-4)/W)));});
+    ro.observe(wrapRef.current);return()=>ro.disconnect();},[W]);
+  const zz=manual?z:fit;
   const node=sel?wf.nodes.find(n=>n.id===sel):null;
   const fresh=Date.now()-uc.pulse.t<3500;
   return <div className="s3-diagram">
@@ -262,10 +267,12 @@ function Flow({uc,v,idx,onStep,readOnly}){
       <span className="lg"><b style={{color:'var(--t-act)'}}>§</b>Policy clause</span>
       <span className="sp"></span>
       <button className={'s3-ev'+(stamp?' on':'')} onClick={()=>setStamp(x=>!x)}><i className="ti ti-shield-check"></i>Who changed what</button>
-      <span className="s3-zoom"><button onClick={()=>setZ(x=>Math.max(.6,+(x-.15).toFixed(2)))}>−</button><b onClick={()=>setZ(1)}>{Math.round(z*100)}%</b><button onClick={()=>setZ(x=>Math.min(1.4,+(x+.15).toFixed(2)))}>+</button></span>
+      <span className="s3-zoom"><button title="Zoom out" onClick={()=>{setManual(true);setZ(Math.max(.5,+((manual?z:fit)-.15).toFixed(2)));}}>−</button>
+        <b title={manual?'Back to fit':'Fits the space'} onClick={()=>setManual(false)}>{manual?Math.round(z*100)+'%':'Fit'}</b>
+        <button title="Zoom in" onClick={()=>{setManual(true);setZ(Math.min(1.6,+((manual?z:fit)+.15).toFixed(2)));}}>+</button></span>
     </div>
     <div className="s3-dgwrap">
-      <div className="s3-flowwrap"><div style={{width:W*z,height:H*z}}><div className="s3-flow" style={{width:W,height:H,transform:'scale('+z+')',transformOrigin:'0 0'}}>
+      <div className="s3-flowwrap" ref={wrapRef}><div style={{width:W*zz,height:H*zz}}><div className="s3-flow" style={{width:W,height:H,transform:'scale('+zz+')',transformOrigin:'0 0'}}>
         <svg width={W} height={H}>{wf.edges.map((e,i)=>{const a2=wf.nodes.find(n=>n.id===e[0]),b2=wf.nodes.find(n=>n.id===e[1]);if(!a2||!b2)return null;
           const p=pos(a2),q=pos(b2),x1=p.x+NW/2,y1=p.y+86,x2=q.x+NW/2,y2=q.y-4,tone=edgeTone(e[2]);
           return <g key={i} className={'s3-edge '+tone}><path d={`M${x1} ${y1} C${x1} ${y1+30},${x2} ${y2-30},${x2} ${y2}`}/>
