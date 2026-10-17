@@ -60,7 +60,13 @@ E.startBrief=async(uc)=>{
   uc.level=b.level;uc.mode=b.level==='sign'?'auto':'guide';uc.train.period=b.period;uc.train.csv=!!b.csv;uc.step='building';
   E.log(uc,'Brief agreed: '+uc.name+' · '+(b.docs?'your policy':'ThetaRay template policy')+' · '+(b.report==='upload'?'your report layout':'predefined report')+' · check with me: '+LV[b.level].t,'you','sign');
   E.setNext(uc,'ray','Writing the playbook');
-  await E.policyChoice(uc,null,b.docs?'sample':'skip',true);
+  if(b.docs&&uc.docList&&uc.docList.length){uc.files=uc.docList.map(d=>Object.assign({},d));uc.hasDocs=true;
+    uc.policy=D.buildPolicy(uc.tpl,true);uc.policyHl=uc.policy.map(c=>c.no);
+    const m=await E.ray(uc,'Reading your documents…',{type:'read'},{fast:true});
+    for(let i=0;i<uc.files.length;i++){for(let p2=50;p2<=100;p2+=50){await wait(140);uc.files[i].pct=p2;emit();}}
+    E.doneCard(uc,m.id,'Read');E.log(uc,'Read '+uc.files.length+' documents · extracted '+uc.policy.length+' policy clauses','ray');
+    await E.ray(uc,'Read. **'+uc.policy.length+' policy clauses**, each linked to its page.');}
+  else await E.policyChoice(uc,null,b.docs?'sample':'skip',true);
   uc.report=b.report;
   await E.buildV1(uc);
   if(uc.level==='sign'){await E.ray(uc,'Playbook v1 is written. On to practice — no need to wait for me.');await E.startPractice(uc);return;}
@@ -321,10 +327,12 @@ const DOCKIND={policy:'Policy',proc:'Procedure',sup:'Supporting',ray:'Written by
 E.DOCKIND=DOCKIND;
 E.docs=uc=>{
   if(!uc.docList){
-    uc.docList=(uc.files||[]).map((f,i)=>Object.assign({},f,{id:'d'+i,kind:i===0?'policy':i===1?'proc':'sup'}));
+    const base=(uc.files&&uc.files.length)?uc.files:((uc.tpl==='ts-example'?D.EX_FILES:D.SAMPLE_FILES));
+    uc.docList=base.map((f,i)=>Object.assign({},f,{id:'d'+i,kind:i===0?'policy':i===1?'proc':'sup',pct:100}));
   }
   return uc.docList;
 };
+E.docClauses=uc=>E.docs(uc).reduce((n,d)=>n+(parseInt(String(d.found).match(/\d+/)||0)||0),0);
 E.addDocs=async(uc,names)=>{
   const list=E.docs(uc);
   names.forEach((nm,i)=>list.push({id:'d'+uid(),name:nm,size:(0.3+i*0.4).toFixed(1)+' MB',ext:(nm.split('.').pop()||'PDF').toUpperCase().slice(0,3),c:'#6A4BC4',found:(3+i)+' clauses',kind:'sup',pct:100,fresh:true}));

@@ -21,6 +21,7 @@ U.order=order;
 /* ---------- Brief: everything on one screen ---------- */
 U.Brief=function({uc,onBrowse}){
   const b=uc.brief,t=E.tplOf(uc),c=t?D.CATS[t.cat]:null;
+  const [docSheet,setDocSheet]=useState(false);
   const recs=['ts-example','ts-uk','tm-retail','pep-am'].map(i=>D.TEMPLATES.find(x=>x.id===i));
   if(!t)return <div className="s3-paper s3-brief">
     <div className="s3-kick"><i className="ti ti-file-description"></i>Brief · step 1 of 1</div>
@@ -43,7 +44,12 @@ U.Brief=function({uc,onBrowse}){
     <div className="s3-bgrid">
       <div className="s3-tile"><div className="tl"><i className="ti ti-book"></i>Policy</div>
         {seg([[b.docs,'Your documents',()=>E.setBrief(uc,'docs',true)],[!b.docs,'ThetaRay template',()=>E.setBrief(uc,'docs',false)]])}
-        <small>{b.docs?'Ray reads your policy and ties every step to a clause.':'A proven default — add your documents later.'}</small></div>
+        {b.docs
+          ?<button className="s3-docsum" onClick={()=>setDocSheet(true)} title="Add, review or remove the documents Ray will read">
+             <span className="exts">{E.docs(uc).slice(0,3).map(d=><i key={d.id} style={{background:d.c}}>{d.ext}</i>)}</span>
+             <span className="tx">{E.docs(uc).length} document{E.docs(uc).length===1?'':'s'}{E.docClauses(uc)?' · '+E.docClauses(uc)+' clauses found':''}</span>
+             <i className="ti ti-chevron-right"></i></button>
+          :<small>A proven ThetaRay default — you can add your own documents later.</small>}</div>
       <div className="s3-tile"><div className="tl"><i className="ti ti-file-text"></i>Report</div>
         {seg([[b.report==='predefined','Predefined',()=>E.setBrief(uc,'report','predefined')],[b.report==='upload','Your layout',()=>E.setBrief(uc,'report','upload')]])}
         <small>What Ray writes on every alert.</small></div>
@@ -57,6 +63,12 @@ U.Brief=function({uc,onBrowse}){
         <div className="s3-lv3">{['every','important','sign'].map(k=><button key={k} className={'s3-lvcard'+(b.level===k?' on':'')} onClick={()=>E.setBrief(uc,'level',k)}>
           <i className={'ti '+E.LV[k].ic}></i><b>{E.LV[k].t}</b><span>{E.LV[k].d}</span>{k==='important'&&<em title="Recommended">Recommended</em>}</button>)}</div></div>
     </div>
+    {docSheet&&<div className="s3-sheetbg" onClick={()=>setDocSheet(false)}><div className="s3-sheet" onClick={e=>e.stopPropagation()}>
+      <div style={{display:'flex',alignItems:'center'}}><div className="s3-kick" style={{flex:1}}><i className="ti ti-files"></i>Policy &amp; procedures</div><button className="s3-ib" onClick={()=>setDocSheet(false)}><i className="ti ti-x"></i></button></div>
+      <h3>What Ray will read</h3><p className="lead">Ray ties every step of the playbook to a clause in these documents. Add or remove anything before you start.</p>
+      <Docs uc={uc}/>
+      <div className="s3-sigrow"><span className="sp"></span><button className="s3-b pri" onClick={()=>setDocSheet(false)}>Done</button></div>
+    </div></div>}
     <div className="s3-bfoot">
       <button className="s3-b ai lg" onClick={()=>E.startBrief(uc)}><i className="ti ti-player-play"></i>Start</button>
       <div className="s3-guard"><i className="ti ti-lock"></i><span><b>Always yours:</b> sanctions and risk thresholds, anything about filing, and every signature. Nothing touches a real alert until you sign go-live.</span></div>
@@ -208,6 +220,8 @@ function Docs({uc,readOnly}){
       {ray.map(d=><div key={d.id} className="s3-doc ray"><span className="ext" style={{background:'var(--violet2)'}}><i className={'ti '+d.ic}></i></span>
         <div className="nm"><b>{d.t}</b><span>{d.sub}</span></div>
         <button className="s3-b sm" onClick={()=>{E.readDoc(uc,d.id);setDoc(d);}}>Open</button></div>)}</div>}
+    {!readOnly&&list.length===0&&<label className="s3-drop"><i className="ti ti-cloud-upload"></i><b>Drop your policy and procedures here</b><span>PDF, Word, Markdown or text</span>
+      <input type="file" multiple hidden onChange={e=>E.addDocs(uc,[...(e.target.files&&e.target.files.length?[...e.target.files].map(f=>f.name):['AML_Policy_2026.pdf'])])}/></label>}
     {!readOnly&&<div className="s3-ef" style={{borderTop:0,paddingTop:4}}>
       <label className="s3-b sm" style={{cursor:'pointer'}}><i className="ti ti-paperclip"></i>Add documents<input type="file" multiple hidden onChange={e=>E.addDocs(uc,[...(e.target.files&&e.target.files.length?[...e.target.files].map(f=>f.name):['Updated_Escalation_Matrix.xlsx'])])}/></label>
       <button className="s3-b sm" onClick={()=>E.updatePolicy(uc)}><i className="ti ti-refresh"></i>Update the policy</button></div>}

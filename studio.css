@@ -640,6 +640,19 @@ ins.s3i{color:var(--t-ok);background:var(--ok-sub);text-decoration:none;border-r
 
 
 
+
+/* documents summary inside the brief's policy tile */
+.s3-docsum{display:flex;align-items:center;gap:9px;width:100%;margin-top:9px;padding:7px 9px;border:1px solid var(--line-2);background:var(--surface);border-radius:11px;color:var(--ink-2);font-size:12px;text-align:left;}
+.s3-docsum:hover{border-color:var(--ink-3);color:var(--ink);}
+.s3-docsum .exts{display:flex;gap:3px;flex:0 0 auto;}
+.s3-docsum .exts i{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:7.5px;font-weight:800;color:#fff;font-style:normal;}
+.s3-docsum .tx{flex:1;min-width:0;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.s3-docsum>.ti{color:var(--ink-3);font-size:15px;}
+.s3-drop{display:flex;flex-direction:column;align-items:center;gap:3px;border:1.5px dashed var(--line-2);border-radius:14px;padding:18px 14px;text-align:center;cursor:pointer;margin:6px 0;}
+.s3-drop:hover{border-color:var(--violet2);background:var(--violet-sub);}
+.s3-drop .ti{font-size:24px;color:var(--t-violet);}
+.s3-drop b{font-size:13.5px;} .s3-drop span{font-size:12px;color:var(--ink-3);}
+
 /* diagram · full screen */
 .s3-fs{position:fixed;inset:0;z-index:75;background:var(--bg);display:flex;flex-direction:column;animation:s3fade .2s ease-out;}
 .s3-fs-h{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--line);flex:0 0 auto;}

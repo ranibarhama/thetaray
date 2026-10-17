@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ray Platform · Investigation Desktop</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="studio.css?v=38"/>
+<link rel="stylesheet" href="studio.css?v=40"/>
 <style>
   .ti{line-height:1;vertical-align:-7%;font-size:1.05em;}
   :root{
@@ -757,12 +757,12 @@
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
-<script src="studio-data.js?v=38"></script>
-<script src="studio-engine.js?v=38"></script>
-<script src="studio-engine2.js?v=38"></script>
-<script src="studio-engine3.js?v=38"></script>
-<script type="text/babel" src="studio-ui.js?v=38"></script>
-<script type="text/babel" src="studio.js?v=38"></script>
+<script src="studio-data.js?v=40"></script>
+<script src="studio-engine.js?v=40"></script>
+<script src="studio-engine2.js?v=40"></script>
+<script src="studio-engine3.js?v=40"></script>
+<script type="text/babel" src="studio-ui.js?v=40"></script>
+<script type="text/babel" src="studio.js?v=40"></script>
 <script type="text/babel">
 const {useState,useRef,useEffect} = React;
 const START=Date.parse('2026-02-15T00:00:00Z'),END=Date.parse('2026-04-06T00:00:00Z'),span=END-START;
@@ -1032,8 +1032,8 @@ function App(){
     <div className={theme==='dark'?'theme-dark':''} style={{height:'100vh',display:'flex',flexDirection:'column',background:'var(--bg)',color:'var(--ink)'}}>
       <div className="top">
         <div className="brand" onClick={goDash}><span className="mk">A⁺</span>Ray Platform</div>
-        <button className={'navarea'+(screen==='dashboard'?' on':'')} onClick={goDash}>Investigations</button>
-        <button className={'navarea'+(screen==='studio'?' on':'')} onClick={()=>setScreen('studio')}>Studio</button><button className="navarea">Admin</button>
+        <button className={'navarea'+(screen==='studio'?' on':'')} onClick={()=>setScreen('studio')}>Studio</button>
+        <button className={'navarea'+(screen==='dashboard'?' on':'')} onClick={goDash}>Investigations</button><button className="navarea">Admin</button>
         <div className="top-sp"></div>
         <a className="tic" href="./concept.html" title="Back to the concept page" style={{textDecoration:'none',display:'grid',placeItems:'center'}} onClick={()=>{if(document.fullscreenElement)sessionStorage.setItem('rayFS','1');}}><i className="ti ti-presentation"></i></a>
         <button className="tic" title={fs?'Exit full screen':'Present full screen'} onClick={()=>{fs?document.exitFullscreen():document.documentElement.requestFullscreen();}}>{fs?<i className="ti ti-minimize"></i>:<i className="ti ti-maximize"></i>}</button>
@@ -1079,7 +1079,7 @@ function App(){
 
       <div className={'concept'+(screen==='studio'?' right':'')}>
         {concept&&screen==='studio'&&<div className="cpop"><h4>About this page — Ray Studio</h4><ul>
-            <li><b>Describe it once</b> — one sentence (typed or spoken 🎙) becomes a <b>Brief</b> that fits on one screen: the job as a header, three tiles (policy, report, practice data), the <b>Check with me</b> choice, the guardrails that stay yours, and Start — no scrolling to find it.</li>
+            <li><b>Describe it once</b> — one sentence (typed or spoken 🎙) becomes a <b>Brief</b> that fits on one screen: the job as a header, three tiles (policy — with the documents Ray will read, add or remove them there; report; practice data), the <b>Check with me</b> choice, the guardrails that stay yours, and Start — no scrolling to find it.</li>
             <li><b>Room to work</b> — the playbook card uses the full width of the screen, and you can hide Ray’s column with the sidebar button (a Ray tab on the edge brings it back). The diagram always scales to fit the space it has; zoom manually and click <b>Fit</b> to return, or open it <b>full screen</b> to work on it properly — drag to move around, tap a step to edit it in the side inspector, tell Ray what to change from the bar at the bottom, and press Esc to come back.</li>
             <li><b>Controls are split by job</b> — the header pill is only about <b>how often Ray checks with you</b>; <b>Where are we?</b> is its own button; everything else (audit trail, copy, skip a stage, new job) sits under ⋯.</li>
             <li><b>The Playbook</b> — Ray writes how it will investigate as numbered plain sentences, each tied to a policy clause. Read it like a new hire’s manual; a flow view is one tap away.</li>
