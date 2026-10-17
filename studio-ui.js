@@ -55,7 +55,7 @@ U.Brief=function({uc,onBrowse}){
         <small>{b.csv?'A labelled file with the expected outcome on each alert.':'Alerts your analysts already closed.'}</small></div>
       <div className="s3-tile wide you"><div className="tl"><i className="ti ti-message-question"></i>Check with me<span className="sp"></span><span className="s3-pill ai">you decide how hands-on</span></div>
         <div className="s3-lv3">{['every','important','sign'].map(k=><button key={k} className={'s3-lvcard'+(b.level===k?' on':'')} onClick={()=>E.setBrief(uc,'level',k)}>
-          <i className={'ti '+E.LV[k].ic}></i><b>{E.LV[k].t}</b><span>{E.LV[k].d}</span>{k==='important'&&<em>Recommended</em>}</button>)}</div></div>
+          <i className={'ti '+E.LV[k].ic}></i><b>{E.LV[k].t}</b><span>{E.LV[k].d}</span>{k==='important'&&<em title="Recommended">Recommended</em>}</button>)}</div></div>
     </div>
     <div className="s3-bfoot">
       <button className="s3-b ai lg" onClick={()=>E.startBrief(uc)}><i className="ti ti-player-play"></i>Start</button>
