@@ -1,7 +1,7 @@
 /* Ray Platform — "Show me around" guided tour (text/babel, self-mounting) */
 (function(){
 const {useState,useEffect,useRef}=React;
-const KEY='rayTourSeen', POS='rayTourStep';
+const KEY='rayTourSeen3', POS='rayTourStep3';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const nav=()=>window.__ray||{};
 
@@ -66,7 +66,8 @@ function Tour(){
   useEffect(()=>{document.body.classList.toggle('tour-live',i>=0);},[i]);
 
   useEffect(()=>{let t=null;
-    try{if(!localStorage.getItem(KEY))t=setTimeout(()=>setI(0),1100);}catch(e){}
+    let seen=false;try{seen=!!localStorage.getItem(KEY);}catch(e){seen=false;}
+    if(!seen)t=setTimeout(()=>setI(0),900);
     return()=>t&&clearTimeout(t);},[]);
 
   useEffect(()=>{
