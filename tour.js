@@ -1,7 +1,12 @@
 /* Ray Platform — "Show me around" guided tour (text/babel, self-mounting) */
 (function(){
 const {useState,useEffect,useRef}=React;
-const KEY='rayTourSeen3', POS='rayTourStep3';
+/* "seen" lives for one visit (sessionStorage), not forever: a prototype is shown again and again,
+   so the Welcome opens every time the site is opened fresh and stays away only within that visit. */
+const KEY='rayTourSeenV', POS='rayTourStepV';
+const store={get:k=>{try{return sessionStorage.getItem(k);}catch(e){return null;}},
+  set:(k,v)=>{try{sessionStorage.setItem(k,v);}catch(e){}},del:k=>{try{sessionStorage.removeItem(k);}catch(e){}}};
+const forced=()=>{try{return /[?&]tour=1\b/.test(location.search);}catch(e){return false;}};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const nav=()=>window.__ray||{};
 
@@ -60,13 +65,13 @@ function Tour(){
   const [busy,setBusy]=useState(false);
   const live=useRef(0);
 
-  useEffect(()=>{window.__tour={start:(from)=>{const s=typeof from==='number'?from:(parseInt(localStorage.getItem(POS)||'0',10)||0);setI(s<STEPS.length?s:0);},
-    stop:()=>{try{localStorage.setItem(KEY,'1');localStorage.setItem(POS,String(Math.max(0,i)));}catch(e){}setI(-1);},running:()=>i>=0};},[i]);
+  useEffect(()=>{window.__tour={start:(from)=>{const s=typeof from==='number'?from:(parseInt(store.get(POS)||'0',10)||0);setI(s<STEPS.length?s:0);},
+    stop:()=>{store.set(KEY,'1');store.set(POS,String(Math.max(0,i)));setI(-1);},running:()=>i>=0};},[i]);
 
   useEffect(()=>{document.body.classList.toggle('tour-live',i>=0);},[i]);
 
   useEffect(()=>{let t=null;
-    let seen=false;try{seen=!!localStorage.getItem(KEY);}catch(e){seen=false;}
+    const seen=!forced()&&!!store.get(KEY);
     if(!seen)t=setTimeout(()=>setI(0),900);
     return()=>t&&clearTimeout(t);},[]);
 
@@ -105,9 +110,9 @@ function Tour(){
       if(e.key==='ArrowLeft'){e.preventDefault();setI(x=>Math.max(0,x-1));}};
     window.addEventListener('keydown',k);return()=>window.removeEventListener('keydown',k);},[i]);
 
-  const save=n=>{try{localStorage.setItem(POS,String(n));}catch(e){}};
-  const done=()=>{try{localStorage.setItem(KEY,'1');localStorage.removeItem(POS);}catch(e){}setI(-1);};
-  const close=()=>{try{localStorage.setItem(KEY,'1');}catch(e){}save(i);setI(-1);};
+  const save=n=>store.set(POS,String(n));
+  const done=()=>{store.set(KEY,'1');store.del(POS);setI(-1);};
+  const close=()=>{store.set(KEY,'1');save(i);setI(-1);};
   const next=()=>setI(x=>{if(x>=STEPS.length-1){done();return -1;}save(x+1);return x+1;});
 
   if(i<0)return null;
