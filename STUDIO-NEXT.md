@@ -158,3 +158,35 @@ fast-forward and rollback.
 Why it is a different concept from the deck: the deck hides everything but one card; the line
 keeps *both sides of the trust relationship in view at once*, so the user sees what promotion
 actually does to their day.
+
+---
+
+## Studio next v3 — "Ray's permissions" (the simple one)
+
+The earlier two versions were still dashboards of Ray's decisions. This one starts from one plain
+sentence a compliance lead already understands: **what is Ray allowed to do?**
+
+One short list of lines. Each line has a colour:
+
+| Colour | Meaning |
+|---|---|
+| green | Ray does this alone |
+| amber | Ray asks you first |
+| red | Ray never does this |
+
+Everything edits that list — talking ("anything over $100k goes to a supervisor"), correcting a
+real alert ("not like that" → do it alone / ask me / never), a colleague's comment, Ray's own
+suggestions (dashed lines you accept or decline). Nothing else is an artefact.
+
+**Green is earned.** Every line starts amber. Turning one green is locked until Ray has either
+been right on a few alerts you reviewed or been tested on your closed alerts; when it has, the line
+itself says "Ray has earned this — make it green?". So the user watches the list turn green.
+
+**One next step, always visible:** Test Ray on 1,000 closed alerts → run it beside your analysts for
+four weeks → sign and go live → live. A single purple bar at the bottom says what it is and does it.
+The four steps are labelled across the top; "Is Ray ready?" and "Where am I?" are one click.
+
+Same capabilities as before: replay at 87% then 91% against the 90% bar, proposed lines from the
+gap, shadow run and fast-forward, the five-item checklist plus three signatures, rollback, handover
+with nudge and take-back, copy, undo, sources, generated playbook / model risk document / analyst
+guide, flow and audit trail.
