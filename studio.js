@@ -61,6 +61,8 @@ function Composer({onSend,placeholder,scriptKey,big,prefill,autoFocus,hint}){
   </div>;
 }
 
+U.Composer=Composer;
+
 function Browser({onPick,onClose}){
   const [cat,setCat]=useState('all');const [q,setQ]=useState('');const [det,setDet]=useState(null);
   const list=D.TEMPLATES.filter(t=>(cat==='all'||t.cat===cat)&&(!q||(t.t+t.d+t.r+t.reg).toLowerCase().includes(q.toLowerCase())));

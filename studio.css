@@ -639,6 +639,21 @@ ins.s3i{color:var(--t-ok);background:var(--ok-sub);text-decoration:none;border-r
 .s3-menu .foot{font-size:11.5px;color:var(--ink-3);padding:8px 10px 4px;border-top:1px solid var(--line);margin-top:4px;line-height:1.45;}
 
 
+
+/* diagram · full screen */
+.s3-fs{position:fixed;inset:0;z-index:75;background:var(--bg);display:flex;flex-direction:column;animation:s3fade .2s ease-out;}
+.s3-fs-h{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--line);flex:0 0 auto;}
+.s3-fs-h b{display:block;font-size:15px;font-weight:780;letter-spacing:-.3px;}
+.s3-fs-h span{display:block;font-size:12px;color:var(--ink-3);}
+.s3-fs-body{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:14px 20px 0;overflow:hidden;}
+.s3-fs-body .s3-dgwrap{flex:1;min-height:0;}
+.s3-fs-body .s3-flowwrap{height:100%;}
+.s3-fs-body .s3-insp{max-height:100%;width:330px;}
+.s3-fs-dock{flex:0 0 auto;padding:12px 20px 16px;}
+.s3-fs-dock .s3-cw{max-width:760px;margin:0 auto;}
+.s3-flowwrap{cursor:grab;}
+.s3-flowwrap.grabbing{cursor:grabbing;user-select:none;}
+
 /* reopen tab for a hidden Ray rail */
 .s3-raytab{position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:12;display:flex;align-items:center;gap:7px;
   border:1px solid var(--line);border-right:0;background:var(--surface);color:var(--ink-2);font-size:12px;font-weight:700;
@@ -696,6 +711,10 @@ ins.s3i{color:var(--t-ok);background:var(--ok-sub);text-decoration:none;border-r
   .s3-railtog{display:none;}
   .s3-raytab{display:none;}
   .s3-dgwrap{flex-direction:column;}
+  .s3-fs-h{padding:10px 12px;}
+  .s3-fs-body{padding:10px 12px 0;}
+  .s3-fs-dock{padding:8px 12px 12px;}
+  .s3-fs-body .s3-insp{width:auto;}
   .s3-insp{width:auto;order:-1;max-height:none;}
   .s3-dgbar{gap:10px;}
   .s3-bgrid{grid-template-columns:1fr;}

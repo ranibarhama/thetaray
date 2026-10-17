@@ -250,7 +250,7 @@ const OWNER={'System':['#6E7281','ti-settings-automation'],'Ray':['#6B4BC0','ti-
   'Analyst L2':['#1A4FBF','ti-user-check'],'Supervisor':['#9068C4','ti-users'],'MLRO':['#D93A3A','ti-flag']};
 const edgeTone=l=>!l?'':/no match|no concern|not a match|explained|release|clear|false positive/i.test(l)?'ok':/possible|suspicious|true match|escalat|confirm|unresolved|match/i.test(l)?'warn':'';
 function Flow({uc,v,idx,onStep,readOnly}){
-  const [z,setZ]=useState(1),[manual,setManual]=useState(false),[stamp,setStamp]=useState(false),[sel,setSel]=useState(null),[cm,setCm]=useState('');
+  const [z,setZ]=useState(1),[manual,setManual]=useState(false),[stamp,setStamp]=useState(false),[sel,setSel]=useState(null),[cm,setCm]=useState(''),[fs,setFs]=useState(false);
   const NW=210,GAP=26,RH=132;const wf=v.wf,rows=wf.nodes.reduce((a,n)=>Math.max(a,n.r),0)+1;
   const pos=n=>({x:n.c*(NW+GAP),y:n.r*RH}),W=3*NW+2*GAP,H=rows*RH-40;
   const wrapRef=useRef(null);const [fit,setFit]=useState(1);
@@ -258,21 +258,29 @@ function Flow({uc,v,idx,onStep,readOnly}){
     const ro=new ResizeObserver(es=>{const cw=es[0].contentRect.width;setFit(Math.min(1,Math.max(.5,(cw-4)/W)));});
     ro.observe(wrapRef.current);return()=>ro.disconnect();},[W]);
   const zz=manual?z:fit;
+  useEffect(()=>{if(!fs)return;const f=e=>{if(e.key==='Escape')setFs(false);};window.addEventListener('keydown',f);return()=>window.removeEventListener('keydown',f);},[fs]);
+  const pan=useRef(null);
+  const onDown=e=>{if(e.target.closest('.s3-dn'))return;const el=wrapRef.current;if(!el)return;
+    pan.current={x:e.clientX,y:e.clientY,l:el.scrollLeft,t:el.scrollTop};el.classList.add('grabbing');
+    const mv=ev=>{el.scrollLeft=pan.current.l-(ev.clientX-pan.current.x);el.scrollTop=pan.current.t-(ev.clientY-pan.current.y);};
+    const up=()=>{el.classList.remove('grabbing');window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);};
+    window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);};
   const node=sel?wf.nodes.find(n=>n.id===sel):null;
   const fresh=Date.now()-uc.pulse.t<3500;
-  return <div className="s3-diagram">
+  const body=<>
     <div className="s3-dgbar">
       <span className="lg"><i className="s3-ai"></i>Ray decides</span>
       <span className="lg"><i className="s3-rule"></i>Fixed rule</span>
       <span className="lg"><b style={{color:'var(--t-act)'}}>§</b>Policy clause</span>
       <span className="sp"></span>
       <button className={'s3-ev'+(stamp?' on':'')} onClick={()=>setStamp(x=>!x)}><i className="ti ti-shield-check"></i>Who changed what</button>
+      <button className="s3-ev" onClick={()=>setFs(x=>!x)} title={fs?'Exit full screen (Esc)':'Open the diagram full screen'}><i className={'ti '+(fs?'ti-minimize':'ti-maximize')}></i>{fs?'Exit':'Full screen'}</button>
       <span className="s3-zoom"><button title="Zoom out" onClick={()=>{setManual(true);setZ(Math.max(.5,+((manual?z:fit)-.15).toFixed(2)));}}>−</button>
         <b title={manual?'Back to fit':'Fits the space'} onClick={()=>setManual(false)}>{manual?Math.round(z*100)+'%':'Fit'}</b>
         <button title="Zoom in" onClick={()=>{setManual(true);setZ(Math.min(1.6,+((manual?z:fit)+.15).toFixed(2)));}}>+</button></span>
     </div>
     <div className="s3-dgwrap">
-      <div className="s3-flowwrap" ref={wrapRef}><div style={{width:W*zz,height:H*zz}}><div className="s3-flow" style={{width:W,height:H,transform:'scale('+zz+')',transformOrigin:'0 0'}}>
+      <div className="s3-flowwrap" ref={wrapRef} onPointerDown={onDown}><div style={{width:W*zz,height:H*zz}}><div className="s3-flow" style={{width:W,height:H,transform:'scale('+zz+')',transformOrigin:'0 0'}}>
         <svg width={W} height={H}>{wf.edges.map((e,i)=>{const a2=wf.nodes.find(n=>n.id===e[0]),b2=wf.nodes.find(n=>n.id===e[1]);if(!a2||!b2)return null;
           const p=pos(a2),q=pos(b2),x1=p.x+NW/2,y1=p.y+86,x2=q.x+NW/2,y2=q.y-4,tone=edgeTone(e[2]);
           return <g key={i} className={'s3-edge '+tone}><path d={`M${x1} ${y1} C${x1} ${y1+30},${x2} ${y2-30},${x2} ${y2}`}/>
@@ -303,7 +311,15 @@ function Flow({uc,v,idx,onStep,readOnly}){
           <div className="s3-ef" style={{borderTop:0,paddingTop:6}}><button className="s3-b sm" disabled={!cm.trim()} onClick={()=>{E.addComment(uc,node.id,cm);setCm('');}}><i className="ti ti-message-2"></i>Add comment</button></div></div>}
       </div>}
     </div>
+  </>;
+  if(fs)return <div className="s3-fs">
+    <div className="s3-fs-h"><span className="s3-orb sm">✦</span>
+      <div style={{flex:1,minWidth:0}}><b>{uc.name}</b><span>Playbook version {v.n} · {wf.nodes.length} steps · drag to move, tap a step to edit</span></div>
+      <button className="s3-b sm" onClick={()=>setFs(false)}><i className="ti ti-minimize"></i>Exit full screen</button></div>
+    <div className="s3-fs-body">{body}</div>
+    {U.Composer&&!readOnly&&<div className="s3-fs-dock"><U.Composer placeholder="Tell Ray what to change…" scriptKey={()=>uc.step} onSend={(t,via)=>E.say(uc,t,via)}/></div>}
   </div>;
+  return <div className="s3-diagram">{body}</div>;
 }
 
 /* ---------- the Playbook ---------- */
