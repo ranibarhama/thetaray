@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/>
+<title>Ray Platform — the concept shift</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"/>
+<style>
+ @page{size:1280px 720px;margin:0;}
+ *{box-sizing:border-box;margin:0;padding:0;}
+ :root{
+   --ink:#101624;--ink-2:#4a5468;--ink-3:#8b93a7;--line:#e6e9f0;--line-2:#d8dde7;
+   --act:#5b46b8;--violet:#6b4bc0;--soft:#f6f7fb;--ok:#1e9e6a;--ok-sub:#e7f6ef;--warn:#c8811d;--warn-sub:#fdf3e2;--act-sub:#efecfb;
+   --f:'Inter','Helvetica Neue',Arial,sans-serif;
+ }
+ body{font-family:var(--f);color:var(--ink);-webkit-font-smoothing:antialiased;background:#fff;}
+ .s{width:1280px;height:720px;padding:62px 72px;position:relative;overflow:hidden;page-break-after:always;display:flex;flex-direction:column;}
+ .s:last-child{page-break-after:auto;}
+ .eyebrow{font-size:13px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--act);margin-bottom:14px;}
+ h1{font-size:60px;line-height:1.04;letter-spacing:-2px;font-weight:800;}
+ h1 em{font-style:normal;color:var(--act);}
+ h2{font-size:38px;line-height:1.1;letter-spacing:-1.1px;font-weight:800;margin-bottom:8px;}
+ .sub{font-size:19px;line-height:1.45;color:var(--ink-2);margin-top:16px;max-width:860px;}
+ .foot{position:absolute;left:72px;right:72px;bottom:28px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:12px;}
+ .foot b{color:var(--ink-2);font-weight:700;}
+ .foot .sp{flex:1;}
+ .mark{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--violet),var(--act));color:#fff;display:grid;place-items:center;font-size:14px;font-weight:800;}
+ /* slide 1 */
+ .big{display:flex;align-items:center;gap:56px;flex:1;}
+ .shift{flex:0 0 430px;display:flex;flex-direction:column;gap:10px;}
+ .srow{display:flex;align-items:center;gap:12px;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:13px 16px;}
+ .srow .from{flex:1;font-size:15px;color:var(--ink-3);text-decoration:line-through;text-decoration-color:#c9cedb;}
+ .srow i{color:var(--act);font-size:17px;}
+ .srow .to{flex:1.15;font-size:15.5px;font-weight:750;}
+ /* grids */
+ .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px;}
+ .c{border:1px solid var(--line);border-radius:16px;padding:20px;background:#fff;}
+ .c .n{width:30px;height:30px;border-radius:9px;background:var(--act-sub);color:var(--act);display:grid;place-items:center;font-size:16px;margin-bottom:12px;}
+ .c h3{font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px;}
+ .c p{font-size:13.5px;line-height:1.5;color:var(--ink-2);}
+ .two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px;flex:1;}
+ .col{border:1px solid var(--line);border-radius:18px;padding:22px 24px;display:flex;flex-direction:column;}
+ .col.mine{border-color:var(--act);box-shadow:0 10px 30px rgba(91,70,184,.10);}
+ .col .tag{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;font-size:11.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:5px 11px;border-radius:999px;background:var(--soft);color:var(--ink-2);margin-bottom:14px;}
+ .col.mine .tag{background:var(--act);color:#fff;}
+ .col h3{font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:12px;}
+ .li{display:flex;gap:10px;font-size:14px;line-height:1.5;color:var(--ink-2);padding:8px 0;border-top:1px solid var(--line);}
+ .li:first-of-type{border-top:0;}
+ .li i{font-size:16px;color:var(--ink-3);flex:0 0 auto;margin-top:1px;}
+ .col.mine .li i{color:var(--ok);}
+ .li b{color:var(--ink);font-weight:750;}
+ .adv{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px;margin-top:26px;flex:1;align-content:stretch;}
+ .a{display:flex;gap:14px;padding:18px 20px;border-radius:14px;background:var(--soft);border:1px solid var(--line);}
+ .a .k{width:28px;height:28px;flex:0 0 auto;border-radius:50%;background:var(--act);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800;}
+ .a h4{font-size:16.5px;font-weight:800;letter-spacing:-.25px;margin-bottom:5px;}
+ .a p{font-size:13.5px;line-height:1.5;color:var(--ink-2);}
+ .quote{margin-top:auto;background:linear-gradient(100deg,var(--act-sub),var(--soft));border-radius:18px;padding:24px 28px;font-size:20px;line-height:1.4;font-weight:700;letter-spacing:-.4px;}
+ .quote span{display:block;font-size:14px;font-weight:600;color:var(--ink-2);margin-top:8px;letter-spacing:0;}
+ .qa{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;}
+ .q{border:1px solid var(--line-2);border-radius:16px;padding:18px 20px;}
+ .q .ql{font-size:11.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px;display:flex;align-items:center;gap:7px;}
+ .q .ql .dot{width:9px;height:9px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 3px var(--warn-sub);}
+ .q .ql .dot.g{background:var(--ok);box-shadow:0 0 0 3px var(--ok-sub);}
+ .q .qv{font-size:17px;font-weight:800;letter-spacing:-.4px;margin-bottom:8px;}
+ .q p{font-size:13px;line-height:1.5;color:var(--ink-2);}
+ .kpi{display:flex;gap:40px;margin-top:26px;}
+ .kpi div b{display:block;font-size:34px;font-weight:800;letter-spacing:-1.2px;color:var(--act);}
+ .kpi div span{font-size:13px;color:var(--ink-2);}
+</style></head><body>
+
+<!-- 1 -->
+<section class="s">
+  <div class="eyebrow">Ray Platform · the new concept</div>
+  <div class="big">
+    <div style="flex:1">
+      <h1>Stop configuring a system.<br/><em>Start briefing an investigator.</em></h1>
+      <p class="sub">The product keeps every capability it has today — the same engine, the same seven case sections, the same policy. What changed is the experience: the analyst is given decisions instead of lists, and the builder talks to Ray instead of filling in a rule builder.</p>
+    </div>
+    <div class="shift">
+      <div class="srow"><span class="from">Rule builder &amp; forms</span><i class="ti ti-arrow-right"></i><span class="to">One conversation</span></div>
+      <div class="srow"><span class="from">A list of cases</span><i class="ti ti-arrow-right"></i><span class="to">A board of decisions</span></div>
+      <div class="srow"><span class="from">Read the case file</span><i class="ti ti-arrow-right"></i><span class="to">Watch it happen</span></div>
+      <div class="srow"><span class="from">Configuration screens</span><i class="ti ti-arrow-right"></i><span class="to">A playbook in plain English</span></div>
+      <div class="srow"><span class="from">One fixed layout</span><i class="ti ti-arrow-right"></i><span class="to">A workspace analysts shape</span></div>
+    </div>
+  </div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · concept review<span class="sp"></span><span>1 / 5</span></div>
+</section>
+
+<!-- 2 -->
+<section class="s">
+  <div class="eyebrow">The principles behind the change</div>
+  <h2>Six rules we held ourselves to</h2>
+  <p class="sub" style="margin-top:6px">Every screen in the prototype can be traced back to one of these.</p>
+  <div class="cards">
+    <div class="c"><div class="n"><i class="ti ti-message-2"></i></div><h3>Conversation, not configuration</h3><p>If you can say it to a colleague, you can say it to Ray — typed or spoken. No rule syntax, no builder grammar to learn.</p></div>
+    <div class="c"><div class="n"><i class="ti ti-shield-check"></i></div><h3>Trust is built in, not bolted on</h3><p>Ray practises, proves itself and gets signed before it touches real work. Every change is tracked and auditable.</p></div>
+    <div class="c"><div class="n"><i class="ti ti-adjustments"></i></div><h3>Less effort, same control</h3><p>You choose how often Ray checks with you — every step, only what matters, or Autopilot. It never changes what you must sign.</p></div>
+    <div class="c"><div class="n"><i class="ti ti-users"></i></div><h3>Anyone can build it</h3><p>A compliance lead, not an engineer, teaches Ray the job. That is what collapses time to value.</p></div>
+    <div class="c"><div class="n"><i class="ti ti-eye"></i></div><h3>Show, don't describe</h3><p>The case is a map you play through time; the playbook is numbered sentences tied to policy clauses. Understanding is visual, not textual.</p></div>
+    <div class="c"><div class="n"><i class="ti ti-layout-dashboard"></i></div><h3>The user shapes the room</h3><p>Two views on every screen, movable panels, role-based environments, a phone-sized manager pulse — and one click back to default.</p></div>
+  </div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · principles<span class="sp"></span><span>2 / 5</span></div>
+</section>
+
+<!-- 3 -->
+<section class="s">
+  <div class="eyebrow">Where we started from · the team's v70 concept</div>
+  <h2>What the team proved — and what I changed</h2>
+  <div class="two">
+    <div class="col">
+      <span class="tag"><i class="ti ti-flask"></i> Team concept (v70)</span>
+      <h3>Established the direction</h3>
+      <div class="li"><i class="ti ti-check"></i><span>Chat beside a canvas as the way to build a use case — the core bet, and the right one.</span></div>
+      <div class="li"><i class="ti ti-check"></i><span>A staged journey, per-node editing of the flow, document upload, a status line for Ray.</span></div>
+      <div class="li"><i class="ti ti-minus"></i><span>Framed as a <b>wizard</b>: “Creation · step 3 of 5”, with hint cards pushing you forward.</span></div>
+      <div class="li"><i class="ti ti-minus"></i><span>An <b>8-icon left rail</b> and dense side panels — the configuration metaphor returns through the back door.</span></div>
+      <div class="li"><i class="ti ti-minus"></i><span>Position is shown <b>passively</b>; readiness is a number you have to find and interpret yourself.</span></div>
+    </div>
+    <div class="col mine">
+      <span class="tag"><i class="ti ti-sparkles"></i> My concept (v3)</span>
+      <h3>Removed the system around it</h3>
+      <div class="li"><i class="ti ti-check"></i><span>One surface: a <b>living playbook</b> you read like a new hire's manual, plus Ray in a column you can hide.</span></div>
+      <div class="li"><i class="ti ti-check"></i><span>Not five wizard steps but <b>four human stages</b> — Build, Train, Prove, Operate — the way you onboard a person.</span></div>
+      <div class="li"><i class="ti ti-check"></i><span>No icon rail. Controls split by job: how often Ray asks, and everything else under one ⋯ menu.</span></div>
+      <div class="li"><i class="ti ti-check"></i><span><b>Two questions answered on demand</b> instead of status to decipher.</span></div>
+      <div class="li"><i class="ti ti-check"></i><span>Edit by <b>tap or by talk</b>, tracked as versioned changes until you sign them.</span></div>
+    </div>
+  </div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · v70 → v3<span class="sp"></span><span>3 / 5</span></div>
+</section>
+
+<!-- 4 -->
+<section class="s">
+  <div class="eyebrow">Why it is better</div>
+  <h2>Six advantages of this approach</h2>
+  <div class="adv">
+    <div class="a"><span class="k">1</span><div><h4>Two questions, always answered</h4><p><b>Is Ray ready?</b> and <b>Where am I?</b> sit permanently above the work. One click gives the verdict, the targets against their thresholds, and the one thing that closes the gap — or the stage, the signed version and who acts next.</p></div></div>
+    <div class="a"><span class="k">2</span><div><h4>Onboarding, not deployment</h4><p>Build → Train → Prove → Operate. Ray practises on alerts your analysts already closed and shadows a senior on live ones before it works alone. Nobody has to trust a black box.</p></div></div>
+    <div class="a"><span class="k">3</span><div><h4>The policy is the product</h4><p>Every step quotes the clause it came from. Reviewers read sentences, not a flow chart — and the model-risk document and analyst guide fall out of it automatically.</p></div></div>
+    <div class="a"><span class="k">4</span><div><h4>Autopilot with real brakes</h4><p>Ray can do the entire job and stop only at the signature gates. The same product serves a hands-on lead and a lead with no time — without two different UIs.</p></div></div>
+    <div class="a"><span class="k">5</span><div><h4>Two ways in, for two kinds of people</h4><p>Speak to Ray, or tap the step and edit the fields. Voice-first for speed, direct editing for control — and the microphone sits in every chat field.</p></div></div>
+    <div class="a"><span class="k">6</span><div><h4>It explains itself</h4><p>A guided walkthrough covers the whole flow on first use and reopens from the top bar any time; the <b>about</b> panel documents every screen in depth. A new user is productive without training.</p></div></div>
+  </div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · advantages<span class="sp"></span><span>4 / 5</span></div>
+</section>
+
+<!-- 5 -->
+<section class="s">
+  <div class="eyebrow">The two questions, concretely</div>
+  <h2>Nobody gets lost in the system</h2>
+  <div class="qa">
+    <div class="q"><div class="ql"><span class="dot"></span>Is Ray ready?</div><div class="qv">Not yet — 87% against a 90% target</div>
+      <p>Every target with its threshold, met or below. Then the one action that closes the gap: <b>“3 suggestions would close it → Show me”</b>. It reads differently at every stage — untested, practising, shadowing day 9 of 28, live and healthy.</p></div>
+    <div class="q"><div class="ql"><span class="dot g"></span>Where am I?</div><div class="qv">Train · waiting on Dana</div>
+      <p>The four stages with what is complete, what was skipped and where you are. Which version is current, which is signed, who acts next — and what Ray did while you were away. Ask it out loud and Ray answers in words too.</p></div>
+  </div>
+  <div class="quote">“Same content. Same engine. The difference is that the product now answers questions instead of displaying state.”
+    <span>Which is also what makes it demo-able: a five-minute story instead of a feature tour.</span></div>
+  <div class="kpi">
+    <div><b>1 sentence</b><span>to teach Ray a new job</span></div>
+    <div><b>4 stages</b><span>before it touches real work</span></div>
+    <div><b>2 questions</b><span>that replace reading the system</span></div>
+    <div><b>0 rule syntax</b><span>for the person who owns the policy</span></div>
+  </div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · ranibarhama.github.io/thetaray<span class="sp"></span><span>5 / 5</span></div>
+</section>
+
+</body></html>

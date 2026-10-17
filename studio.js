@@ -45,12 +45,12 @@ function Composer({onSend,placeholder,scriptKey,big,prefill,autoFocus,hint}){
   const typing=!!txt.trim(),on=voice.st.on;
   return <div className="s3-cw">
     <div className={'s3-cmp'+(big?' big':'')+(on?' hearing':'')}>
-      <button className={'s3-micb'+(on?' on':'')+(!VOICE_USED&&!typing&&!on?' alive':'')} title={on?'Stop listening':'Speak to Ray'}
-        onClick={()=>on?voice.stop():voice.start()}><i className={'ti '+(on?'ti-player-stop-filled':'ti-microphone')}></i></button>
       {on
         ?<div className="s3-voice"><div className="s3-wave">{Array.from({length:11}).map((_,i)=><i key={i}></i>)}</div>
           <div className="vt"><div className="vl">{voice.st.demo?'Voice demo · microphone unavailable here':'Listening — just say it'}</div>{voice.st.interim||<em>“Change the SLA to 24 hours for high-risk alerts”…</em>}</div></div>
         :<textarea ref={ta} rows={1} value={txt} autoFocus={autoFocus} placeholder={placeholder} onChange={e=>setTxt(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}}/>}
+      <button className={'s3-micb'+(on?' on':'')+(!VOICE_USED&&!typing&&!on?' alive':'')} title={on?'Stop listening':'Speak to Ray'}
+        onClick={()=>on?voice.stop():voice.start()}><i className={'ti '+(on?'ti-player-stop-filled':'ti-microphone')}></i></button>
       <button className={'s3-sendb'+(typing?' on':'')} title={typing?'Send':'Type or speak, then send'} disabled={!typing&&!on}
         onClick={()=>on?voice.stop():send()}><i className="ti ti-arrow-up"></i></button>
     </div>

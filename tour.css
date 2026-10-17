@@ -1,0 +1,34 @@
+/* Ray Platform — guided tour overlay */
+.tour{position:fixed;inset:0;z-index:9000;pointer-events:none;}
+.tour-scrim{position:absolute;inset:0;pointer-events:auto;background:rgba(8,12,22,.22);animation:tourfade .2s ease-out;}
+@keyframes tourfade{from{opacity:0;}to{opacity:1;}}
+.tour-spot{position:absolute;border-radius:14px;pointer-events:none;box-shadow:0 0 0 9999px rgba(8,12,22,.52),0 0 0 2px var(--act,#5b46b8) inset,0 10px 40px rgba(0,0,0,.25);
+  transition:left .22s cubic-bezier(.2,.8,.3,1),top .22s cubic-bezier(.2,.8,.3,1),width .22s,height .22s;}
+.tour-spot::after{content:'';position:absolute;inset:-4px;border-radius:18px;border:2px solid var(--act,#5b46b8);opacity:.55;animation:tourring 2.2s ease-out infinite;}
+@keyframes tourring{0%{transform:scale(.99);opacity:.55;}70%{transform:scale(1.03);opacity:0;}100%{opacity:0;}}
+.tour-card{position:absolute;width:min(430px,calc(100vw - 24px));pointer-events:auto;background:var(--surface,#fff);color:var(--ink,#0f1626);
+  border:1px solid var(--line-2,#e3e7ef);border-radius:18px;padding:16px 18px 14px;box-shadow:0 28px 70px rgba(8,12,22,.34);animation:tourpop .22s cubic-bezier(.2,.8,.3,1);}
+@keyframes tourpop{from{opacity:0;transform:translateY(6px) scale(.985);}to{opacity:1;transform:none;}}
+.tour-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.tour-n{font-size:11px;font-weight:800;letter-spacing:.3px;color:var(--t-act,#5b46b8);flex:0 0 auto;}
+.tour-n em{font-style:normal;font-weight:700;color:var(--ink-3,#8b93a7);}
+.tour-bar{flex:1;height:4px;border-radius:999px;background:var(--surface-3,#eef1f6);overflow:hidden;}
+.tour-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--violet2,#6b4bc0),var(--act,#5b46b8));transition:width .25s;}
+.tour-x{width:26px;height:26px;flex:0 0 auto;border:0;background:none;border-radius:50%;color:var(--ink-3,#8b93a7);display:grid;place-items:center;font-size:16px;}
+.tour-x:hover{background:var(--surface-3,#eef1f6);color:var(--ink,#0f1626);}
+.tour-card h3{margin:0 0 6px;font-size:17px;font-weight:800;letter-spacing:-.3px;line-height:1.25;}
+.tour-card p{margin:0 0 14px;font-size:13.5px;line-height:1.55;color:var(--ink-2,#5a6276);}
+.tour-card p b{color:var(--ink,#0f1626);font-weight:750;}
+.tour-act{display:flex;align-items:center;gap:8px;}
+.tour-act .sp{flex:1;}
+.tour-b{height:34px;padding:0 13px;border-radius:10px;border:1px solid var(--line-2,#e3e7ef);background:var(--surface,#fff);color:var(--ink,#0f1626);
+  font-size:13px;font-weight:650;display:inline-flex;align-items:center;gap:6px;}
+.tour-b:hover:not(:disabled){border-color:var(--ink-3,#8b93a7);}
+.tour-b:disabled{opacity:.4;}
+.tour-b.pri{background:var(--act,#5b46b8);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(91,70,184,.3);}
+.tour-skip{border:0;background:none;color:var(--ink-3,#8b93a7);font-size:12.5px;font-weight:600;padding:0 4px;}
+.tour-skip:hover{color:var(--ink,#0f1626);text-decoration:underline;}
+.tour-open.on{background:var(--act)!important;color:#fff!important;}
+@media (max-width:640px){
+  .tour-card{left:8px!important;right:8px!important;width:auto!important;}
+}

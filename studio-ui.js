@@ -255,9 +255,26 @@ U.readyData=uc=>{
       targets:[['Agreement with analysts',a2+'%','target 90%',a2>=90],['False positives Ray closes','34%',null,true],
         ['Escalations missed',r.length>1?'0':'2','target 0',r.length>1],['Average decision time','2.1 min',null,true]],
       gaps:pend?[[pend+' suggestion'+(pend>1?'s':'')+' would close the gap','Show me','sugs']]:(ok?[]:[['Another practice round','Run it','round']]),rows:D.DIFFS};}
-  return {tone:'',short:'Not tested yet',verdict:'Not tested yet',sub:'Ray has a playbook but has not practised on your alerts. Nothing is proven until it does.',
-    targets:[['Agreement with analysts','—','target 90%',false],['Practice rounds','0',null,false],['Live alerts shadowed','0',null,false],['Signatures',String(uc.signs.length),null,!!uc.signs.length]],
-    gaps:[[uc.gate?'Sign off the playbook, then practice':'Practice on closed alerts','Start practice','practice']],rows:[]};
+  const v=E.cur(uc),practising=uc.run&&uc.run.kind==='practice';
+  const short=uc.step==='brief'?'Not started · brief first'
+    :practising?'Practising now'
+    :(!v||uc.step==='building')?'Being written'
+    :uc.signedVer>=v.n?('Signed v'+v.n+' · untested')
+    :('Draft v'+v.n+' · untested');
+  const verdict=uc.step==='brief'?'Not started — the brief comes first'
+    :practising?'Practising right now on 1,000 closed alerts'
+    :(!v||uc.step==='building')?'Not yet — Ray is still writing the playbook'
+    :uc.signedVer>=v.n?('Signed at v'+v.n+', but never practised')
+    :('Draft v'+v.n+' is written, but never practised');
+  const sub=practising?'Ray is deciding on alerts your analysts already closed. The agreement score lands in about a minute.'
+    :uc.step==='brief'?'Tell Ray the job and press Start. Nothing can be proven before there is a playbook.'
+    :'A playbook is a plan, not evidence. Ray is ready only once it has practised on your closed alerts and matched your analysts.';
+  return {tone:'',short,verdict,sub,
+    targets:[['Playbook version',v?'v'+v.n:'—',null,!!v],['Signed at',uc.signedVer?'v'+uc.signedVer:'not signed',null,!!uc.signedVer],
+      ['Practice rounds','0','target 1+',false],['Agreement with analysts','—','target 90%',false]],
+    gaps:[[uc.step==='brief'?'Agree the brief and press Start':practising?'Practice is running now':uc.gate?'Sign off the playbook, then practice':'Practice on alerts your analysts already closed',
+      uc.step==='brief'?'Go to the brief':practising?'Watch it':uc.gate?'Review & sign':'Start practice',
+      uc.step==='brief'?'close':practising?'close':uc.gate?'sign':'practice']],rows:[]};
 };
 U.whereData=uc=>{
   const si=D.STAGES.findIndex(x=>x.k===uc.stage),nx=P(uc.next.who);
@@ -273,7 +290,7 @@ function Targets({t}){
 U.ReadyPanel=function({uc,onClose,goStep,openSheet}){
   const d=U.readyData(uc);const [ev,setEv]=useState(false);
   const col={ok:'var(--ok)',warn:'var(--now)',ai:'var(--violet2)','':'var(--ink-3)'}[d.tone];
-  const act=k=>{onClose();if(k==='skip')E.skipShadow(uc);if(k==='round')E.anotherRound(uc);if(k==='practice'){uc.gate?openSheet():E.startPractice(uc);}
+  const act=k=>{onClose();if(k==='skip')E.skipShadow(uc);if(k==='round')E.anotherRound(uc);if(k==='sign')openSheet();if(k==='practice'){uc.gate?openSheet():E.startPractice(uc);}
     if(k==='sugs'){const s2=E.tuneSet(uc).filter(x=>!uc.train.sugs[x.id])[0];if(s2)goStep(s2.node);}};
   return <div className={'s3-answer '+d.tone}>
     <div className="s3-ah"><span className="light" style={{background:col,boxShadow:'0 0 0 5px '+col+'30'}}></span>
