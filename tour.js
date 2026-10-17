@@ -61,7 +61,9 @@ function Tour(){
   const live=useRef(0);
 
   useEffect(()=>{window.__tour={start:(from)=>{const s=typeof from==='number'?from:(parseInt(localStorage.getItem(POS)||'0',10)||0);setI(s<STEPS.length?s:0);},
-    stop:()=>setI(-1),running:()=>i>=0};},[i]);
+    stop:()=>{try{localStorage.setItem(KEY,'1');localStorage.setItem(POS,String(Math.max(0,i)));}catch(e){}setI(-1);},running:()=>i>=0};},[i]);
+
+  useEffect(()=>{document.body.classList.toggle('tour-live',i>=0);},[i]);
 
   useEffect(()=>{let t=null;
     try{if(!localStorage.getItem(KEY))t=setTimeout(()=>setI(0),1100);}catch(e){}

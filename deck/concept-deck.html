@@ -63,15 +63,53 @@
  .kpi{display:flex;gap:40px;margin-top:26px;}
  .kpi div b{display:block;font-size:34px;font-weight:800;letter-spacing:-1.2px;color:var(--act);}
  .kpi div span{font-size:13px;color:var(--ink-2);}
+ /* ---- screen only: this file is both the print master and a web page ---- */
+ @media screen{
+   body{background:#f2f4f9;padding:54px 0 40px;}
+   .s{margin:0 auto 22px;box-shadow:0 18px 50px rgba(10,16,30,.14);border-radius:14px;background:#fff;}
+   .navbar{position:fixed;top:0;left:0;right:0;height:46px;z-index:50;display:flex;align-items:center;gap:10px;padding:0 16px;
+     background:rgba(16,22,36,.92);backdrop-filter:blur(8px);color:#fff;font-size:12.5px;}
+   .navbar a{color:rgba(255,255,255,.86);text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;
+     background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);font-weight:650;}
+   .navbar a:hover{background:rgba(255,255,255,.22);color:#fff;}
+   .navbar a.pri{background:#fff;color:#14192a;border-color:transparent;}
+   .navbar .sp{flex:1;}
+   .navbar b{font-weight:700;letter-spacing:-.1px;}
+   .navbar span{color:rgba(255,255,255,.5);}
+ }
+ @media print{.navbar{display:none;}}
+ @media screen and (max-width:1340px){ body{zoom:.78;} }
+ @media screen and (max-width:1040px){ body{zoom:.6;} }
+ @media screen and (max-width:820px){ body{zoom:.45;} }
+ .gens{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px;flex:1;}
+ .g{border:1px solid var(--line);border-radius:18px;padding:20px 22px;display:flex;flex-direction:column;background:#fff;}
+ .g.mine{border-color:var(--act);box-shadow:0 10px 30px rgba(91,70,184,.10);}
+ .gh{display:flex;align-items:baseline;gap:9px;margin-bottom:12px;}
+ .gv{font-size:19px;font-weight:800;letter-spacing:-.6px;color:var(--ink-3);}
+ .g.mine .gv{color:var(--act);}
+ .gw{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-3);}
+ .g h3{font-size:19px;font-weight:800;letter-spacing:-.5px;margin-bottom:9px;}
+ .gd{font-size:13px;line-height:1.55;color:var(--ink-2);}
+ .gl{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.5;color:var(--ink-2);
+   background:var(--warn-sub);border-radius:12px;padding:12px 14px;margin-top:auto;}
+ .gl i{color:var(--warn);font-size:15px;flex:0 0 auto;margin-top:1px;}
+ .gl b{color:var(--ink);font-weight:750;}
+ .gl.ok{background:var(--ok-sub);}
+ .gl.ok i{color:var(--ok);}
 </style></head><body>
+<div class="navbar"><a href="../concept.html"><i class="ti ti-arrow-left"></i> Both concepts</a>
+  <b>Ray Studio · the concept</b><span>· why we moved to a conversation</span>
+  <span class="sp"></span>
+  <a href="./Ray-concept-deck.pdf"><i class="ti ti-file-type-pdf"></i> PDF</a>
+  <a class="pri" href="../prototype.html?b=49"><i class="ti ti-player-play"></i> See it in action</a></div>
 
-<!-- 1 -->
+<!-- slide 1 · the shift -->
 <section class="s">
   <div class="eyebrow">Ray Platform · the new concept</div>
   <div class="big">
     <div style="flex:1">
       <h1>Stop configuring a system.<br/><em>Start briefing an investigator.</em></h1>
-      <p class="sub">The product keeps every capability it has today — the same engine, the same seven case sections, the same policy. What changed is the experience: the analyst is given decisions instead of lists, and the builder talks to Ray instead of filling in a rule builder.</p>
+      <p class="sub">Teaching Ray a new investigation used to mean a five-step wizard full of forms: pick a template, upload a policy, fill in step name, owner and SLA, review a flow chart, apply. Every one of those screens asks the user to translate what they already know into the product's structure. <b>A conversation removes the translation.</b> You say the job in your own words; Ray writes the structure and shows it back for you to read, correct and sign.</p>
     </div>
     <div class="shift">
       <div class="srow"><span class="from">Rule builder &amp; forms</span><i class="ti ti-arrow-right"></i><span class="to">One conversation</span></div>
@@ -81,13 +119,41 @@
       <div class="srow"><span class="from">One fixed layout</span><i class="ti ti-arrow-right"></i><span class="to">A workspace analysts shape</span></div>
     </div>
   </div>
-  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · concept review<span class="sp"></span><span>1 / 5</span></div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · concept review<span class="sp"></span><span>1 / 6</span></div>
 </section>
 
-<!-- 2 -->
+<!-- slide 2 · three generations -->
 <section class="s">
-  <div class="eyebrow">The principles behind the change</div>
-  <h2>Six rules we held ourselves to</h2>
+  <div class="eyebrow">How we got here</div>
+  <h2>Three generations of the same idea</h2>
+  <p class="sub" style="margin-top:6px">Each version kept what worked and removed the thing that was still getting in the user's way.</p>
+  <div class="gens">
+    <div class="g">
+      <div class="gh"><span class="gv">v19</span><span class="gw">the product today</span></div>
+      <h3>A wizard with forms</h3>
+      <p class="gd">Five numbered steps — choose a template, upload the policy, review the drafted workflow, define the report, apply. Inside them: 22 input fields, 12 dropdowns, step name / owned by / SLA, and tables of versions, comments and suggestions.</p>
+      <div class="gl"><i class="ti ti-alert-triangle"></i><span>Ray is a <b>button inside a form</b>. The user does the translating, and only someone who knows the product's structure can finish the job.</span></div>
+    </div>
+    <div class="g">
+      <div class="gh"><span class="gv">v70</span><span class="gw">the team, after our meeting</span></div>
+      <h3>Chat beside a canvas</h3>
+      <p class="gd">The right bet, and the one everything since is built on: talk to Ray, watch the flow appear next to you. Staged journey, per-node editing, document upload, a status line for Ray.</p>
+      <div class="gl"><i class="ti ti-alert-triangle"></i><span>But the system came back around it — an <b>8-icon rail</b>, dense side panels, and “Creation · step 3 of 5”. A wizard with a chat window in it.</span></div>
+    </div>
+    <div class="g mine">
+      <div class="gh"><span class="gv">v3</span><span class="gw">this prototype</span></div>
+      <h3>A playbook you read</h3>
+      <p class="gd">One surface. Ray writes the job as numbered plain sentences, each tied to a policy clause — read it like a new hire's manual. Four human stages instead of wizard steps. Edit by tapping a step or by telling Ray.</p>
+      <div class="gl ok"><i class="ti ti-check"></i><span>Nothing to learn before you start: the artefact <b>is</b> the interface, and the two questions answer themselves.</span></div>
+    </div>
+  </div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · v19 → v70 → v3<span class="sp"></span><span>2 / 6</span></div>
+</section>
+
+<!-- slide 3 · principles -->
+<section class="s">
+  <div class="eyebrow">Why a conversation, not a form</div>
+  <h2>Six rules behind the chat approach</h2>
   <p class="sub" style="margin-top:6px">Every screen in the prototype can be traced back to one of these.</p>
   <div class="cards">
     <div class="c"><div class="n"><i class="ti ti-message-2"></i></div><h3>Conversation, not configuration</h3><p>If you can say it to a colleague, you can say it to Ray — typed or spoken. No rule syntax, no builder grammar to learn.</p></div>
@@ -97,13 +163,13 @@
     <div class="c"><div class="n"><i class="ti ti-eye"></i></div><h3>Show, don't describe</h3><p>The case is a map you play through time; the playbook is numbered sentences tied to policy clauses. Understanding is visual, not textual.</p></div>
     <div class="c"><div class="n"><i class="ti ti-layout-dashboard"></i></div><h3>The user shapes the room</h3><p>Two views on every screen, movable panels, role-based environments, a phone-sized manager pulse — and one click back to default.</p></div>
   </div>
-  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · principles<span class="sp"></span><span>2 / 5</span></div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · principles<span class="sp"></span><span>3 / 6</span></div>
 </section>
 
-<!-- 3 -->
+<!-- slide 5 · advantages -->
 <section class="s">
-  <div class="eyebrow">Where we started from · the team's v70 concept</div>
-  <h2>What the team proved — and what I changed</h2>
+  <div class="eyebrow">The team's v70 · and what I changed in v3</div>
+  <h2>Same bet, fewer things in the way</h2>
   <div class="two">
     <div class="col">
       <span class="tag"><i class="ti ti-flask"></i> Team concept (v70)</span>
@@ -124,10 +190,10 @@
       <div class="li"><i class="ti ti-check"></i><span>Edit by <b>tap or by talk</b>, tracked as versioned changes until you sign them.</span></div>
     </div>
   </div>
-  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · v70 → v3<span class="sp"></span><span>3 / 5</span></div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · v70 → v3<span class="sp"></span><span>4 / 6</span></div>
 </section>
 
-<!-- 4 -->
+<!-- slide 4 · v70 vs v3 -->
 <section class="s">
   <div class="eyebrow">Why it is better</div>
   <h2>Six advantages of this approach</h2>
@@ -139,10 +205,10 @@
     <div class="a"><span class="k">5</span><div><h4>Two ways in, for two kinds of people</h4><p>Speak to Ray, or tap the step and edit the fields. Voice-first for speed, direct editing for control — and the microphone sits in every chat field.</p></div></div>
     <div class="a"><span class="k">6</span><div><h4>It explains itself</h4><p>A guided walkthrough covers the whole flow on first use and reopens from the top bar any time; the <b>about</b> panel documents every screen in depth. A new user is productive without training.</p></div></div>
   </div>
-  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · advantages<span class="sp"></span><span>4 / 5</span></div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · advantages<span class="sp"></span><span>5 / 6</span></div>
 </section>
 
-<!-- 5 -->
+<!-- slide 6 · the two questions -->
 <section class="s">
   <div class="eyebrow">The two questions, concretely</div>
   <h2>Nobody gets lost in the system</h2>
@@ -160,7 +226,7 @@
     <div><b>2 questions</b><span>that replace reading the system</span></div>
     <div><b>0 rule syntax</b><span>for the person who owns the policy</span></div>
   </div>
-  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · ranibarhama.github.io/thetaray<span class="sp"></span><span>5 / 5</span></div>
+  <div class="foot"><span class="mark">R</span><b>Ray Platform</b> · ranibarhama.github.io/thetaray<span class="sp"></span><span>6 / 6</span></div>
 </section>
 
 </body></html>

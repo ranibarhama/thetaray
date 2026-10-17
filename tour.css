@@ -28,7 +28,9 @@
 .tour-b.pri{background:var(--act,#5b46b8);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(91,70,184,.3);}
 .tour-skip{border:0;background:none;color:var(--ink-3,#8b93a7);font-size:12.5px;font-weight:600;padding:0 4px;}
 .tour-skip:hover{color:var(--ink,#0f1626);text-decoration:underline;}
-.tour-open.on{background:var(--act)!important;color:#fff!important;}
+.tour-open{position:relative;}
+body.tour-live .tour-open{background:rgba(255,255,255,.22)!important;color:#fff!important;}
+body.tour-live .tour-open::after{content:'';position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:#7ee2b8;box-shadow:0 0 0 2px rgba(0,0,0,.18);}
 @media (max-width:640px){
   .tour-card{left:8px!important;right:8px!important;width:auto!important;}
 }

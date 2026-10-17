@@ -1,205 +1,108 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
-<title>Ray Platform · The Investigation Command Center — concept</title>
+<title>Ray Platform · the new concept</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css"/>
 <style>
-  :root{
-    --bg:#f3f5f9; --surface:#ffffff; --surface-2:#f6f8fb;
-    --line:#e6e9f0; --line-2:#d5dae4;
-    --ink:#1a2232; --ink-2:#586074; --ink-3:#8a92a4;
-    --act:#2f6df6; --act-sub:#e9f1ff; --t-act:#1a4fbf;
-    --now:#e8850c; --now-sub:#fdf0dd; --t-now:#9a5a05;
-    --ok:#1e9e6a; --ok-sub:#e3f5ed; --t-ok:#0f7a4f;
-    --violet:#5b46b8; --violet1:#3a3785; --violet2:#6b4bc0; --violet-sub:#eee9fb; --t-violet:#4a37a0;
-    --shadow:0 1px 2px rgba(10,16,30,.08),0 10px 30px rgba(10,16,30,.12);
-    --font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  }
-  @media (prefers-color-scheme:dark){
-    :root{
-      --bg:#0e1420; --surface:#1a2333; --surface-2:#212c3f;
-      --line:#2a3446; --line-2:#3a465c;
-      --ink:#e9edf4; --ink-2:#aab4c6; --ink-3:#7d8798;
-      --act-sub:rgba(47,109,246,.18); --t-act:#8fb4ff;
-      --now-sub:rgba(232,133,12,.18); --t-now:#f0b874;
-      --ok-sub:rgba(30,158,106,.16); --t-ok:#5fd39e;
-      --violet-sub:rgba(107,75,192,.26); --t-violet:#bdacff;
-      --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.45);
-    }
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5;}
-  .ti{line-height:1;vertical-align:-7%;}
-  .wrap{max-width:1120px;margin:0 auto;padding:0 30px;}
+ *{box-sizing:border-box;margin:0;padding:0;}
+ :root{--ink:#0d1220;--ink-2:#58617a;--ink-3:#8b93a7;--line:#e6e9f0;--act:#5b46b8;--violet:#7a5cd0;--ok:#1e9e6a;
+   --f:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;}
+ html,body{height:100%;}
+ body{font-family:var(--f);color:#fff;background:#0b0f1a;-webkit-font-smoothing:antialiased;overflow:hidden;}
+ .bg{position:fixed;inset:0;background:
+   radial-gradient(900px 600px at 15% -10%,rgba(122,92,208,.55),transparent 60%),
+   radial-gradient(800px 520px at 88% 110%,rgba(45,120,220,.42),transparent 62%),
+   linear-gradient(160deg,#141a2c,#0b0f1a 60%);}
+ .page{position:relative;height:100%;display:flex;flex-direction:column;padding:34px 40px 26px;}
+ .top{display:flex;align-items:center;gap:12px;}
+ .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--violet),var(--act));display:grid;place-items:center;font-weight:800;font-size:15px;}
+ .top b{font-size:15px;font-weight:700;letter-spacing:-.2px;}
+ .top span{font-size:12.5px;color:rgba(255,255,255,.55);}
+ .top .sp{flex:1;}
+ .tbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+   color:#fff;font-size:12.5px;font-weight:650;text-decoration:none;}
+ .tbtn:hover{background:rgba(255,255,255,.2);}
+ .tbtn.pri{background:#fff;color:#14192a;border-color:transparent;}
+ .mid{flex:1;display:flex;flex-direction:column;justify-content:center;padding:8px 0;}
+ .eyebrow{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:14px;}
+ h1{font-size:clamp(30px,4.4vw,56px);line-height:1.04;letter-spacing:-2px;font-weight:800;max-width:17ch;}
+ h1 em{font-style:normal;background:linear-gradient(100deg,#c9b8ff,#8ab6ff);-webkit-background-clip:text;background-clip:text;color:transparent;}
+ .lead{margin-top:16px;font-size:clamp(14px,1.35vw,18px);line-height:1.5;color:rgba(255,255,255,.72);max-width:72ch;}
+ .doors{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:clamp(20px,3.4vh,38px);}
+ .door{display:flex;flex-direction:column;gap:12px;padding:clamp(18px,2.4vh,26px);border-radius:20px;text-decoration:none;color:#fff;
+   background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);transition:transform .18s,background .18s,border-color .18s;}
+ .door:hover{transform:translateY(-3px);background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.34);}
+ .door .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:21px;background:rgba(255,255,255,.14);}
+ .door.studio .ic{background:linear-gradient(135deg,var(--violet),var(--act));}
+ .door .nm{font-size:11.5px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:rgba(255,255,255,.55);}
+ .door h2{font-size:clamp(19px,2.1vw,26px);font-weight:800;letter-spacing:-.7px;line-height:1.15;}
+ .door p{font-size:13.5px;line-height:1.55;color:rgba(255,255,255,.7);}
+ .door ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px;}
+ .door li{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);}
+ .door .go{margin-top:auto;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:750;padding-top:6px;}
+ .door .go i{transition:transform .18s;}
+ .door:hover .go i{transform:translateX(4px);}
+ .alt{display:flex;gap:14px;align-items:center;margin-top:12px;font-size:12px;color:rgba(255,255,255,.5);}
+ .alt a{color:rgba(255,255,255,.8);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.3);}
+ .alt a:hover{color:#fff;}
+ .foot{display:flex;align-items:center;gap:10px;font-size:11.5px;color:rgba(255,255,255,.42);padding-top:14px;border-top:1px solid rgba(255,255,255,.12);}
+ .foot .sp{flex:1;}
+ .fsbtn{position:fixed;right:16px;bottom:16px;z-index:70;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.22);
+   background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;font-size:17px;backdrop-filter:blur(8px);cursor:pointer;}
+ @media (max-width:900px){
+   body{overflow:auto;}
+   .page{height:auto;min-height:100%;padding:24px 20px;}
+   .doors{grid-template-columns:1fr;}
+ }
+</style></head><body>
+<div class="bg"></div>
+<div class="page">
+  <div class="top">
+    <span class="mark">R</span>
+    <div><b>Ray Platform</b> <span>· new UX concept</span></div>
+    <span class="sp"></span>
+    <a class="tbtn pri" href="./prototype.html?b=49"><i class="ti ti-player-play"></i> See it in action</a>
+  </div>
 
-  /* ── hero ─────────────────────────────────────────── */
-  .hero{position:relative;background:linear-gradient(130deg,#2e2b6e 0%,var(--violet1) 38%,var(--violet2) 78%,#8a5fd6 100%);color:#fff;padding:24px 0 84px;overflow:hidden;}
-  .hero::before,.hero::after{content:'';position:absolute;border-radius:50%;filter:blur(10px);pointer-events:none;}
-  .hero::before{width:520px;height:520px;right:-140px;top:-260px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 65%);}
-  .hero::after{width:420px;height:420px;left:-160px;bottom:-240px;background:radial-gradient(circle,rgba(120,80,220,.5),transparent 65%);}
-  .hero .wrap{position:relative;z-index:1;display:flex;align-items:center;gap:48px;}
-  .h-left{flex:1.2;min-width:0;}
-  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:5px 13px;margin-bottom:16px;}
-  h1{font-size:34px;font-weight:800;letter-spacing:-.9px;line-height:1.1;}
-  h1 em{font-style:normal;background:linear-gradient(90deg,#ffd9a0,#ff9d6c);-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .sub{font-size:14.5px;opacity:.88;max-width:480px;margin-top:12px;}
-  .sub b{color:#fff;}
-  .cta{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--violet1);font-weight:800;font-size:13.5px;border-radius:999px;padding:11px 22px;text-decoration:none;box-shadow:0 10px 28px rgba(0,0,0,.3);margin-top:20px;transition:transform .15s;}
-  .cta:hover{transform:translateY(-2px);}
-  /* shift pairs inside hero */
-  .h-right{flex:0 0 330px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:18px 22px;backdrop-filter:blur(6px);}
-  .h-right h5{font-size:10px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;opacity:.75;margin-bottom:10px;}
-  .pair{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.12);}
-  .pair:last-child{border-bottom:0;}
-  .old{opacity:.55;text-decoration:line-through;text-decoration-thickness:1.5px;font-weight:600;white-space:nowrap;}
-  .arr{color:#ffd9a0;font-weight:800;}
-  .new{color:#fff;white-space:nowrap;}
+  <div class="mid">
+    <div class="eyebrow">Two halves, two stories</div>
+    <h1>One product, <em>two experiences</em> we redesigned.</h1>
+    <p class="lead">Ray Platform splits cleanly in two: the analyst doing the casework, and the compliance lead teaching Ray a new job.
+      Each half had its own problem, so each got its own concept — and they meet in the same prototype. Pick the one you want to walk through.</p>
 
-  /* ── three ideas, overlapping the hero ────────────── */
-  .ideas{margin-top:-74px;position:relative;z-index:2;padding-bottom:6px;}
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-  .idea{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:17px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .15s;}
-  .idea:hover{transform:translateY(-3px);}
-  .idea::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
-  .idea.a::before{background:linear-gradient(90deg,var(--act),#7fa8ff);}
-  .idea.b::before{background:linear-gradient(90deg,var(--now),#ffb35c);}
-  .idea.c::before{background:linear-gradient(90deg,var(--violet),#a58cf0);}
-  .i-head{display:flex;align-items:center;gap:11px;margin-bottom:9px;}
-  .num{flex:0 0 auto;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:18px;}
-  .idea.a .num{background:var(--act-sub);color:var(--t-act);}
-  .idea.b .num{background:var(--now-sub);color:var(--t-now);}
-  .idea.c .num{background:var(--violet-sub);color:var(--t-violet);}
-  .idea h2{font-size:16px;font-weight:800;letter-spacing:-.3px;line-height:1.2;}
-  .idea h2 span{font-weight:600;color:var(--ink-3);}
-  .idea p{font-size:12.5px;color:var(--ink-2);}
-  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px;}
-  .tag{font-size:10.5px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);}
-  .idea.a .tag{background:var(--act-sub);border-color:transparent;color:var(--t-act);}
-  .idea.b .tag{background:var(--now-sub);border-color:transparent;color:var(--t-now);}
-  .idea.c .tag{background:var(--violet-sub);border-color:transparent;color:var(--t-violet);}
+    <div class="doors">
+      <a class="door" href="./concept-investigations.html">
+        <span class="ic"><i class="ti ti-map-2"></i></span>
+        <span class="nm">Half one · the analyst</span>
+        <h2>Investigations</h2>
+        <p>What we have now, rebuilt around decisions, entities and time instead of tabs and tables. A clearer entry point, a case you play as a map through time, and a workspace analysts can shape.</p>
+        <ul><li>Decision dashboard</li><li>Case as a map</li><li>Timeline you play</li><li>Handover brief</li><li>Manager &amp; mobile</li></ul>
+        <span class="go">Walk through the analyst concept <i class="ti ti-arrow-right"></i></span>
+      </a>
 
-  /* ── handover strip ───────────────────────────────── */
-  .hand{padding:12px 0 0;}
-  .hand-card{display:flex;align-items:center;gap:16px;background:linear-gradient(120deg,var(--ok-sub),var(--surface) 55%);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:16px;box-shadow:var(--shadow);padding:11px 22px;flex-wrap:wrap;}
-  .hand-ic{flex:0 0 auto;width:38px;height:38px;border-radius:12px;background:var(--ok-sub);color:var(--t-ok);display:grid;place-items:center;font-size:19px;}
-  .hand-card b.h{font-size:15px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;}
-  .hand-card p{flex:1 1 420px;font-size:12.5px;color:var(--ink-2);margin:0;}
-  .hand-card .htag{font-size:10.5px;font-weight:800;border-radius:999px;padding:4px 12px;background:var(--ok-sub);color:var(--t-ok);white-space:nowrap;}
-
-  /* ── closer ───────────────────────────────────────── */
-  .closer{padding:12px 0 10px;}
-  .close-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:15px 30px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
-  .close-card h2{font-size:21px;font-weight:800;letter-spacing:-.5px;flex:1 1 380px;}
-  .close-card h2 b{color:var(--t-violet);}
-  .close-card h2 small{display:block;font-size:12.5px;color:var(--ink-3);font-weight:500;letter-spacing:0;margin-top:5px;max-width:560px;}
-  .close-card .cta{background:var(--violet);color:#fff;margin-top:0;flex:0 0 auto;}
-  footer{text-align:center;font-size:11.5px;color:var(--ink-3);padding-bottom:8px;}
-
-  .fsbtn{position:fixed;top:14px;right:16px;z-index:50;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff;font-size:16px;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(4px);transition:background .15s;}
-  .fsbtn:hover{background:rgba(255,255,255,.28);}
-  .fsbtn.dim{background:var(--surface);border-color:var(--line-2);color:var(--ink-2);}
-
-  @media (max-width:960px){
-    .hero .wrap{flex-direction:column;align-items:stretch;gap:20px;}
-    .h-right{flex:1 1 auto;}
-    .grid3{grid-template-columns:1fr;}
-    h1{font-size:28px;}
-    .hero{padding-bottom:80px;}
-  }
-</style>
-</head>
-<body>
-
-<div class="hero">
-  <div class="wrap">
-    <div class="h-left">
-      <div class="eyebrow"><i class="ti ti-sparkles"></i> Ray Platform · New UX concept</div>
-      <h1>Stop reading the case.<br/><em>Watch it happen.</em></h1>
-      <p class="sub">Same data, same agents, same content — rebuilt around
-      <b>decisions, entities and time</b> instead of tabs and tables.</p>
-      <a class="cta" href="./prototype.html?b=48"><i class="ti ti-player-play"></i> See it in action</a>
+      <a class="door studio" href="./deck/concept-deck.html">
+        <span class="ic"><i class="ti ti-sparkles"></i></span>
+        <span class="nm">Half two · the builder</span>
+        <h2>Ray Studio</h2>
+        <p>Why we moved from the original form-and-wizard interface to a conversation: the three generations of the design, what the team's first concept got right, what changed since, and what the approach buys us.</p>
+        <ul><li>v19 → v70 → v3</li><li>Why chat</li><li>Four stages</li><li>Two questions</li><li>Six advantages</li></ul>
+        <span class="go">Read the Studio concept <i class="ti ti-arrow-right"></i></span>
+      </a>
     </div>
-    <div class="h-right">
-      <h5>The shift</h5>
-      <div class="pair"><span class="old">list of cases</span><span class="arr">→</span><span class="new">decision dashboard</span></div>
-      <div class="pair"><span class="old">7 tabs</span><span class="arr">→</span><span class="new">living map</span></div>
-      <div class="pair"><span class="old">date columns</span><span class="arr">→</span><span class="new">a timeline you play</span></div>
-      <div class="pair"><span class="old">fixed screens</span><span class="arr">→</span><span class="new">a customized experience</span></div>
-      <div class="pair"><span class="old">one view for all</span><span class="arr">→</span><span class="new">manager / analyst environments</span></div>
+
+    <div class="alt">
+      <span>Also available:</span>
+      <a href="./deck/Ray-concept-deck.pdf">Studio concept as a PDF</a>
+      <span>·</span>
+      <a href="./prototype.html?b=49">the working prototype, every screen live</a>
     </div>
   </div>
+
+  <div class="foot"><span>Ray Platform UX concept</span><span class="sp"></span><span>build 49</span></div>
 </div>
-
-<div class="ideas">
-  <div class="wrap">
-    <div class="grid3">
-
-      <div class="idea a">
-        <div class="i-head">
-          <div class="num"><i class="ti ti-layout-dashboard"></i></div>
-          <h2>A clearer entry point — decisions, not a list</h2>
-        </div>
-        <p>One dashboard that answers <b>"what needs me now?"</b> in ten seconds, in <b>two views</b> — Classic and ✨&nbsp;Smart. And it's a place to <b>manage your work, not just read a list</b>: analysts run their tasks and day; managers steer assignments, team workload and follow-ups.</p>
-        <div class="tags">
-          <span class="tag">Classic view</span><span class="tag">✨ Smart view</span>
-          <span class="tag">Tasks · assignments · workload</span><span class="tag">📱 Mobile pulse</span>
-        </div>
-      </div>
-
-      <div class="idea b">
-        <div class="i-head">
-          <div class="num"><i class="ti ti-topology-star-3"></i></div>
-          <h2>The case is a map you play through time</h2>
-        </div>
-        <p>Customer, accounts, wires and alerts form a living network. Press play and <b>watch the money move</b> — from funds-in to the alert. And here too, <b>two views</b> of the same case: the <b>map</b> in the center, or the <b>artifacts worksheet</b> in the center — switch anytime, nothing is lost.</p>
-        <div class="tags">
-          <span class="tag">Map focus</span><span class="tag">Artifacts focus</span><span class="tag">Timeline drives everything</span>
-        </div>
-      </div>
-
-      <div class="idea c">
-        <div class="i-head">
-          <div class="num"><i class="ti ti-cards"></i></div>
-          <h2>A workspace analysts shape themselves <span>(if they want…)</span></h2>
-        </div>
-        <p>Nothing is fixed and nothing hides the case: every section is a floating card — <b>move it, pin evidence to the desk, arrange the screen the way you work</b> — and jump back to the default view in one click. The same floating approach also makes the product <b>easy to embed in a customer's environment</b> — cards can live inside existing screens and workflows.</p>
-        <div class="tags">
-          <span class="tag">Floating, movable cards</span><span class="tag">Drag &amp; pin evidence</span><span class="tag">One-click default</span><span class="tag">Easy to embed</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<div class="hand">
-  <div class="wrap">
-    <div class="hand-card">
-      <div class="hand-ic"><i class="ti ti-heart-handshake"></i></div>
-      <b class="h">Take over a case, not a mess.</b>
-      <p>Opening a colleague's case starts with a <b>handover brief</b> — done vs. still open, their unread notes, every section marked ✓ or ⚠.</p>
-      <span class="htag"><i class="ti ti-player-track-next"></i> Resume where they left off — one click</span>
-    </div>
-  </div>
-</div>
-
-<div class="closer">
-  <div class="wrap">
-    <div class="close-card">
-      <h2>From reading data to <b>seeing the story.</b>
-        <small>Everything from today's product is still here — the new experience turns it into faster decisions,
-        smoother handovers and a clearer picture of every case.</small>
-      </h2>
-      <a class="cta" href="./prototype.html?b=48"><i class="ti ti-player-play"></i> See it in action</a>
-    </div>
-  </div>
-</div>
-
-<footer>Ray Platform UX concept · working prototype, every screen live</footer>
 
 <button class="fsbtn" id="fsbtn" title="Present full screen"><i class="ti ti-maximize"></i></button>
 <script>
@@ -214,13 +117,8 @@
     b.innerHTML=on?'<i class="ti ti-minimize"></i>':'<i class="ti ti-maximize"></i>';
     b.title=on?'Exit full screen':'Present full screen';
   });
-  // keep the button visible over light content when scrolled past the hero
-  window.addEventListener('scroll',function(){
-    var hero=document.querySelector('.hero');
-    b.classList.toggle('dim',window.scrollY>hero.offsetHeight-40);
-  });
-  // carry fullscreen across LP <-> prototype: flag on exit-by-navigation, restore on first click
-  document.querySelectorAll('a.cta').forEach(function(a){
+  // carry fullscreen across every hop between the concept pages and the prototype
+  document.querySelectorAll('a[href]').forEach(function(a){
     a.addEventListener('click',function(){
       if(document.fullscreenElement)sessionStorage.setItem('rayFS','1');
     });
@@ -233,5 +131,4 @@
   }
 })();
 </script>
-</body>
-</html>
+</body></html>
