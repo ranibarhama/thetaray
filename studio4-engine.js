@@ -369,5 +369,6 @@ R.seed=()=>{
   const mid=newJob('ts-uk');mid.name='Transaction Screening UK';
   mid.authority=1;mid.unlocked=1;mid.stats={seen:0,agreed:0,corrected:0,rounds:0,agree:0,shadowDay:0,shadowTotal:28,live:false,closedByRay:0};
   S.jobs.push(mid);
+  emit();   // without this the hub renders before the seed lands and shows no jobs
 };
 })();
