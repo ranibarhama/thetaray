@@ -93,7 +93,7 @@ const WHYNOW={nudge:'Nothing has moved for a day',comment:'A colleague is blocke
 
 /* one decision at a time, in a collapsible card pinned top-left — reachable with no scrolling */
 function Needs({needs,act,onOpen}){
-  const [i,setI]=useState(0);const [fly,setFly]=useState(null);const [open,setOpen]=useState(true);
+  const [i,setI]=useState(0);const [fly,setFly]=useState(null);const [open,setOpen]=useState(false);
   const n=needs.length,idx=Math.min(i,Math.max(0,n-1));
   useEffect(()=>{const f=e=>{if(!open)return;if(e.key==='ArrowRight')setI(x=>Math.min(n-1,x+1));if(e.key==='ArrowLeft')setI(x=>Math.max(0,x-1));};
     window.addEventListener('keydown',f);return()=>window.removeEventListener('keydown',f);},[n,open]);
@@ -252,7 +252,7 @@ function Workspace({uc,onBrowse}){
   const si=D.STAGES.findIndex(s=>s.k===uc.stage);const t=E.tplOf(uc),c=t?D.CATS[t.cat]:null;
   const lastRay=[...uc.msgs].reverse().find(m=>m.from==='ray'&&m.text);
   const peek=mob&&!rail&&uc.msgs.length>seenMsgs.current&&lastRay;
-  const quick=uc.step==='b.refine'&&!uc.comment?['Change the review deadline to 24 hours for high-risk alerts','Add four-eyes approval before filing','Add sanctions re-screening after enrichment']:[];
+  const quick=uc.step==='b.refine'&&!uc.comment?[['24-hour deadline for high risk','Change the review deadline to 24 hours for high-risk alerts'],['Four-eyes before filing','Add four-eyes approval before filing'],['Re-screen after enrichment','Add sanctions re-screening after enrichment']]:[];
   const working=uc.typing||uc.run||uc.step==='building'||uc.prove.running;
   const ph=uc.step==='brief'?'Tell Ray what to change in the brief…':uc.stage==='build'?'Tell Ray what to change, in your own words…':'Ask or tell Ray anything…';
   return <div className="s3-ws">
@@ -300,7 +300,7 @@ function Workspace({uc,onBrowse}){
         </div>
         <div className="s3-dock"><div className="s3-dock-in">
           {peek&&<div className="s3-peek" onClick={()=>setRail(true)}><span className="s3-orb sm">✦</span><span className="bd">{U.md(lastRay.text)}</span></div>}
-          {quick.length>0&&<div className="s3-quick">{quick.map(q=><button key={q} className="s3-chip" onClick={()=>E.say(uc,q,'text')}>{q}</button>)}</div>}
+          {quick.length>0&&<div className="s3-quick">{quick.map(q=><button key={q[0]} className="s3-chip" title={q[1]} onClick={()=>E.say(uc,q[1],'text')}><i className="ti ti-wand"></i>{q[0]}</button>)}</div>}
           <Composer hint prefill={prefill} placeholder={ph} scriptKey={()=>uc.step} onSend={(tx,via)=>E.say(uc,tx,via)}/>
         </div></div>
       </div>

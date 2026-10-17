@@ -245,20 +245,58 @@ function Ready({uc}){
   </div>;
 }
 
-/* ---------- optional flow view ---------- */
-function Flow({uc,v,onStep,idx,onPick}){
-  const [z,setZ]=useState(1);const [stamp,setStamp]=useState(false);
-  const NW=180,GAP=20,RH=104;const wf=v.wf,rows=wf.nodes.reduce((a,n)=>Math.max(a,n.r),0)+1;
-  const pos=n=>({x:n.c*(NW+GAP),y:n.r*RH}),W=3*NW+2*GAP,H=rows*RH-34;
-  return <div className="s3-flowwrap"><div className="s3-flownote"><i className="ti ti-hand-finger"></i>Tap a card to edit that step<span style={{flex:1}}></span>
-    <button className="s3-ev" onClick={()=>setStamp(x=>!x)}><i className="ti ti-shield-check"></i>{stamp?'Hide':'Show'} who changed what</button>
-    <span className="s3-zoom"><button onClick={()=>setZ(x=>Math.max(.6,+(x-.15).toFixed(2)))}>−</button><b onClick={()=>setZ(1)}>{Math.round(z*100)}%</b><button onClick={()=>setZ(x=>Math.min(1.4,+(x+.15).toFixed(2)))}>+</button></span></div>
-  <div style={{width:W*z,height:H*z}}><div className="s3-flow" style={{width:W,height:H,transform:'scale('+z+')',transformOrigin:'0 0'}}>
-    <svg width={W} height={H}>{wf.edges.map((e,i)=>{const a=wf.nodes.find(n=>n.id===e[0]),b=wf.nodes.find(n=>n.id===e[1]);if(!a||!b)return null;const p=pos(a),q=pos(b),x1=p.x+NW/2,y1=p.y+56,x2=q.x+NW/2,y2=q.y;
-      return <g key={i}><path d={`M${x1} ${y1} C${x1} ${y1+22},${x2} ${y2-22},${x2} ${y2-2}`}/>{e[2]&&<text x={x1===x2?x1+7:(x1+x2)/2} y={(y1+y2)/2+3} textAnchor={x1===x2?'start':'middle'}>{e[2]}</text>}</g>;})}</svg>
-    {wf.nodes.map(n=>{const p=pos(n);return <div key={n.id} className={'s3-nd'+(v.changed.includes(n.id)?' chg':'')} style={{left:p.x,top:p.y}} onClick={()=>onPick&&onPick(n)}>{idx[n.id].num}. {n.t}<span>{n.role} · {n.sla}</span>
-      {stamp&&<span className="s3-stamp">v{n.tunedVer||(n.chg&&n.chg.ver)||n.isNew||1} · {P(n.tunedBy||(n.chg&&n.chg.by)||(n.tuned?'ray':n.chg||n.isNew?'you':'ray')).n}</span>}</div>;})}
-  </div></div></div>;
+/* ---------- diagram view: read it, and edit it in place ---------- */
+const OWNER={'System':['#6E7281','ti-settings-automation'],'Ray':['#6B4BC0','ti-sparkles'],'Analyst L1':['#2F6DF6','ti-user'],
+  'Analyst L2':['#1A4FBF','ti-user-check'],'Supervisor':['#9068C4','ti-users'],'MLRO':['#D93A3A','ti-flag']};
+const edgeTone=l=>!l?'':/no match|no concern|not a match|explained|release|clear|false positive/i.test(l)?'ok':/possible|suspicious|true match|escalat|confirm|unresolved|match/i.test(l)?'warn':'';
+function Flow({uc,v,idx,onStep,readOnly}){
+  const [z,setZ]=useState(1),[stamp,setStamp]=useState(false),[sel,setSel]=useState(null),[cm,setCm]=useState('');
+  const NW=210,GAP=26,RH=132;const wf=v.wf,rows=wf.nodes.reduce((a,n)=>Math.max(a,n.r),0)+1;
+  const pos=n=>({x:n.c*(NW+GAP),y:n.r*RH}),W=3*NW+2*GAP,H=rows*RH-40;
+  const node=sel?wf.nodes.find(n=>n.id===sel):null;
+  const fresh=Date.now()-uc.pulse.t<3500;
+  return <div className="s3-diagram">
+    <div className="s3-dgbar">
+      <span className="lg"><i className="s3-ai"></i>Ray decides</span>
+      <span className="lg"><i className="s3-rule"></i>Fixed rule</span>
+      <span className="lg"><b style={{color:'var(--t-act)'}}>§</b>Policy clause</span>
+      <span className="sp"></span>
+      <button className={'s3-ev'+(stamp?' on':'')} onClick={()=>setStamp(x=>!x)}><i className="ti ti-shield-check"></i>Who changed what</button>
+      <span className="s3-zoom"><button onClick={()=>setZ(x=>Math.max(.6,+(x-.15).toFixed(2)))}>−</button><b onClick={()=>setZ(1)}>{Math.round(z*100)}%</b><button onClick={()=>setZ(x=>Math.min(1.4,+(x+.15).toFixed(2)))}>+</button></span>
+    </div>
+    <div className="s3-dgwrap">
+      <div className="s3-flowwrap"><div style={{width:W*z,height:H*z}}><div className="s3-flow" style={{width:W,height:H,transform:'scale('+z+')',transformOrigin:'0 0'}}>
+        <svg width={W} height={H}>{wf.edges.map((e,i)=>{const a2=wf.nodes.find(n=>n.id===e[0]),b2=wf.nodes.find(n=>n.id===e[1]);if(!a2||!b2)return null;
+          const p=pos(a2),q=pos(b2),x1=p.x+NW/2,y1=p.y+86,x2=q.x+NW/2,y2=q.y-4,tone=edgeTone(e[2]);
+          return <g key={i} className={'s3-edge '+tone}><path d={`M${x1} ${y1} C${x1} ${y1+30},${x2} ${y2-30},${x2} ${y2}`}/>
+            <path className="hd" d={`M${x2-5} ${y2-7} L${x2} ${y2} L${x2+5} ${y2-7}`}/>
+            {e[2]&&<text x={x1===x2?x1+9:(x1+x2)/2} y={y1+(y2-y1)/2+4} textAnchor={x1===x2?'start':'middle'}>{e[2]}</text>}</g>;})}</svg>
+        {wf.nodes.map(n=>{const p=pos(n),o=OWNER[n.role]||OWNER['Analyst L1'],num=idx[n.id].num;
+          const isNew=!readOnly&&n.isNew&&n.isNew>uc.signedVer,chg=!readOnly&&n.chg&&n.chg.ver>uc.signedVer;
+          const cmts=readOnly?0:E.comments(uc).filter(c=>c.node===n.id&&!c.applied).length;
+          return <div key={n.id} className={'s3-dn'+(sel===n.id?' sel':'')+(isNew?' new':'')+(chg?' chg':'')+(fresh&&uc.pulse.ids.includes(n.id)?' pulse':'')}
+            style={{left:p.x,top:p.y,'--oc':o[0]}} onClick={()=>setSel(sel===n.id?null:n.id)} title="Tap to edit this step">
+            <div className="h"><span className="num">{num}</span><span className="t">{n.t}</span>
+              {n.ai?<span className="s3-ai" title="Ray decides with AI"></span>:<span className="s3-rule" title="A fixed rule"></span>}</div>
+            <div className="m"><i className={'ti '+o[1]}></i>{n.role}<span className="dot">·</span>{n.sla==='Instant'?'instant':n.sla}{n.pol&&<span className="pol">§{n.pol}</span>}</div>
+            {n.acts&&n.acts.length>0&&<div className="a">{n.acts[0]}{n.acts.length>1&&<em> +{n.acts.length-1} more</em>}</div>}
+            <div className="b">{isNew&&<span className="s3-pill ok">New</span>}{chg&&<span className="s3-pill warn">Changed</span>}{n.tuned&&<span className="s3-pill ai">Tuned</span>}
+              {cmts>0&&<span className="s3-pill act"><i className="ti ti-message-2"></i>{cmts}</span>}</div>
+            {stamp&&<div className="s3-stamp">v{n.tunedVer||(n.chg&&n.chg.ver)||n.isNew||1} · {P(n.tunedBy||(n.tuned?'ray':(n.chg||n.isNew)?'you':'ray')).n}</div>}
+          </div>;})}
+      </div></div></div>
+      {node&&<div className="s3-insp">
+        <div className="ih"><span className="num">{idx[node.id].num}</span><div style={{flex:1,minWidth:0}}><b>{node.t}</b><span>{WHO[node.role]||node.role} · {when(node.sla)}</span></div>
+          <button className="s3-ib" style={{width:28,height:28,fontSize:15}} onClick={()=>setSel(null)}><i className="ti ti-x"></i></button></div>
+        {node.acts&&node.acts.length>0&&<ul className="s3-acts">{node.acts.map((x,i)=><li key={i}>{x}</li>)}</ul>}
+        {node.tuned&&<div className="s3-tuned"><i className="ti ti-sparkles"></i><span>{node.tuned}</span></div>}
+        {node.note&&<div className="s3-tuned fresh"><i className="ti ti-message-2"></i><span>Your instruction: “{node.note}”</span></div>}
+        {!readOnly&&<StepEdit uc={uc} n={node} num={idx[node.id].num} close={()=>setSel(null)} talk={()=>{setSel(null);onStep&&onStep(node,idx[node.id].num);}}/>}
+        {!readOnly&&<div style={{marginTop:10}}><textarea className="s3-cin" rows={2} value={cm} placeholder="Comment for your team or Ray…" onChange={e=>setCm(e.target.value)}/>
+          <div className="s3-ef" style={{borderTop:0,paddingTop:6}}><button className="s3-b sm" disabled={!cm.trim()} onClick={()=>{E.addComment(uc,node.id,cm);setCm('');}}><i className="ti ti-message-2"></i>Add comment</button></div></div>}
+      </div>}
+    </div>
+  </div>;
 }
 
 /* ---------- the Playbook ---------- */
@@ -293,7 +331,7 @@ U.Playbook=function({uc,onStep,viewVer,setViewVer}){
         {!readOnly&&(adding
           ?<NewStep uc={uc} after={ord[ord.length-1]} num={ord.length} close={()=>setAdding(false)}/>
           :<button className="s3-addrow" onClick={()=>setAdding(true)}><i className="ti ti-plus"></i>Add a step at the end</button>)}</>
-        :<Flow uc={uc} v={v} idx={idx} onStep={onStep} onPick={n=>{setView('steps');setEditId(n.id);setTimeout(()=>{const el=document.querySelector('[data-nid="'+n.id+'"]');if(el)el.scrollIntoView({block:'center'});},60);}}/>}
+        :<Flow uc={uc} v={v} idx={idx} onStep={onStep} readOnly={readOnly}/>}
     </div>
     <div className="s3-sect"><h3><i className="ti ti-book"></i>Rules Ray follows · {uc.policy.length}<span className="sp"></span><button onClick={()=>setRules(x=>!x)}>{rules?'Hide':'Show'}<i className={'ti '+(rules?'ti-chevron-up':'ti-chevron-down')}></i></button></h3>
       {!rules&&<div style={{fontSize:13.5,color:'var(--ink-2)'}}>From {uc.hasDocs&&uc.files.length?uc.files.map(f=>f.name).slice(0,2).join(', ')+(uc.files.length>2?' and '+(uc.files.length-2)+' more':''):'the ThetaRay template'} — every clause linked to its page.</div>}
