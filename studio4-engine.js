@@ -42,7 +42,7 @@ const OUT={close:'Close as false positive',esc:'Escalate to L2',rfi:'Escalate + 
 let aseq=31870;
 const mkAlert=(kind)=>{
   const k=kind||(Math.random()<0.72?'close':Math.random()<0.7?'esc':'rfi');
-  return {id:'A-'+(++aseq),who:NAMES[Math.floor(Math.random()*NAMES.length)],
+  return {id:'A-'+(++aseq),coin:Math.random(),who:NAMES[Math.floor(Math.random()*NAMES.length)],
     amt:'$'+(Math.floor(Math.random()*900)+40).toLocaleString()+',000',
     kind:k,out:OUT[k],why:WHY[k]||WHY.close,conf:k==='close'?88+Math.floor(Math.random()*11):62+Math.floor(Math.random()*26)};
 };
@@ -106,6 +106,13 @@ R.start=async(j)=>{
 R.stop=(j)=>{j.running=false;emit();};
 
 let timers={};
+/* the one rule that decides which side of the line an alert falls on */
+R.needsMe=(j,a,lvl)=>{const L=lvl===undefined?j.authority:lvl;
+  if(L<=1)return true;                                   // watch / suggest: every alert is yours
+  if(L===2)return a.kind==='sar'||a.conf<78;             // beside your analysts: it settles the clear ones
+  if(L===3)return a.kind!=='close'?a.conf<72:false;      // alone on low risk: closes clear false positives itself
+  return a.conf<55;                                      // alone: only the genuinely unclear reach you
+};
 R.tick=(j)=>{
   clearTimeout(timers[j.id]);
   const step=async()=>{
@@ -115,7 +122,7 @@ R.tick=(j)=>{
     if(waiting>=6){timers[j.id]=setTimeout(step,1200);return;}
     const a=mkAlert();
     j.stats.seen++;
-    const needsMe=j.authority<=1 || a.conf<70 || (j.authority===2&&a.kind!=='close'&&Math.random()<0.35);
+    const needsMe=R.needsMe(j,a);
     if(needsMe){
       enq(j,{kind:'decide',alert:a});
       push(j,{kind:'decision',alert:a,state:'queued'});
@@ -229,6 +236,14 @@ R.setAuthority=(j,lvl)=>{
   log(j,'Authority '+(lvl>before?'raised':'lowered')+' to “'+LEVELS[lvl].t+'”','you');
   push(j,{kind:'note',text:lvl>before?'Authority raised to **'+LEVELS[lvl].t+'**. '+LEVELS[lvl].d
     :'Authority lowered to **'+LEVELS[lvl].t+'**. I will bring more to you again — nothing I did before is undone, and the change is in the trail.'});
+  if(lvl>before){
+    const take=j.queue.filter(q=>q.kind==='decide'&&!R.needsMe(j,q.alert,lvl));
+    take.forEach(t=>{R.deq(j,t.id);if(t.alert.kind==='close')j.stats.closedByRay++;
+      const c=j.stream.find(x=>x.alert&&x.alert.id===t.alert.id);if(c)c.state='done';});
+    if(take.length){j.justTook=take.length;
+      push(j,{kind:'note',text:'**I took '+take.length+' of the alerts on your desk.** They are all ones the line now says I may decide — the rest stayed with you.'});
+      log(j,'Ray took '+take.length+' queued alerts after the authority change','ray');}
+  }
   if(lvl>=2&&!j.stats.shadowDay){j.stats.shadowDay=1;R.shadow(j);}
   if(lvl>=3)j.stats.live=true;
   emit();return true;

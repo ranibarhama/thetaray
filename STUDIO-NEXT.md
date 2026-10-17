@@ -129,3 +129,32 @@ items and memory provenance; "Is Ray ready?" and "Where am I?" → the ask bar a
 - A viewer understands it in one sentence: *Ray works; you coach it; it earns authority.*
 - Every claim is evidenced on the customer's own alerts, which is design value 3 verbatim.
 - It is the only one of the three concepts where the user never reads a document to make Ray work.
+
+---
+
+## Studio next v2 — "the line"
+
+Same engine, same flows, a third interface. The deck made the *decision* the unit; the line
+makes the *boundary* the unit.
+
+One spatial idea: **everything above the line, Ray handles alone; everything below comes to you.**
+The line is the authority dial, drawn as a track across the screen with five notches
+(watch · suggest · act with my approval · act alone on low risk · act alone). Locked notches are
+dashed and say what unlocks them.
+
+- **Above the line — "Ray handles these alone":** a live count of alerts decided without you, and
+  the rules Ray applies as gate chips (each rule you teach lands here as a new chip).
+- **The line:** click a notch to move it. Moving it up *takes work off your desk in front of you* —
+  the queued alerts the new notch is trusted with leave the list, and Ray says how many it took.
+  Moving it down brings work back. The workload visibly crosses the line.
+- **Below the line — "Comes to you":** one list. Alerts to judge, Ray's proposals, a colleague's
+  comment, signature gates with their checklist, handovers. The top item is open; answer it and the
+  next opens. Agree is `A`; correct opens "what should it have been" then "how far should that go".
+
+Everything else is a pop-over: `R` what Ray knows, `K` ask Ray (text or voice), `E` the generated
+playbook / flow / model risk document / sources / audit trail, and the ⋯ menu for handover, copy,
+fast-forward and rollback.
+
+Why it is a different concept from the deck: the deck hides everything but one card; the line
+keeps *both sides of the trust relationship in view at once*, so the user sees what promotion
+actually does to their day.

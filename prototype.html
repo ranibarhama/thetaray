@@ -8,9 +8,10 @@
 <meta http-equiv="Expires" content="0" />
 <title>Ray Platform · Investigation Desktop</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="studio.css?v=60"/>
-<link rel="stylesheet" href="tour.css?v=60"/>
-<link rel="stylesheet" href="studio4.css?v=60"/>
+<link rel="stylesheet" href="studio.css?v=64"/>
+<link rel="stylesheet" href="tour.css?v=64"/>
+<link rel="stylesheet" href="studio4.css?v=64"/>
+<link rel="stylesheet" href="studio5.css?v=64"/>
 <style>
   .ti{line-height:1;vertical-align:-7%;font-size:1.05em;}
   :root{
@@ -776,14 +777,15 @@
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
-<script src="studio-data.js?v=60"></script>
-<script src="studio-engine.js?v=60"></script>
-<script src="studio-engine2.js?v=60"></script>
-<script src="studio-engine3.js?v=60"></script>
-<script type="text/babel" src="studio-ui.js?v=60"></script>
-<script type="text/babel" src="studio.js?v=60"></script>
-<script src="studio4-engine.js?v=60"></script>
-<script type="text/babel" src="studio4.js?v=60"></script>
+<script src="studio-data.js?v=64"></script>
+<script src="studio-engine.js?v=64"></script>
+<script src="studio-engine2.js?v=64"></script>
+<script src="studio-engine3.js?v=64"></script>
+<script type="text/babel" src="studio-ui.js?v=64"></script>
+<script type="text/babel" src="studio.js?v=64"></script>
+<script src="studio4-engine.js?v=64"></script>
+<script type="text/babel" src="studio4.js?v=64"></script>
+<script type="text/babel" src="studio5.js?v=64"></script>
 <script type="text/babel">
 const {useState,useRef,useEffect} = React;
 const START=Date.parse('2026-02-15T00:00:00Z'),END=Date.parse('2026-04-06T00:00:00Z'),span=END-START;
@@ -1055,10 +1057,10 @@ function App(){
     <div className={theme==='dark'?'theme-dark':''} style={{height:'100vh',display:'flex',flexDirection:'column',background:'var(--bg)',color:'var(--ink)'}}>
       <div className="top">
         <div className="brand" onClick={goDash}><span className="mk">A⁺</span>Ray Platform</div>
-        <button className={'navarea'+(screen==='studio'?' on':'')} onClick={()=>setScreen('studio')}>Studio</button><button className={'navarea next'+(screen==='studio4'?' on':'')} onClick={()=>setScreen('studio4')} title="A second concept for Studio, built alongside this one">Studio next <i className="ti ti-sparkles"></i></button>
+        <button className={'navarea'+(screen==='studio'?' on':'')} onClick={()=>setScreen('studio')}>Studio</button><button className={'navarea next'+(screen==='studio4'?' on':'')} onClick={()=>setScreen('studio4')} title="A second concept for Studio, built alongside this one">Studio next <i className="ti ti-sparkles"></i></button><button className={'navarea next'+(screen==='studio5'?' on':'')} onClick={()=>setScreen('studio5')} title="A third concept: the line between what Ray handles and what comes to you">Studio next v2 <i className="ti ti-sparkles"></i></button>
         <button className={'navarea'+(screen==='dashboard'?' on':'')} onClick={goDash}>Investigations</button><button className="navarea">Admin</button>
         <div className="top-sp"></div>
-        <span className="buildno" title="Deployed build">build 60</span>
+        <span className="buildno" title="Deployed build">build 64</span>
         <button className="tic tour-open" title="Show me around — open or close the walkthrough" onClick={()=>{const t=window.__tour;if(!t)return;t.running()?t.stop():t.start();}}><i className="ti ti-compass"></i></button>
         <a className="tic" href="./concept.html" title="Back to the concept page" style={{textDecoration:'none',display:'grid',placeItems:'center'}} onClick={()=>{if(document.fullscreenElement)sessionStorage.setItem('rayFS','1');}}><i className="ti ti-presentation"></i></a>
         <button className="tic" title={fs?'Exit full screen':'Present full screen'} onClick={()=>{fs?document.exitFullscreen():document.documentElement.requestFullscreen();}}>{fs?<i className="ti ti-minimize"></i>:<i className="ti ti-maximize"></i>}</button>
@@ -1067,7 +1069,9 @@ function App(){
       </div>
 
       <div className={'scene'+(screen==='dashboard'?' scroll':'')}>
-        {screen==='studio4'
+        {screen==='studio5'
+          ? (window.RayStudio5?<window.RayStudio5/>:<div style={{padding:40,color:'var(--ink-3)'}}>Loading Studio next v2…</div>)
+          : screen==='studio4'
           ? (window.RayStudio4?<window.RayStudio4/>:<div style={{padding:40,color:'var(--ink-3)'}}>Loading Studio next…</div>)
           : screen==='studio'
           ? (window.RayStudio?<window.RayStudio/>:<div style={{padding:40,color:'var(--ink-3)'}}>Loading Studio…</div>)
@@ -2479,7 +2483,7 @@ function ParametersDoc(){
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
-<script type="text/babel" src="tour.js?v=60"></script>
+<script type="text/babel" src="tour.js?v=64"></script>
 <script>
 // carry fullscreen across LP <-> prototype: restore on first click after arriving
 if(sessionStorage.getItem('rayFS')==='1'){
