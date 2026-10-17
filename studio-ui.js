@@ -18,36 +18,49 @@ const when=sla=>sla==='Instant'?'instantly':'within '+sla;
 const order=wf=>[...wf.nodes].sort((a,b)=>a.r-b.r||a.c-b.c);
 U.order=order;
 
-/* ---------- Brief ---------- */
+/* ---------- Brief: everything on one screen ---------- */
 U.Brief=function({uc,onBrowse}){
   const b=uc.brief,t=E.tplOf(uc),c=t?D.CATS[t.cat]:null;
   const recs=['ts-example','ts-uk','tm-retail','pep-am'].map(i=>D.TEMPLATES.find(x=>x.id===i));
-  return <div className="s3-paper">
-    <div className="s3-kick"><i className="ti ti-file-description"></i>Brief</div>
-    <div className="s3-title">{t?'Teach Ray: '+t.t:'What should Ray learn?'}</div>
-    <p className="s3-lead">This is everything Ray needs to start. Change anything by tapping it — or just tell Ray.</p>
-    <div className="s3-brs">
-      <div className="s3-br"><div className="k"><i className="ti ti-briefcase"></i>Job</div><div className="v">
-        {t?<div className="s3-picked"><span className="ic" style={{background:c.c+'1f',color:c.c}}><i className={'ti '+c.ic}></i></span><div style={{flex:1,minWidth:0}}><b>{t.t}</b><small style={{marginTop:2}}>{t.r} · {t.reg}</small></div><button className="s3-b gh sm" onClick={()=>onBrowse(id=>E.setBrief(uc,'tpl',id))}>Change</button></div>
-          :<><div className="s3-jobs">{recs.map(x=>{const cc=D.CATS[x.cat];return <button key={x.id} className="s3-job" onClick={()=>E.setBrief(uc,'tpl',x.id)}><span className="ic" style={{background:cc.c+'1f',color:cc.c}}><i className={'ti '+cc.ic}></i></span>{x.t}</button>;})}</div>
-            <button className="s3-b gh sm" style={{marginTop:6}} onClick={()=>onBrowse(id=>E.setBrief(uc,'tpl',id))}><i className="ti ti-layout-grid"></i>See all {D.TEMPLATES.length} jobs</button></>}
-      </div></div>
-      <div className="s3-br"><div className="k"><i className="ti ti-book"></i>Policy</div><div className="v">
-        <div className="s3-seg"><button className={b.docs?'on':''} onClick={()=>E.setBrief(uc,'docs',true)}>Your documents</button><button className={!b.docs?'on':''} onClick={()=>E.setBrief(uc,'docs',false)}>ThetaRay template</button></div>
-        <small>{b.docs?'Ray reads your policy and procedures (3 sample documents in this demo) and ties every step to a clause.':'A proven ThetaRay default — you can add your documents later.'}</small></div></div>
-      <div className="s3-br"><div className="k"><i className="ti ti-file-text"></i>Report</div><div className="v">
-        <div className="s3-seg"><button className={b.report==='predefined'?'on':''} onClick={()=>E.setBrief(uc,'report','predefined')}>Predefined</button><button className={b.report==='upload'?'on':''} onClick={()=>E.setBrief(uc,'report','upload')}>Your layout</button></div></div></div>
-      <div className="s3-br"><div className="k"><i className="ti ti-school"></i>Practice on</div><div className="v">
-        <div className="s3-seg">{['Last 3 months','Last 6 months','Last 12 months'].map(o=><button key={o} className={b.period===o&&!b.csv?'on':''} onClick={()=>{E.setBrief(uc,'csv',false);E.setBrief(uc,'period',o);}}>{o.replace('Last ','')}</button>)}
-          <button className={b.csv?'on':''} onClick={()=>E.setBrief(uc,'csv',true)}><i className="ti ti-upload"></i>Labelled CSV</button></div>
-        <small>{b.csv?'A curated file with the expected outcome on each alert (600 in this demo).':'Closed alerts your analysts already decided — Ray compares its calls with theirs.'}</small></div></div>
-      <div className="s3-br you"><div className="k"><i className="ti ti-message-question"></i>Check with me</div><div className="v">
-        <div className="s3-levels">{['every','important','sign'].map(k=><button key={k} className={'s3-level'+(b.level===k?' on':'')} onClick={()=>E.setBrief(uc,'level',k)}>
-          {k==='important'&&<em>Recommended</em>}{k==='sign'&&<em>Autopilot</em>}<b><i className={'ti '+E.LV[k].ic}></i>{E.LV[k].t}</b><span>{E.LV[k].d}</span></button>)}</div></div></div>
-      <div className="s3-br you"><div className="k"><i className="ti ti-lock"></i>Always yours</div><div className="v" style={{color:'var(--ink-2)',fontSize:13.5}}>Sanctions and risk thresholds, anything about filing, and every signature. Nothing touches a real alert until you sign go-live.</div></div>
+  if(!t)return <div className="s3-paper s3-brief">
+    <div className="s3-kick"><i className="ti ti-file-description"></i>Brief · step 1 of 1</div>
+    <div className="s3-title">What should Ray learn?</div>
+    <p className="s3-lead">Pick the job and Ray drafts the rest of the brief for you.</p>
+    <div className="s3-jobs">{recs.map(x=>{const cc=D.CATS[x.cat];return <button key={x.id} className="s3-job" onClick={()=>E.setBrief(uc,'tpl',x.id)}>
+      <span className="ic" style={{background:cc.c+'1f',color:cc.c}}><i className={'ti '+cc.ic}></i></span>
+      <div style={{minWidth:0}}><b>{x.t}</b><span>{x.r}</span></div></button>;})}</div>
+    <div className="s3-bfoot"><button className="s3-b" onClick={()=>onBrowse(id=>E.setBrief(uc,'tpl',id))}><i className="ti ti-layout-grid"></i>See all {D.TEMPLATES.length} jobs</button>
+      <span className="sp"></span><span className="s3-hintline">or say it out loud — “UK payment screening”</span></div>
+  </div>;
+  const seg=(opts)=><div className="s3-seg">{opts.map(([on,label,fn,ic])=><button key={label} className={on?'on':''} onClick={fn}>{ic&&<i className={'ti '+ic}></i>}{label}</button>)}</div>;
+  return <div className="s3-paper s3-brief">
+    <div className="s3-bhero">
+      <span className="ic" style={{background:c.c+'1f',color:c.c}}><i className={'ti '+c.ic}></i></span>
+      <div style={{flex:1,minWidth:0}}><div className="s3-kick" style={{marginBottom:2}}><i className="ti ti-file-description"></i>Brief</div>
+        <h2>{t.t}</h2><span>{t.r} · {t.reg}</span></div>
+      <button className="s3-b sm" onClick={()=>onBrowse(id=>E.setBrief(uc,'tpl',id))}><i className="ti ti-repeat"></i>Change job</button>
     </div>
-    <div className="s3-start"><button className="s3-b ai lg" disabled={!uc.tpl} onClick={()=>E.startBrief(uc)}><i className="ti ti-player-play"></i>Start</button>
-      <span>Ray writes the playbook in front of you — about 10 seconds.</span></div>
+    <div className="s3-bgrid">
+      <div className="s3-tile"><div className="tl"><i className="ti ti-book"></i>Policy</div>
+        {seg([[b.docs,'Your documents',()=>E.setBrief(uc,'docs',true)],[!b.docs,'ThetaRay template',()=>E.setBrief(uc,'docs',false)]])}
+        <small>{b.docs?'Ray reads your policy and ties every step to a clause.':'A proven default — add your documents later.'}</small></div>
+      <div className="s3-tile"><div className="tl"><i className="ti ti-file-text"></i>Report</div>
+        {seg([[b.report==='predefined','Predefined',()=>E.setBrief(uc,'report','predefined')],[b.report==='upload','Your layout',()=>E.setBrief(uc,'report','upload')]])}
+        <small>What Ray writes on every alert.</small></div>
+      <div className="s3-tile"><div className="tl"><i className="ti ti-school"></i>Practice on</div>
+        {seg([[b.period==='Last 3 months'&&!b.csv,'3 months',()=>{E.setBrief(uc,'csv',false);E.setBrief(uc,'period','Last 3 months');}],
+              [b.period==='Last 6 months'&&!b.csv,'6 months',()=>{E.setBrief(uc,'csv',false);E.setBrief(uc,'period','Last 6 months');}],
+              [b.period==='Last 12 months'&&!b.csv,'12 months',()=>{E.setBrief(uc,'csv',false);E.setBrief(uc,'period','Last 12 months');}],
+              [!!b.csv,'CSV',()=>E.setBrief(uc,'csv',true),'ti-upload']])}
+        <small>{b.csv?'A labelled file with the expected outcome on each alert.':'Alerts your analysts already closed.'}</small></div>
+      <div className="s3-tile wide you"><div className="tl"><i className="ti ti-message-question"></i>Check with me<span className="sp"></span><span className="s3-pill ai">you decide how hands-on</span></div>
+        <div className="s3-lv3">{['every','important','sign'].map(k=><button key={k} className={'s3-lvcard'+(b.level===k?' on':'')} onClick={()=>E.setBrief(uc,'level',k)}>
+          <i className={'ti '+E.LV[k].ic}></i><b>{E.LV[k].t}</b><span>{E.LV[k].d}</span>{k==='important'&&<em>Recommended</em>}</button>)}</div></div>
+    </div>
+    <div className="s3-bfoot">
+      <button className="s3-b ai lg" onClick={()=>E.startBrief(uc)}><i className="ti ti-player-play"></i>Start</button>
+      <div className="s3-guard"><i className="ti ti-lock"></i><span><b>Always yours:</b> sanctions and risk thresholds, anything about filing, and every signature. Nothing touches a real alert until you sign go-live.</span></div>
+    </div>
   </div>;
 };
 

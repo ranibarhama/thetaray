@@ -237,7 +237,7 @@ function CopySheet({uc,onClose}){
 
 function Workspace({uc,onBrowse}){
   const [prefill,setPrefill]=useState(null);const [menu,setMenu]=useState(false);const [sheet,setSheet]=useState(false);const [audit,setAudit]=useState(false);
-  const [skip,setSkip]=useState(false);const [copy,setCopy]=useState(false);
+  const [skip,setSkip]=useState(false);const [copy,setCopy]=useState(false);const [more,setMore]=useState(false);
   const [rail,setRail]=useState(false);const [viewVer,setViewVer]=useState(null);
   const [mob,setMob]=useState(()=>window.matchMedia('(max-width:900px)').matches);
   const th=useRef(null);const seenMsgs=useRef(uc.msgs.length);
@@ -263,18 +263,26 @@ function Workspace({uc,onBrowse}){
       <div className="s3-steps">{D.STAGES.map((s,i)=>{const done=i<si||(s.k==='operate'&&uc.operate.live);return <span key={s.k} className={'s3-st'+(done?' done':i===si&&uc.step!=='brief'?' cur':'')} style={{'--c':s.c}} title={s.t+' · '+s.sub}>
         <span className="d">{done?<i className="ti ti-check"></i>:i+1}</span><span className="l">{s.t}</span></span>;})}</div>
       <span className="sp"></span>
-      <button className="s3-lvl" onClick={()=>setMenu(m=>!m)} title="How often Ray checks with you"><i className={'ti '+E.LV[uc.step==='brief'?uc.brief.level:uc.level].ic}></i><span className="lt">{E.LV[uc.step==='brief'?uc.brief.level:uc.level].t}</span><i className="ti ti-chevron-down" style={{color:'var(--ink-3)'}}></i></button>
+      <button className={'s3-lvl'+(menu?' open':'')} onClick={()=>{setMore(false);setMenu(m=>!m);}} title="How often Ray checks with you">
+        <i className={'ti '+E.LV[uc.step==='brief'?uc.brief.level:uc.level].ic}></i>
+        <span className="lt"><em>Check with me</em>{E.LV[uc.step==='brief'?uc.brief.level:uc.level].t}</span>
+        <i className="ti ti-chevron-down" style={{color:'var(--ink-3)'}}></i></button>
+      <button className="s3-ib" onClick={()=>{E.say(uc,'Where are we?','text');if(mob)setRail(true);}} title="Where are we?"><i className="ti ti-map-pin"></i></button>
       <button className="s3-ib s3-raybtn" onClick={()=>setRail(true)} title="Talk history"><i className="ti ti-message-circle"></i></button>
-      {menu&&<div className="s3-menu" onMouseLeave={()=>setMenu(false)}>
-        <div className="lbl">Check with me</div>
-        {['every','important','sign'].map(k=><button key={k} className={(uc.step==='brief'?uc.brief.level:uc.level)===k?'on':''} onClick={()=>{E.setLevel(uc,k);setMenu(false);}}><i className={'ti '+E.LV[k].ic}></i><span>{E.LV[k].t}<small>{E.LV[k].d}</small></span></button>)}
+      <button className="s3-ib" onClick={()=>setMore(m=>!m)} title="More"><i className="ti ti-dots"></i></button>
+      {menu&&<div className="s3-menu lv" onMouseLeave={()=>setMenu(false)}>
+        <div className="lbl"><i className="ti ti-message-question"></i>How often should Ray check with you?</div>
+        {['every','important','sign'].map(k=><button key={k} className={(uc.step==='brief'?uc.brief.level:uc.level)===k?'on':''} onClick={()=>{E.setLevel(uc,k);setMenu(false);}}>
+          <i className={'ti '+E.LV[k].ic}></i><span>{E.LV[k].t}<small>{E.LV[k].d}</small></span>{(uc.step==='brief'?uc.brief.level:uc.level)===k&&<i className="ti ti-check" style={{color:'var(--t-violet)'}}></i>}</button>)}
+        <div className="foot">You can change this at any point — it never changes what you have to sign.</div>
+      </div>}
+      {more&&<div className="s3-menu" onMouseLeave={()=>setMore(false)}>
+        <button onClick={()=>{setMore(false);setAudit(true);}}><i className="ti ti-shield-check"></i><span>Audit trail<small>Every decision, downloadable</small></span></button>
+        <button onClick={()=>{setMore(false);setCopy(true);}}><i className="ti ti-copy"></i><span>Copy this use case<small>Reuse it for another country</small></span></button>
+        {!uc.operate.live&&(!uc.done.train||!uc.done.prove)&&<button onClick={()=>{setMore(false);setSkip(true);}}><i className="ti ti-player-skip-forward"></i><span>Skip a stage<small>For a proof of concept</small></span></button>}
         <hr/>
-        <button onClick={()=>{setMenu(false);setAudit(true);}}><i className="ti ti-shield-check"></i><span>Audit trail<small>Every decision, downloadable</small></span></button>
-        <button onClick={()=>{setMenu(false);setCopy(true);}}><i className="ti ti-copy"></i><span>Copy this use case<small>Reuse it for another country</small></span></button>
-        {!uc.operate.live&&(!uc.done.train||!uc.done.prove)&&<button onClick={()=>{setMenu(false);setSkip(true);}}><i className="ti ti-player-skip-forward"></i><span>Skip a stage<small>For a proof of concept</small></span></button>}
-        <button onClick={()=>{setMenu(false);E.say(uc,'Where are we?','text');if(mob)setRail(true);}}><i className="ti ti-map-pin"></i>Where are we?</button>
-        <button onClick={()=>{setMenu(false);E.startBlank();}}><i className="ti ti-plus"></i><span>Teach Ray a new job<small>Start another investigation</small></span></button>
-        <button onClick={()=>{setMenu(false);E.close();}}><i className="ti ti-layout-list"></i>All investigators</button>
+        <button onClick={()=>{setMore(false);E.startBlank();}}><i className="ti ti-plus"></i>Teach Ray a new job</button>
+        <button onClick={()=>{setMore(false);E.close();}}><i className="ti ti-layout-list"></i>All investigators</button>
       </div>}
     </div>
     <div className={'s3-strip '+r.k}>

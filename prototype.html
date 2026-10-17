@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ray Platform · Investigation Desktop</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="studio.css?v=23"/>
+<link rel="stylesheet" href="studio.css?v=27"/>
 <style>
   .ti{line-height:1;vertical-align:-7%;font-size:1.05em;}
   :root{
@@ -757,12 +757,12 @@
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
-<script src="studio-data.js?v=23"></script>
-<script src="studio-engine.js?v=23"></script>
-<script src="studio-engine2.js?v=23"></script>
-<script src="studio-engine3.js?v=23"></script>
-<script type="text/babel" src="studio-ui.js?v=23"></script>
-<script type="text/babel" src="studio.js?v=23"></script>
+<script src="studio-data.js?v=27"></script>
+<script src="studio-engine.js?v=27"></script>
+<script src="studio-engine2.js?v=27"></script>
+<script src="studio-engine3.js?v=27"></script>
+<script type="text/babel" src="studio-ui.js?v=27"></script>
+<script type="text/babel" src="studio.js?v=27"></script>
 <script type="text/babel">
 const {useState,useRef,useEffect} = React;
 const START=Date.parse('2026-02-15T00:00:00Z'),END=Date.parse('2026-04-06T00:00:00Z'),span=END-START;
@@ -1079,7 +1079,8 @@ function App(){
 
       <div className={'concept'+(screen==='studio'?' right':'')}>
         {concept&&screen==='studio'&&<div className="cpop"><h4>About this page — Ray Studio</h4><ul>
-            <li><b>Describe it once</b> — one sentence (typed or spoken 🎙) becomes a one-page <b>Brief</b>: job, policy, report, practice data and how often Ray checks with you. Press Start.</li>
+            <li><b>Describe it once</b> — one sentence (typed or spoken 🎙) becomes a <b>Brief</b> that fits on one screen: the job as a header, three tiles (policy, report, practice data), the <b>Check with me</b> choice, the guardrails that stay yours, and Start — no scrolling to find it.</li>
+            <li><b>Controls are split by job</b> — the header pill is only about <b>how often Ray checks with you</b>; <b>Where are we?</b> is its own button; everything else (audit trail, copy, skip a stage, new job) sits under ⋯.</li>
             <li><b>The Playbook</b> — Ray writes how it will investigate as numbered plain sentences, each tied to a policy clause. Read it like a new hire’s manual; a flow view is one tap away.</li>
             <li><b>Two ways to change anything</b> — tap a step to open its inline editor (owner, deadline, decided by Ray or a fixed rule, extra instruction, add a step after, remove) <b>or</b> just tell Ray. Both produce the same tracked change, version and audit entry — a direct edit is never a silent settings change.</li>
             <li><b>Steps or Diagram</b> — the switch in the playbook header shows the same workflow as numbered sentences or as the connected card diagram; tapping a card in the diagram opens that step’s editor.</li>
