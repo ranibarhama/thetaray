@@ -11,7 +11,7 @@
    --f:'Inter','Helvetica Neue',Arial,sans-serif;
  }
  body{font-family:var(--f);color:var(--ink);-webkit-font-smoothing:antialiased;background:#fff;}
- .s{width:1280px;height:720px;padding:62px 72px;position:relative;overflow:hidden;page-break-after:always;display:flex;flex-direction:column;}
+ .s{width:1280px;height:720px;padding:62px 72px 92px;position:relative;overflow:hidden;page-break-after:always;display:flex;flex-direction:column;}
  .s:last-child{page-break-after:auto;}
  .eyebrow{font-size:13px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--act);margin-bottom:14px;}
  h1{font-size:60px;line-height:1.04;letter-spacing:-2px;font-weight:800;}
@@ -57,10 +57,10 @@
  .q{border:1px solid var(--line-2);border-radius:16px;padding:18px 20px;}
  .q .ql{font-size:11.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px;display:flex;align-items:center;gap:7px;}
  .q .ql .dot{width:9px;height:9px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 3px var(--warn-sub);}
- .q .ql .dot.g{background:var(--ok);box-shadow:0 0 0 3px var(--ok-sub);}
+ .q .ql .dot.dotok{background:var(--ok);box-shadow:0 0 0 3px var(--ok-sub);}
  .q .qv{font-size:17px;font-weight:800;letter-spacing:-.4px;margin-bottom:8px;}
  .q p{font-size:13px;line-height:1.5;color:var(--ink-2);}
- .kpi{display:flex;gap:40px;margin-top:26px;}
+ .kpi{display:flex;gap:40px;margin-top:22px;}
  .kpi div b{display:block;font-size:34px;font-weight:800;letter-spacing:-1.2px;color:var(--act);}
  .kpi div span{font-size:13px;color:var(--ink-2);}
  /* ---- screen only: this file is both the print master and a web page ---- */
@@ -215,7 +215,7 @@
   <div class="qa">
     <div class="q"><div class="ql"><span class="dot"></span>Is Ray ready?</div><div class="qv">Not yet — 87% against a 90% target</div>
       <p>Every target with its threshold, met or below. Then the one action that closes the gap: <b>“3 suggestions would close it → Show me”</b>. It reads differently at every stage — untested, practising, shadowing day 9 of 28, live and healthy.</p></div>
-    <div class="q"><div class="ql"><span class="dot g"></span>Where am I?</div><div class="qv">Train · waiting on Dana</div>
+    <div class="q"><div class="ql"><span class="dot dotok"></span>Where am I?</div><div class="qv">Train · waiting on Dana</div>
       <p>The four stages with what is complete, what was skipped and where you are. Which version is current, which is signed, who acts next — and what Ray did while you were away. Ask it out loud and Ray answers in words too.</p></div>
   </div>
   <div class="quote">“Same content. Same engine. The difference is that the product now answers questions instead of displaying state.”
