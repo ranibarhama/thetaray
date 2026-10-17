@@ -213,7 +213,7 @@ function Ready({uc}){
   const r=uc.train.rounds,p=uc.prove,live=uc.operate.live;
   if(!r.length&&!p.day&&!live)return null;
   let tone,verdict,k,rows=D.DIFFS,bar=null;
-  if(live){tone='ok';verdict='Live and healthy';k=[['3,912','alerts this week'],['31%','closed by Ray'],['3.1 h','avg. decision time'],['0','SLA breaches']];rows=D.SHADOW_DIFFS;}
+  if(live){tone='ok';verdict='Live and healthy';k=[['3,912','alerts this week'],['31%','closed by Ray'],['3.1 h','avg. decision time'],['0','deadlines missed']];rows=D.SHADOW_DIFFS;}
   else if(p.day>0){const done=p.day>=p.total;tone=done?'ok':'ai';rows=D.SHADOW_DIFFS;
     verdict=done?'Passed the shadow run — 3 of 3 targets met':'On track — day '+p.day+' of '+p.total+' on live alerts';
     k=[[Math.round(4100*Math.min(1,p.day/p.total)).toLocaleString(),'live alerts shadowed'],['91%','agreement','target 85%'],['98%','escalations caught','target 95%'],['0','missed SARs','target 0']];bar=p.day/p.total;}
@@ -234,13 +234,18 @@ function Ready({uc}){
 
 /* ---------- optional flow view ---------- */
 function Flow({uc,v,onStep,idx,onPick}){
+  const [z,setZ]=useState(1);const [stamp,setStamp]=useState(false);
   const NW=180,GAP=20,RH=104;const wf=v.wf,rows=wf.nodes.reduce((a,n)=>Math.max(a,n.r),0)+1;
   const pos=n=>({x:n.c*(NW+GAP),y:n.r*RH}),W=3*NW+2*GAP,H=rows*RH-34;
-  return <div className="s3-flowwrap"><div className="s3-flownote"><i className="ti ti-hand-finger"></i>Tap a card to edit that step</div><div className="s3-flow" style={{width:W,height:H}}>
+  return <div className="s3-flowwrap"><div className="s3-flownote"><i className="ti ti-hand-finger"></i>Tap a card to edit that step<span style={{flex:1}}></span>
+    <button className="s3-ev" onClick={()=>setStamp(x=>!x)}><i className="ti ti-shield-check"></i>{stamp?'Hide':'Show'} who changed what</button>
+    <span className="s3-zoom"><button onClick={()=>setZ(x=>Math.max(.6,+(x-.15).toFixed(2)))}>−</button><b onClick={()=>setZ(1)}>{Math.round(z*100)}%</b><button onClick={()=>setZ(x=>Math.min(1.4,+(x+.15).toFixed(2)))}>+</button></span></div>
+  <div style={{width:W*z,height:H*z}}><div className="s3-flow" style={{width:W,height:H,transform:'scale('+z+')',transformOrigin:'0 0'}}>
     <svg width={W} height={H}>{wf.edges.map((e,i)=>{const a=wf.nodes.find(n=>n.id===e[0]),b=wf.nodes.find(n=>n.id===e[1]);if(!a||!b)return null;const p=pos(a),q=pos(b),x1=p.x+NW/2,y1=p.y+56,x2=q.x+NW/2,y2=q.y;
       return <g key={i}><path d={`M${x1} ${y1} C${x1} ${y1+22},${x2} ${y2-22},${x2} ${y2-2}`}/>{e[2]&&<text x={x1===x2?x1+7:(x1+x2)/2} y={(y1+y2)/2+3} textAnchor={x1===x2?'start':'middle'}>{e[2]}</text>}</g>;})}</svg>
-    {wf.nodes.map(n=>{const p=pos(n);return <div key={n.id} className={'s3-nd'+(v.changed.includes(n.id)?' chg':'')} style={{left:p.x,top:p.y}} onClick={()=>onPick&&onPick(n)}>{idx[n.id].num}. {n.t}<span>{n.role} · {n.sla}</span></div>;})}
-  </div></div>;
+    {wf.nodes.map(n=>{const p=pos(n);return <div key={n.id} className={'s3-nd'+(v.changed.includes(n.id)?' chg':'')} style={{left:p.x,top:p.y}} onClick={()=>onPick&&onPick(n)}>{idx[n.id].num}. {n.t}<span>{n.role} · {n.sla}</span>
+      {stamp&&<span className="s3-stamp">v{n.tunedVer||(n.chg&&n.chg.ver)||n.isNew||1} · {P(n.tunedBy||(n.chg&&n.chg.by)||(n.tuned?'ray':n.chg||n.isNew?'you':'ray')).n}</span>}</div>;})}
+  </div></div></div>;
 }
 
 /* ---------- the Playbook ---------- */

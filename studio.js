@@ -4,7 +4,7 @@ const {useState,useEffect,useRef}=React;
 const D=window.RSD,E=window.RSE,U=window.RSU;
 
 const SCRIPT={home:'Set up UK transaction screening on autopilot with our AML policy',brief:'Use the template policy and start',
-  'b.refine':'Change the SLA to 24 hours for high-risk alerts','t.sugs':'Accept all','t.gate':'Approve and sign','p.run':'Skip to the end','o.live':'Where are we?'};
+  'b.refine':'Change the review deadline to 24 hours for high-risk alerts','t.sugs':'Accept all','t.gate':'Approve and sign','p.run':'Skip to the end','o.live':'Where are we?'};
 
 /* Ray can speak back; the user can keep the mic open for a conversation */
 const SPEAK={on:false};
@@ -180,8 +180,9 @@ function Today({onBrowse}){
 function readiness(uc,goStep,openSheet){
   const last=t=>[...uc.msgs].reverse().find(m=>m.card&&m.card.type===t);
   if(uc.step==='brief')return {k:'you',ic:'ti-file-description',t:<><b>Check the brief</b> · then press Start</>,btn:uc.tpl?'Start':null,act:()=>E.startBrief(uc)};
-  if(uc.step==='building'||(!uc.versions.length))return {k:'ray',ic:'ti-loader-2',t:<><b>Ray is writing your playbook</b> · reading your policy first</>};
-  if(uc.run&&uc.run.kind==='practice'){const r=last('replay');return {k:'ray',ic:'ti-loader-2',t:<><b>Practicing on closed alerts</b>{r?<> · {r.card.cnt.toLocaleString()} of {r.card.n.toLocaleString()}</>:null}</>};}
+  const takeover=uc.level==='sign'?{btn:'Stop & take over',act:()=>E.takeOverRay(uc),sec:true}:{};
+  if(uc.step==='building'||(!uc.versions.length))return Object.assign({k:'ray',ic:'ti-loader-2',t:<><b>Ray is writing your playbook</b> · reading your policy first</>},takeover);
+  if(uc.run&&uc.run.kind==='practice'){const r=last('replay');return Object.assign({k:'ray',ic:'ti-loader-2',t:<><b>Practicing on closed alerts</b>{r?<> · {r.card.cnt.toLocaleString()} of {r.card.n.toLocaleString()}</>:null}</>},takeover);}
   if(uc.prove.running)return {k:'ray',ic:'ti-eye-check',t:<><b>Shadow run · day {uc.prove.day} of {uc.prove.total}</b> · 91% agreement · no effect on alerts</>,btn:'Skip to end (demo)',act:()=>E.skipShadow(uc),sec:true};
   const oc=E.openCmts(uc).length;
   if(oc)return {k:'you',ic:'ti-message-2',t:<><b>{oc} comment{oc>1?'s':''} waiting</b> · Ray applies {oc>1?'them':'it'} in one new version</>,btn:'Run the comments',act:()=>E.runComments(uc)};
@@ -251,7 +252,7 @@ function Workspace({uc,onBrowse}){
   const si=D.STAGES.findIndex(s=>s.k===uc.stage);const t=E.tplOf(uc),c=t?D.CATS[t.cat]:null;
   const lastRay=[...uc.msgs].reverse().find(m=>m.from==='ray'&&m.text);
   const peek=mob&&!rail&&uc.msgs.length>seenMsgs.current&&lastRay;
-  const quick=uc.step==='b.refine'&&!uc.comment?['Change the SLA to 24 hours for high-risk alerts','Add four-eyes approval before filing','Add sanctions re-screening after enrichment']:[];
+  const quick=uc.step==='b.refine'&&!uc.comment?['Change the review deadline to 24 hours for high-risk alerts','Add four-eyes approval before filing','Add sanctions re-screening after enrichment']:[];
   const working=uc.typing||uc.run||uc.step==='building'||uc.prove.running;
   const ph=uc.step==='brief'?'Tell Ray what to change in the brief…':uc.stage==='build'?'Tell Ray what to change, in your own words…':'Ask or tell Ray anything…';
   return <div className="s3-ws">

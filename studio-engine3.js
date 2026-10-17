@@ -46,6 +46,11 @@ E.createFromPrompt=async(text,via)=>{
 E.startFromTpl=async(id)=>{const uc=E.newUC(id);S.openId=uc.id;emit();await E.ray(uc,'Here’s a **brief** for '+uc.name+'. Adjust anything, then press **Start**.');};
 E.startBlank=async()=>{const uc=E.newUC(null);S.openId=uc.id;emit();await E.ray(uc,'**Which job should I learn?** Pick one in the brief.');};
 E.setBrief=(uc,k,v)=>{uc.brief[k]=v;if(k==='tpl'){const t=D.TEMPLATES.find(x=>x.id===v);uc.tpl=v;uc.name=t.t;}emit();};
+E.takeOverRay=async(uc)=>{
+  uc.level='important';uc.mode='guide';
+  E.log(uc,'Stopped Autopilot and took over','you','decision');emit();
+  await E.ray(uc,'Stopped. I’ll finish what I’m doing and then check with you at every decision instead of running ahead.');
+};
 E.setLevel=async(uc,lv)=>{if(uc.step==='brief'){E.setBrief(uc,'level',lv);return;}
   uc.level=lv;uc.mode=lv==='sign'?'auto':'guide';E.log(uc,'Check-with-me set to: '+LV[lv].t,'you','you');emit();
   await E.ray(uc,'From now on I’ll check with you **'+LV[lv].t.toLowerCase()+'**.'+(lv==='sign'?' I’ll still stop for held rules and every signature.':''));};
@@ -466,7 +471,7 @@ E.seed3=()=>{
     train:{rounds:[{n:1,agree:86},{n:2,agree:92}]},prove:{dur:'4 weeks',cov:'50% of new alerts',day:28,total:28,running:false,signed:{mlro:'12 Oct',fcc:'12 Oct'}},operate:{chk:{0:'ray',1:'ray',2:'you',3:'ray',4:'you'},auth:'close',live:true},
     next:{who:'ray',what:'Working alone · monitored'},updated:'2 days ago',
     trail:[['Playbook v1 written on Autopilot','ray'],['Signed off Build + Train','you','sign'],['Shadow run complete · 93% agreement','ray'],['Signed by Sarah Klein (MLRO) and Lior Ben-Ami (Head of FCC)','fcc','sign'],['GO LIVE · authority: auto-close high-confidence false positives','you','sign']],
-    msgs:[{from:'log',text:'Live since 12 Oct',icon:'ti-player-play'},{from:'ray',text:'**Welcome back.** Live for 4 days: **3,912 alerts**, 31% closed by me, 0 SLA breaches. Nothing needs you.'}]});
+    msgs:[{from:'log',text:'Live since 12 Oct',icon:'ti-player-play'},{from:'ray',text:'**Welcome back.** Live for 4 days: **3,912 alerts**, 31% closed by me, 0 missed deadlines. Nothing needs you.'}]});
   seed3('vasp',{vers:5,allSugs:true,stage:'prove',step:'p.gate',done:{build:true,train:true},signedVer:5,signs:[2,5],gate:{what:'prove'},
     train:{rounds:[{n:1,agree:86},{n:2,agree:91}]},prove:{dur:'4 weeks',cov:'50% of new alerts',day:28,total:28,running:false,signed:{}},
     next:{who:'you',what:'Request sign-off'},updated:'Today, 08:10',
