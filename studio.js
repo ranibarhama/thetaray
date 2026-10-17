@@ -72,37 +72,40 @@ function statusLine(uc){
 }
 const WHYNOW={nudge:'Nothing has moved for a day',comment:'A colleague is blocked on your answer',sigs:'Everything passed — only signatures left',open:'Ray is waiting on you'};
 
-/* one decision at a time — the rest peek behind it */
-function Stack({needs,act,onOpen}){
-  const [i,setI]=useState(0);const [fly,setFly]=useState(null);
+/* one decision at a time, in a collapsible card pinned top-left — reachable with no scrolling */
+function Needs({needs,act,onOpen}){
+  const [i,setI]=useState(0);const [fly,setFly]=useState(null);const [open,setOpen]=useState(true);
   const n=needs.length,idx=Math.min(i,Math.max(0,n-1));
-  useEffect(()=>{const f=e=>{if(e.key==='ArrowRight')setI(x=>Math.min(n-1,x+1));if(e.key==='ArrowLeft')setI(x=>Math.max(0,x-1));};
-    window.addEventListener('keydown',f);return()=>window.removeEventListener('keydown',f);},[n]);
-  if(!n)return <div className="s3-stack"><div className="s3-card clear">
-    <span className="s3-cic ok"><i className="ti ti-circle-check"></i></span>
-    <b>You’re all clear</b><span className="sub">Ray is working. It drops a card here the moment a decision or a signature needs you — and pings you if you’ve stepped away.</span></div></div>;
-  const u=needs[idx],a=u.need.acts||[['Open','open']];
+  useEffect(()=>{const f=e=>{if(!open)return;if(e.key==='ArrowRight')setI(x=>Math.min(n-1,x+1));if(e.key==='ArrowLeft')setI(x=>Math.max(0,x-1));};
+    window.addEventListener('keydown',f);return()=>window.removeEventListener('keydown',f);},[n,open]);
+  const u=n?needs[idx]:null,a=u?(u.need.acts||[['Open','open']]):[];
   const run=k=>{if(k==='open'){onOpen(u);return;}setFly(u.id);setTimeout(()=>{setFly(null);act(u,k);setI(x=>Math.max(0,Math.min(x,needs.length-2)));},260);};
-  const nav=n>1?<div className="s3-nav"><button className="s3-ib" disabled={idx===0} onClick={()=>setI(idx-1)}><i className="ti ti-chevron-left"></i></button>
-    <div className="s3-dots">{needs.map((x,k)=><i key={x.id} className={k===idx?'on':''} onClick={()=>setI(k)}></i>)}</div>
-    <button className="s3-ib" disabled={idx>=n-1} onClick={()=>setI(idx+1)}><i className="ti ti-chevron-right"></i></button></div>:null;
-  return <>{nav}<div className="s3-stack">
-    {needs.slice(idx+1,idx+3).map((x,k)=><div key={x.id} className="s3-peekcard" style={{'--n':k+1}}></div>)}
-    <div className={'s3-card'+(fly?' fly':'')} key={u.id}>
-      <div className="s3-chead"><span className={'s3-cic '+u.need.kind}><i className={'ti '+u.need.ic}></i></span>
-        <div style={{flex:1,minWidth:0}}><span className="s3-why">{WHYNOW[a[0][1]]||'Needs a person'}</span><b>{u.need.t}</b></div>
-        {n>1&&<span className="s3-count">{idx+1}/{n}</span>}</div>
-      <div className="s3-cbody">{u.need.d}</div>
-      <div className="s3-cfoot">
-        <button className="s3-b pri" onClick={()=>run(a[0][1])}>{a[0][0]}</button>
-        {a.slice(1).map(x=><button key={x[1]} className="s3-b" onClick={()=>run(x[1])}>{x[0]}</button>)}
-        <span className="sp"></span>
-        <span className="s3-uc"><Mini4 uc={u}/>{u.name}</span>
-      </div>
-    </div>
-  </div></>;
+  return <div className={'s3-needs'+(open?'':' shut')}>
+    <button className="s3-nh" onClick={()=>setOpen(o=>!o)} title={open?'Collapse':'Show what needs you'}>
+      <span className={'ic'+(n?'':' ok')}><i className={'ti '+(n?'ti-bell-ringing':'ti-circle-check')}></i></span>
+      <b>Needs you</b>{n>0&&<span className="cnt">{n}</span>}<span className="sp"></span>
+      <i className={'ti '+(open?'ti-chevron-up':'ti-chevron-down')}></i></button>
+    {open&&<div className="s3-nb">
+      {!n?<div className="s3-nclear"><b>You’re all clear</b><span>Ray drops a card here the moment a decision or a signature needs you.</span></div>
+       :<>
+        <div className="s3-stack">
+          {needs.slice(idx+1,idx+3).map((x,k)=><div key={x.id} className="s3-peekcard" style={{'--n':k+1}}></div>)}
+          <div className={'s3-card'+(fly?' fly':'')} key={u.id}>
+            <div className="s3-chead"><span className={'s3-cic '+u.need.kind}><i className={'ti '+u.need.ic}></i></span>
+              <div style={{flex:1,minWidth:0}}><span className="s3-why">{WHYNOW[a[0][1]]||'Needs a person'}</span><b>{u.need.t}</b></div></div>
+            <div className="s3-cbody">{u.need.d}</div>
+            <div className="s3-cfoot">{a.map((x,k)=><button key={x[1]} className={'s3-b sm'+(k===0?' pri':'')} onClick={()=>run(x[1])}>{x[0]}</button>)}</div>
+            <div className="s3-uc"><Mini4 uc={u}/><span>{u.name}</span></div>
+          </div>
+        </div>
+        {n>1&&<div className="s3-nav"><button className="s3-ib" disabled={idx===0} onClick={()=>setI(idx-1)}><i className="ti ti-chevron-left"></i></button>
+          <div className="s3-dots">{needs.map((x,k)=><i key={x.id} className={k===idx?'on':''} onClick={()=>setI(k)}></i>)}</div>
+          <button className="s3-ib" disabled={idx>=n-1} onClick={()=>setI(idx+1)}><i className="ti ti-chevron-right"></i></button>
+          <span className="s3-count">{idx+1} of {n}</span></div>}
+       </>}
+    </div>}
+  </div>;
 }
-
 /* every investigation lives in one drawer, closed by default */
 function Drawer({onClose,onOpen,onNew}){
   const S=E.state;const [q,setQ]=useState('');const [filt,setFilt]=useState('all');
@@ -135,29 +138,25 @@ function Today({onBrowse}){
   const live=S.ucs.filter(u=>u.operate.live).length,working=S.ucs.filter(u=>!u.operate.live&&(u.prove.running||u.next.who==='ray')).length;
   return <>
     <div className="s3-home">
-    <div className="s3-hero"><div className="s3-hero-in">
-      <div className="s3-orb lg">✦</div>
-      <h1>What should Ray learn to investigate?</h1>
-      <p>Describe it once. Ray writes the playbook, practices on your closed cases and proves itself — you read, decide and sign.</p>
-      <Composer big autoFocus hint placeholder="Describe it in your own words…" scriptKey={()=>'home'} onSend={(t,via)=>E.createFromPrompt(t,via)}/>
-      <div className="s3-sugs">{sugs.map(x=><button key={x[1]} className="s3-chip" onClick={()=>E.createFromPrompt(x[1],'text')}><i className={'ti '+x[0]}></i>{x[1]}</button>)}
-        <button className="s3-chip" onClick={()=>onBrowse(id=>E.startFromTpl(id))}><i className="ti ti-layout-grid"></i>All {D.TEMPLATES.length} jobs</button></div>
-    </div></div>
-    <div className="s3-wrap">
-      <div className="s3-sec"><h2>{needs.length?'Needs you':'Nothing needs you'}</h2>{needs.length>0&&<span className="n">{needs.length} decision{needs.length>1?'s':''} · one at a time</span>}</div>
-      <Stack needs={needs} act={act} onOpen={u=>E.open(u.id)}/>
-    </div>
-    <button className="s3-dockbar" onClick={()=>setDrawer(true)}>
-      <span className="ic"><i className="ti ti-stack-2"></i></span>
-      <b>Your investigators</b><span className="s3-pill">{S.ucs.length}</span>
-      <span className="dots">{S.ucs.slice(0,6).map(u=>{const st=D.STAGES.find(x=>x.k===u.stage);return <i key={u.id} title={u.name+' · '+st.t} style={{background:u.operate.live?'var(--ok)':st.c}}></i>;})}</span>
-      <span className="sp"></span><span className="sum">{live} live · {working} working · {S.ucs.length-live-working} waiting</span><i className="ti ti-chevron-up"></i></button>
+      <Needs needs={needs} act={act} onOpen={u=>E.open(u.id)}/>
+      <div className="s3-hero"><div className="s3-hero-in">
+        <div className="s3-orb lg">✦</div>
+        <h1>What should Ray learn to investigate?</h1>
+        <p>Describe it once. Ray writes the playbook, practices on your closed cases and proves itself — you read, decide and sign.</p>
+        <Composer big autoFocus hint placeholder="Describe it in your own words…" scriptKey={()=>'home'} onSend={(t,via)=>E.createFromPrompt(t,via)}/>
+        <div className="s3-sugs">{sugs.map(x=><button key={x[1]} className="s3-chip" onClick={()=>E.createFromPrompt(x[1],'text')}><i className={'ti '+x[0]}></i>{x[1]}</button>)}
+          <button className="s3-chip" onClick={()=>onBrowse(id=>E.startFromTpl(id))}><i className="ti ti-layout-grid"></i>All {D.TEMPLATES.length} jobs</button></div>
+      </div></div>
+      <button className="s3-dockbar" onClick={()=>setDrawer(true)}>
+        <span className="ic"><i className="ti ti-stack-2"></i></span>
+        <b>Your investigators</b><span className="s3-pill">{S.ucs.length}</span>
+        <span className="dots">{S.ucs.slice(0,6).map(u=>{const st=D.STAGES.find(x=>x.k===u.stage);return <i key={u.id} title={u.name+' · '+st.t} style={{background:u.operate.live?'var(--ok)':st.c}}></i>;})}</span>
+        <span className="sp"></span><span className="sum">{live} live · {working} working · {S.ucs.length-live-working} waiting</span><i className="ti ti-chevron-up"></i></button>
     </div>
     {drawer&&<Drawer onClose={()=>setDrawer(false)} onOpen={u=>{setDrawer(false);E.open(u.id);}} onNew={()=>{setDrawer(false);E.startBlank();}}/>}
     {toast&&<div className="s3-toast"><i className="ti ti-circle-check"></i>{toast}</div>}
   </>;
 }
-
 /* the ONE line that says where you are and what's next */
 function readiness(uc,goStep,openSheet){
   const last=t=>[...uc.msgs].reverse().find(m=>m.card&&m.card.type===t);
