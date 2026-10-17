@@ -76,8 +76,14 @@ R.editRule=(j,id,text)=>{const r=j.memory.find(x=>x.id===id);if(!r)return;const 
   log(j,'Edited rule: "'+before+'" → "'+text+'"','you');emit();};
 
 /* ---------- the queue ---------- */
-const enq=(j,item)=>{item.id=uid();item.at=item.at||'now';j.queue.push(item);return item;};
+const FRONT={unlock:1,sign:1,comment:1,propose:1,milestone:1,waiting:1};
+const enq=(j,item)=>{item.id=uid();item.at=item.at||'now';
+  // the things that move the job forward jump the alert queue — they are why you are here
+  if(FRONT[item.kind])j.queue.unshift(item);else j.queue.push(item);
+  return item;};
 R.enq=enq;
+R.later=(j,id)=>{const i=j.queue.findIndex(x=>x.id===id);if(i<0)return;
+  const it=j.queue.splice(i,1)[0];it.later=true;j.queue.push(it);emit();};
 R.deq=(j,id)=>{const i=j.queue.findIndex(x=>x.id===id);if(i>=0)j.queue.splice(i,1);};
 
 /* ---------- Ray at work: the live loop ---------- */
@@ -106,7 +112,7 @@ R.tick=(j)=>{
     if(!j.running)return;
     // Ray never floods you: while you owe it decisions it keeps working but stops queueing
     const waiting=j.queue.filter(q=>q.kind==='decide').length;
-    if(waiting>=4){timers[j.id]=setTimeout(step,1400);return;}
+    if(waiting>=6){timers[j.id]=setTimeout(step,1200);return;}
     const a=mkAlert();
     j.stats.seen++;
     const needsMe=j.authority<=1 || a.conf<70 || (j.authority===2&&a.kind!=='close'&&Math.random()<0.35);
@@ -153,6 +159,7 @@ R.askWhy=(j,itemId)=>{const it=j.queue.find(x=>x.id===itemId);if(it)it.why=!it.w
 /* after enough coaching Ray offers a replay, then the next notch */
 R.afterCoach=(j)=>{
   const done=j.stats.agreed+j.stats.corrected;
+  if(done>0&&done%8===0)enq(j,{kind:'milestone',done,rules:j.memory.filter(r=>r.cat==='learned'||r.cat==='ask').length});
   if(done>=4&&!j.replayOffered&&!j.stats.rounds){
     j.replayOffered=true;
     enq(j,{kind:'propose',t:'Replay the last 1,000 closed alerts with what I just learned',

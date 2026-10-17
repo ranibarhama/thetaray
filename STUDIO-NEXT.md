@@ -40,29 +40,47 @@ or the rounds. Studio next removes all three.
 
 ## The surface
 
+**One card at a time. Nothing else on screen.**
+
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Ray · UK Transaction Screening        [authority dial ▓▓░░] │   ← one permanent header
-├──────────────────────────────────┬──────────────────────────┤
-│                                  │                          │
-│   RAY AT WORK                    │   NEEDS A PERSON   (3)   │
-│   live stream of what Ray is     │   one card at a time,    │
-│   doing, as living cards that    │   keyboard: ✓ / ✗ / ?    │
-│   update in place                │                          │
-│                                  │   ─────────────────────  │
-│   ▸ A-31877 · escalated   why?   │   RAY'S MEMORY     (24)  │
-│   ▸ A-31878 · closed      why?   │   what it learned, from  │
-│   ▸ 1,284 closed today           │   which alert, and how   │
-│                                  │   sure it is             │
-├──────────────────────────────────┴──────────────────────────┤
-│  ⌘K  Ask Ray anything — or just speak                   🎙  │   ← one bar, everywhere
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│ ← Transaction Screening UK ●     7 taught ▓▓░░ Suggest ⋯ │  ← the only chrome
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│            ┌────────────────────────────┐                │
+│            │ A-31871            $910,000│                │
+│            │ Harbour & Vine             │                │
+│            │                            │                │
+│            │ RAY WOULD                  │                │
+│            │ Close as false positive    │                │
+│            │ ▓▓▓▓▓▓▓▓▓▓░ 96% sure       │                │
+│            │                            │                │
+│            │ press ↑ to see why         │                │
+│            └────────────────────────────┘                │
+│                                                          │
+├──────────────────────────────────────────────────────────┤
+│        ← Correct      space Later      Agree →            │
+└──────────────────────────────────────────────────────────┘
 ```
 
-Three things, never more: **what Ray is doing**, **what needs you**, **what Ray knows**.
-No wizard, no stage bar to walk, no document to open before you can act.
+Everything that needs a person is a card in the same deck: an alert to judge, a proposal
+from Ray, a colleague's comment, a signature gate with its checklist, a handover. You never
+navigate — you answer the card in front of you and the next one arrives.
 
----
+Everything *else* is summoned by one key and closes with Esc:
+
+| Key | What appears |
+|---|---|
+| `→` `←` `↑` `space` | agree · correct · why · park it for later |
+| `1-4` | pick the outcome, then how far the correction goes |
+| `R` | **What Ray knows** — every rule, where it came from, on/off |
+| `A` | **How much Ray may do alone** — the authority dial and what unlocks each notch |
+| `E` | Playbook, flow, sources, audit trail — all generated, all downloadable |
+| `K` | Ask Ray anything, by text or voice |
+| `?` | The key list |
+
+A compliance lead can coach forty alerts in ninety seconds without touching the mouse, and
+a manager watching over their shoulder understands the product in one card.
 
 ## The mechanics
 

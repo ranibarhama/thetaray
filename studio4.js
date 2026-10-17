@@ -1,4 +1,5 @@
-/* Studio next (v4) — one surface: Ray at work · Needs a person · Ray's memory (text/babel) */
+/* Studio next (v4) — THE DECK. Everything that needs a person arrives as one card.
+   → agree · ← correct · ↑ why · space later · R rules · A authority · E evidence · K ask · ? keys */
 (function(){
 const {useState,useEffect,useRef}=React;
 const D=window.RSD,R=window.R4;
@@ -6,385 +7,371 @@ const P=w=>D.PEOPLE[w]||D.PEOPLE.you;
 const md=t=>window.RSU&&window.RSU.md?window.RSU.md(t):t;
 const OUTS=[['close','Close as false positive','ti-circle-check'],['esc','Escalate to L2','ti-arrow-up-right'],
   ['rfi','Escalate + request info','ti-mail-question'],['sar','Recommend a SAR','ti-flag']];
+const SCOPES=[['like','Every alert like this','Becomes a rule Ray applies from now on'],
+  ['one','Just this alert','A one-off. Ray learns nothing.'],
+  ['ask','Ask me next time','Ray stops and asks on anything similar']];
 
-/* ─────────── the authority dial ─────────── */
-function Dial({j,onPick}){
-  const [open,setOpen]=useState(false);
-  return <div className="n4-dialwrap">
-    <button className="n4-dial" onClick={()=>setOpen(o=>!o)} title="How much Ray may do alone">
-      <span className="lbl"><em>Authority</em><b>{R.LEVELS[j.authority].t}</b></span>
-      <span className="n4-notches">{R.LEVELS.map(l=><i key={l.k} className={(j.authority>=l.k?'on ':'')+(j.unlocked>=l.k?'ok':'lock')}></i>)}</span>
-      <i className="ti ti-chevron-down"></i></button>
-    {open&&<div className="n4-dialpop" onMouseLeave={()=>setOpen(false)}>
-      <div className="hd">How much may Ray do alone?<span>Each notch unlocks only when the evidence earns it.</span></div>
-      {R.LEVELS.map(l=>{const locked=l.k>j.unlocked,cur=l.k===j.authority;
-        return <button key={l.k} className={'n4-lvl'+(cur?' cur':'')+(locked?' locked':'')}
-          onClick={()=>{if(!locked){onPick(l.k);setOpen(false);}}}>
-          <span className="k">{locked?<i className="ti ti-lock"></i>:cur?<i className="ti ti-check"></i>:l.k}</span>
-          <span className="w"><b>{l.t}</b><span>{locked?('Needs: '+l.need):l.d}</span></span>
-          {cur&&<span className="n4-tag">now</span>}</button>;})}
-    </div>}
-  </div>;
-}
+/* ═══════════ the card ═══════════ */
+function Card({j,it,depth,fly,mode,setMode,onDo}){
+  if(depth>0)return <div className="k4-card behind" style={{'--d':depth}}></div>;
+  const cls='k4-card'+(fly?' fly-'+fly:'');
 
-/* ─────────── stream cards ─────────── */
-function Why({a}){return <div className="n4-why">{a.why.map((w,i)=><div key={i} className="r">
-  <i className="ti ti-point-filled"></i><span><b>{w[0]}</b> — {w[1]}</span></div>)}</div>;}
-
-function Decision({c}){
-  const [o,setO]=useState(false);const a=c.alert;
-  const tone=c.state==='corrected'?'corr':c.state==='agreed'?'ok':c.state==='queued'?'wait':'';
-  return <div className={'n4-card dec '+tone}>
-    <div className="n4-dh">
-      <span className="code">{a.id}</span>
-      <span className="who">{a.who} · {a.amt}</span>
-      <span className="sp"></span>
-      {c.state==='queued'&&<span className="n4-tag wait">waiting for you</span>}
-      {c.state==='agreed'&&<span className="n4-tag ok"><i className="ti ti-check"></i>you agreed</span>}
-      {c.state==='corrected'&&<span className="n4-tag corr"><i className="ti ti-pencil"></i>you corrected</span>}
-    </div>
-    <div className="n4-out">
-      {c.state==='corrected'
-        ? <><del>{a.out}</del><i className="ti ti-arrow-right"></i><b>{c.correctedTo}</b></>
-        : <b>{a.out}</b>}
-      <span className="n4-conf" title="How sure Ray is"><i style={{width:a.conf+'%'}}></i><em>{a.conf}%</em></span>
-    </div>
-    <button className="n4-link" onClick={()=>setO(x=>!x)}><i className={'ti '+(o?'ti-chevron-up':'ti-chevron-down')}></i>{o?'Hide the reasoning':'Why'}</button>
-    {o&&<Why a={a}/>}
-  </div>;
-}
-
-function Replay({c}){
-  return <div className="n4-card rep">
-    <div className="n4-rh"><i className={'ti '+(c.done?'ti-circle-check':'ti-loader-2')}></i>
-      <b>{c.done?'Replay '+c.round+' complete':'Replaying your closed alerts'}</b>
-      <span className="sp"></span><span className="num">{c.cnt.toLocaleString()} / {c.n.toLocaleString()}</span></div>
-    <div className="n4-prog"><i style={{width:(c.cnt/c.n*100)+'%'}}></i></div>
-    <div className="n4-agree"><b>{c.agree}%</b> agreement with your analysts<span className="bar"><i style={{width:c.agree+'%'}}></i><em style={{left:'90%'}} title="the 90% bar"></em></span></div>
-  </div>;
-}
-
-function Stream({j,onJump}){
-  return <div className="n4-stream">
-    {j.stream.map(c=>{
-      if(c.kind==='decision')return <Decision key={c.id} c={c}/>;
-      if(c.kind==='replay')return <Replay key={c.id} c={c}/>;
-      if(c.kind==='learned')return <div key={c.id} className="n4-learn"><i className="ti ti-bulb"></i>
-        <span><b>+{c.n} learned</b> · {c.text}</span>
-        {c.ruleId&&<button className="n4-link" onClick={()=>onJump(c.ruleId)}>show the rule</button>}</div>;
-      if(c.kind==='digest')return <div key={c.id} className="n4-card dig"><div className="n4-digg">
-        {[['Alerts this week',c.n.toLocaleString()],['Closed by Ray',c.closed.toLocaleString()],['Escalated',String(c.esc)],['Agreement',c.agree+'%']]
-          .map(x=><div key={x[0]}><b>{x[1]}</b><span>{x[0]}</span></div>)}</div></div>;
-      if(c.kind==='you')return <div key={c.id} className="n4-you">{c.text}</div>;
-      if(c.kind==='answer')return <div key={c.id} className="n4-card ans">
-        <span className="q">{c.ask}</span><div className="a">{md(c.a)}</div>
-        {c.facts&&c.facts.length>0&&<div className="n4-facts">{c.facts.map((f,i)=><div key={i} className="r"><span className="k">{f[0]}</span><span className="v">{f[1]}</span></div>)}</div>}</div>;
-      return <div key={c.id} className="n4-say"><span className="orb">✦</span><div>{md(c.text)}</div></div>;
-    })}
-    {!j.stream.length&&<div className="n4-empty"><span className="orb">✦</span>Ray has not started yet.</div>}
-  </div>;
-}
-
-/* ─────────── the queue ─────────── */
-function Correct({onPick,onCancel}){
-  const [out,setOut]=useState(null);
-  if(!out)return <div className="n4-corr">
-    <div className="t">What should it have been?</div>
-    <div className="opts">{OUTS.map(o=><button key={o[0]} onClick={()=>setOut(o[0])}><i className={'ti '+o[2]}></i>{o[1]}</button>)}</div>
-    <button className="n4-link" onClick={onCancel}>never mind</button></div>;
-  return <div className="n4-corr">
-    <div className="t">How far should that go?</div>
-    <div className="opts scope">
-      <button onClick={()=>onPick(out,'one')}><b>Just this alert</b><span>A one-off. Ray learns nothing.</span></button>
-      <button className="pri" onClick={()=>onPick(out,'like')}><b>Every alert like this</b><span>Becomes a rule Ray applies from now on.</span></button>
-      <button onClick={()=>onPick(out,'ask')}><b>Ask me next time</b><span>Ray stops and asks on anything similar.</span></button>
-    </div>
-    <button className="n4-link" onClick={()=>setOut(null)}>back</button></div>;
-}
-
-function QItem({j,it,focus}){
-  const [mode,setMode]=useState(null);
   if(it.kind==='decide'){const a=it.alert;
-    return <div className={'n4-q dec'+(focus?' focus':'')}>
-      <div className="n4-qh"><span className="code">{a.id}</span><span className="who">{a.who} · {a.amt}</span>
-        {it.fromReplay&&<span className="n4-tag">from the replay</span>}</div>
-      <div className="n4-qout">Ray would <b>{a.out.toLowerCase()}</b><span className="n4-conf sm"><i style={{width:a.conf+'%'}}></i><em>{a.conf}%</em></span></div>
-      {it.why&&<Why a={a}/>}
-      {!mode&&<div className="n4-qa">
-        <button className="n4-b pri" onClick={()=>R.agree(j,it.id)}><i className="ti ti-check"></i>Agree <kbd>A</kbd></button>
-        <button className="n4-b" onClick={()=>setMode('c')}><i className="ti ti-pencil"></i>Correct <kbd>C</kbd></button>
-        <button className="n4-b gh" onClick={()=>R.askWhy(j,it.id)}><i className="ti ti-help"></i>Why <kbd>?</kbd></button>
-      </div>}
-      {mode==='c'&&<Correct onCancel={()=>setMode(null)} onPick={(o,sc)=>{setMode(null);R.correct(j,it.id,o,sc);}}/>}
+    return <div className={cls+' k4-alert'}>
+      <div className="k4-top"><span className="code">{a.id}</span>
+        {it.fromReplay&&<span className="k4-pill">from the replay</span>}
+        {it.later&&<span className="k4-pill">you parked this</span>}
+        <span className="sp"></span><span className="k4-amt">{a.amt}</span></div>
+      <div className="k4-who">{a.who}</div>
+      <div className="k4-verdict"><em>Ray would</em><b>{a.out}</b>
+        <span className="k4-conf"><i style={{width:a.conf+'%'}}></i><u>{a.conf}% sure</u></span></div>
+      {mode==='why'&&<div className="k4-why">{a.why.map((w,i)=><div key={i}><i className="ti ti-point-filled"></i>
+        <span><b>{w[0]}</b> — {w[1]}</span></div>)}</div>}
+      {!mode&&<div className="k4-hint">press <kbd>↑</kbd> to see why Ray decided this</div>}
+      {mode==='out'&&<div className="k4-pick">
+        <div className="t">What should it have been?</div>
+        {OUTS.filter(o=>o[1]!==a.out).map((o,i)=><button key={o[0]} onClick={()=>setMode('scope:'+o[0])}>
+          <kbd>{i+1}</kbd><i className={'ti '+o[2]}></i>{o[1]}</button>)}
+        <button className="gh" onClick={()=>setMode(null)}><kbd>esc</kbd>never mind</button></div>}
+      {mode&&mode.indexOf('scope:')===0&&<div className="k4-pick">
+        <div className="t">How far should that go?</div>
+        {SCOPES.map((sc,i)=><button key={sc[0]} className={i===0?'pri':''} onClick={()=>onDo('correct',mode.split(':')[1],sc[0])}>
+          <kbd>{i+1}</kbd><span><b>{sc[1]}</b><em>{sc[2]}</em></span></button>)}
+        <button className="gh" onClick={()=>setMode('out')}><kbd>esc</kbd>back</button></div>}
     </div>;
   }
-  if(it.kind==='unlock')return <div className="n4-q up">
-    <div className="n4-qt"><i className="ti ti-trending-up"></i>{it.t}</div><p>{it.d}</p>
-    <div className="n4-qa"><button className="n4-b pri" onClick={()=>R.unlock(j,it.id,it.lvl)}>Move the dial</button>
-      <button className="n4-b gh" onClick={()=>R.deq(j,it.id)||R.emit()}>Not yet</button></div></div>;
+
+  if(it.kind==='milestone')return <div className={cls+' k4-mile'}>
+    <span className="k4-big">{it.done}</span>
+    <b>decisions coached</b>
+    <p>Ray has learned <b>{it.rules} rules</b> from you. Everything it decides from here carries them.</p>
+    <div className="k4-hint">press <kbd>→</kbd> to keep going</div></div>;
+
+  if(it.kind==='propose')return <div className={cls+' k4-ray'}>
+    <span className="k4-orb">✦</span><div className="k4-qt">{it.t}</div><p>{it.d}</p></div>;
+
+  if(it.kind==='comment')return <div className={cls+' k4-person'}>
+    <span className="k4-av big">{P(it.who).i}</span><div className="k4-qt">{it.t}</div><p>{it.d}</p></div>;
+
+  if(it.kind==='unlock')return <div className={cls+' k4-up'}>
+    <i className="ti ti-trending-up"></i><div className="k4-qt">{it.t}</div><p>{it.d}</p></div>;
+
   if(it.kind==='sign'){const left=(it.check||[]).filter(c=>!c.on).length;
-    return <div className="n4-q sign">
-    <div className="n4-qt"><i className="ti ti-signature"></i>{it.t}</div><p>{it.d}</p>
-    {it.check&&<div className="n4-check">{it.check.map((c,i)=><button key={i} className={'r'+(c.on?' on':'')+(c.ray?' ray':'')}
-      onClick={()=>R.toggleChk(j,it.id,i)} title={c.ray?'Ray proved this one':'Tap to confirm'}>
-      <i className={'ti '+(c.on?'ti-square-check':'ti-square')}></i><span>{c.t}</span>
-      {c.ray&&<em>✦ proven by Ray</em>}</button>)}</div>}
-    <div className="n4-ppl">{(it.who||[]).map(w=><span key={w} className="n4-av">{P(w).i}</span>)}<span className="n4-av you">YOU</span></div>
-    <div className="n4-qa"><button className="n4-b pri" disabled={left>0} onClick={()=>R.sign(j,it.id)}>
-        {left>0?left+' to confirm first':'Request and sign'}</button>
-      <button className="n4-b gh" onClick={()=>R.deq(j,it.id)||R.emit()}>Later</button></div></div>;}
-  if(it.kind==='comment')return <div className="n4-q cmt">
-    <div className="n4-qt"><span className="n4-av">{P(it.who).i}</span>{it.t}</div><p>{it.d}</p>
-    <div className="n4-qa"><button className="n4-b pri" onClick={()=>{R.deq(j,it.id);
-      R.addRule(j,'Anything over $100,000 goes to a supervisor, not L2',{kind:'person',ref:'Dana Levi',by:'dana'},'learned',80);
-      R.push(j,{kind:'learned',n:1,text:'Added from Dana’s comment. She has been told it is done.'});R.log(j,'Accepted Dana’s comment','you');R.emit();}}>Accept</button>
-      <button className="n4-b gh" onClick={()=>{R.deq(j,it.id);R.log(j,'Declined Dana’s comment','you');R.emit();}}>Decline</button></div></div>;
-  if(it.kind==='waiting')return <div className="n4-q wait">
-    <div className="n4-qt"><span className="n4-av">{P(it.who).i}</span>{it.t}</div><p>{it.d}</p>
-    <div className="n4-qa"><button className="n4-b" onClick={()=>R.nudge(j)}><i className="ti ti-bell"></i>Nudge</button>
-      <button className="n4-b gh" onClick={()=>R.takeBack(j)}>Decide them myself</button></div></div>;
-  // propose
-  return <div className="n4-q pro">
-    <div className="n4-qt"><span className="orb">✦</span>{it.t}</div><p>{it.d}</p>
-    <div className="n4-qa"><button className="n4-b pri" onClick={()=>{
-      if(it.act==='replay'){R.replay(j,it.id);return;}
-      R.deq(j,it.id);if(it.rule){R.addRule(j,it.rule,{kind:'ray',ref:'Ray proposed it'},'learned',82);
-        R.push(j,{kind:'learned',n:1,text:'Allowed: '+it.rule});R.log(j,'Allowed: '+it.rule,'you');}
-      R.emit();}}>{it.ok||'Do it'}</button>
-      <button className="n4-b gh" onClick={()=>{R.deq(j,it.id);R.log(j,'Declined: '+it.t,'you');R.emit();}}>No</button></div></div>;
+    return <div className={cls+' k4-sign'}>
+      <i className="ti ti-signature"></i><div className="k4-qt">{it.t}</div><p>{it.d}</p>
+      {it.check&&<div className="k4-check">{it.check.map((c,i)=><button key={i} className={(c.on?'on':'')+(c.ray?' ray':'')}
+        onClick={()=>R.toggleChk(j,it.id,i)}><i className={'ti '+(c.on?'ti-square-check':'ti-square')}></i>
+        <span>{c.t}</span>{c.ray&&<em>✦ proven</em>}</button>)}</div>}
+      <div className="k4-ppl">{(it.who||[]).map(w=><span key={w} className="k4-av">{P(w).i}</span>)}<span className="k4-av you">YOU</span></div>
+      {left>0&&<div className="k4-hint warn">{left} still to confirm before this can be signed</div>}</div>;}
+
+  if(it.kind==='waiting')return <div className={cls+' k4-person'}>
+    <span className="k4-av big">{P(it.who).i}</span><div className="k4-qt">{it.t}</div><p>{it.d}</p></div>;
+
+  return <div className={cls}><div className="k4-qt">{it.t||'—'}</div></div>;
 }
 
-/* ─────────── memory ─────────── */
-function Memory({j,flash}){
-  const [q,setQ]=useState('');const [ed,setEd]=useState(null);const [txt,setTxt]=useState('');
+/* ═══════════ overlays ═══════════ */
+function Overlay({title,sub,onClose,children,wide}){
+  useEffect(()=>{const k=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();onClose();}};
+    window.addEventListener('keydown',k,true);return()=>window.removeEventListener('keydown',k,true);},[]);
+  return <div className="k4-ov" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <div className={'k4-ovb'+(wide?' wide':'')}>
+      <div className="k4-ovh"><div className="w"><b>{title}</b>{sub&&<span>{sub}</span>}</div><span className="sp"></span>
+        <button className="k4-ib" onClick={onClose}><kbd>esc</kbd></button></div>
+      <div className="k4-ovc">{children}</div></div></div>;
+}
+
+function Rules({j,onClose}){
+  const [q,setQ]=useState('');
   const list=j.memory.filter(r=>!q||r.text.toLowerCase().includes(q.toLowerCase()));
-  const CAT={policy:['ti-file-text','from your policy'],learned:['ti-bulb','learned from an alert'],
-    ask:['ti-hand-stop','always asks you'],guard:['ti-shield-lock','a line Ray never crosses']};
-  return <div className="n4-mem">
-    <div className="n4-memtop">
-      <button className="n4-link" onClick={()=>R.undo(j)}><i className="ti ti-arrow-back-up"></i>Undo the last thing you taught</button>
-    </div>
-    <div className="n4-search"><i className="ti ti-search"></i>
-      <input placeholder={'Search '+j.memory.length+' rules…'} value={q} onChange={e=>setQ(e.target.value)}/></div>
-    {list.map(r=>{const c=CAT[r.cat]||CAT.learned;
-      return <div key={r.id} className={'n4-rule'+(r.on?'':' off')+(flash===r.id?' flash':'')}>
-        <button className={'n4-sw'+(r.on?' on':'')} onClick={()=>R.toggleRule(j,r.id)} title={r.on?'Turn this rule off':'Turn it back on'}><i></i></button>
-        <div className="w">
-          {ed===r.id
-            ? <div className="n4-edit"><textarea autoFocus value={txt} onChange={e=>setTxt(e.target.value)}/>
-                <div><button className="n4-b pri sm" onClick={()=>{R.editRule(j,r.id,txt.trim()||r.text);setEd(null);}}>Save</button>
-                  <button className="n4-b gh sm" onClick={()=>setEd(null)}>Cancel</button></div></div>
-            : <b onClick={()=>{setEd(r.id);setTxt(r.text);}} title="Click to edit">{r.text}</b>}
-          <span className="src"><i className={'ti '+c[0]}></i>
-            {r.src&&r.src.ref?<>{r.src.kind==='alert'?'learned from ':''}{r.src.ref}{r.src.by?' · '+P(r.src.by).n:''}</>:c[1]}
-            <span className="n4-cf" title={'Ray’s confidence: '+r.conf+'%'}><i style={{width:r.conf+'%'}}></i></span></span>
-        </div></div>;})}
-    {!list.length&&<div className="n4-none">Nothing matches “{q}”.</div>}
-  </div>;
+  const CAT={policy:['ti-file-text','from your policy'],learned:['ti-bulb','you taught this'],
+    ask:['ti-hand-stop','always asks you'],guard:['ti-shield-lock','never crossed']};
+  return <Overlay title="What Ray knows" sub={j.memory.length+' rules · '+j.memory.filter(r=>r.cat==='learned').length+' taught by you'} onClose={onClose}>
+    <div className="k4-srch"><i className="ti ti-search"></i><input autoFocus placeholder="Search the rules…" value={q} onChange={e=>setQ(e.target.value)}/></div>
+    <div className="k4-rules">{list.map(r=>{const c=CAT[r.cat]||CAT.learned;
+      return <div key={r.id} className={'k4-rule'+(r.on?'':' off')}>
+        <button className={'k4-sw'+(r.on?' on':'')} onClick={()=>R.toggleRule(j,r.id)} title={r.on?'Turn off':'Turn on'}><i></i></button>
+        <div><b>{r.text}</b><span><i className={'ti '+c[0]}></i>
+          {r.src&&r.src.ref?(r.src.kind==='alert'?'learned from '+r.src.ref:r.src.ref):c[1]}
+          {r.src&&r.src.by?' · '+P(r.src.by).n:''}<u>{r.conf}%</u></span></div></div>;})}
+      {!list.length&&<div className="k4-none">Nothing matches “{q}”.</div>}</div>
+    <button className="k4-b gh" onClick={()=>R.undo(j)}><i className="ti ti-arrow-back-up"></i>Undo the last thing you taught</button>
+  </Overlay>;
 }
 
-/* ─────────── exports / sources / trail ─────────── */
+function Authority({j,onClose}){
+  return <Overlay title="How much may Ray do alone?" sub="Notches unlock only when the evidence earns them" onClose={onClose}>
+    {R.LEVELS.map(l=>{const locked=l.k>j.unlocked,cur=l.k===j.authority;
+      return <button key={l.k} className={'k4-lvl'+(cur?' cur':'')+(locked?' locked':'')}
+        onClick={()=>{if(!locked){R.setAuthority(j,l.k);onClose();}}}>
+        <span className="k">{locked?<i className="ti ti-lock"></i>:cur?<i className="ti ti-check"></i>:l.k}</span>
+        <span className="w"><b>{l.t}</b><span>{locked?('Needs: '+l.need):l.d}</span></span>
+        {cur&&<span className="k4-pill now">now</span>}</button>;})}
+  </Overlay>;
+}
+
 const dl=(name,text)=>{const b=new Blob([text],{type:'text/plain'});const u=URL.createObjectURL(b);
   const a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);};
-const playbookText=j=>'RAY PLAYBOOK — '+j.name+'\n'+'='.repeat(40)+'\n\nAuthority: '+R.LEVELS[j.authority].t+
-  '\nRules Ray applies ('+j.memory.filter(r=>r.on).length+'):\n\n'+
-  j.memory.filter(r=>r.on).map((r,i)=>(i+1)+'. '+r.text+'\n   ['+(r.src&&r.src.ref?r.src.ref:'policy')+' · confidence '+r.conf+'%]').join('\n\n')+
+const playbookText=j=>'RAY PLAYBOOK — '+j.name+'\n'+Array(41).join('=')+'\n\nAuthority: '+R.LEVELS[j.authority].t+
+  '\n\n'+j.memory.filter(r=>r.on).map((r,i)=>(i+1)+'. '+r.text+'\n   ['+(r.src&&r.src.ref?r.src.ref:'policy')+' · confidence '+r.conf+'%]').join('\n\n')+
   '\n\nSignatures: '+(j.signs.map(s=>P(s.who).n+' ('+s.at+')').join(', ')||'none')+'\n';
 
-function Sheet({j,tab,onClose,onTab}){
+function Evidence({j,onClose}){
+  const [tab,setTab]=useState('papers');
   const steps=j.memory.filter(r=>r.on);
-  return <div className="n4-sheetwrap" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
-    <div className="n4-sheet">
-      <div className="n4-sh"><b>Everything behind the work</b>
-        <span className="sp"></span><button className="n4-ib" onClick={onClose}><i className="ti ti-x"></i></button></div>
-      <div className="n4-tabs">{[['exports','What you can sign'],['flow','The flow'],['sources','Sources'],['trail','Audit trail']]
-        .map(t=><button key={t[0]} className={tab===t[0]?'on':''} onClick={()=>onTab(t[0])}>{t[1]}</button>)}</div>
-      <div className="n4-sb">
-        {tab==='exports'&&<>
-          <p className="n4-lead">Ray writes these from its memory whenever you ask. They are the documents your regulator reads — not something you have to keep up to date by hand.</p>
-          {[['Playbook','Every rule as a numbered instruction, with the alert that taught it.','ti-list-numbers',()=>dl('ray-playbook.txt',playbookText(j))],
-            ['Model risk document','What Ray decides, what it never decides, and the evidence behind each threshold.','ti-shield-check',()=>dl('model-risk.txt','MODEL RISK DOCUMENT — '+j.name+'\n\nScope: '+R.LEVELS[j.authority].t+'\n'+playbookText(j))],
-            ['Analyst guide','One page for the floor: what Ray handles, what still comes to them.','ti-users',()=>dl('analyst-guide.txt','ANALYST GUIDE — '+j.name+'\n\nRay handles: clear false positives.\nYou still handle: everything it asks about.\n\n'+playbookText(j))]]
-            .map(x=><div key={x[0]} className="n4-exp"><i className={'ti '+x[2]}></i>
-              <div><b>{x[0]}</b><span>{x[1]}</span></div><button className="n4-b" onClick={x[3]}><i className="ti ti-download"></i>Download</button></div>)}
-          <div className="n4-signbox"><b>Signatures on file</b>
-            {j.signs.length?<div className="n4-ppl">{j.signs.map((s,i)=><span key={i} className="n4-av" title={P(s.who).n+' · '+s.at}>{P(s.who).i}</span>)}</div>
-              :<span className="n4-none">None yet — the dial asks for them when a notch needs them.</span>}</div></>}
-        {tab==='flow'&&<>
-          <p className="n4-lead">The same rules drawn as the flow your team is used to. Ray generates it; you never maintain it.</p>
-          <div className="n4-flow">
-            <div className="n4-fn start"><b>Alert raised</b><span>every alert in scope</span></div>
-            {steps.slice(0,6).map((r,i)=><React.Fragment key={r.id}>
-              <div className="n4-fa"><i className="ti ti-arrow-down"></i></div>
-              <div className={'n4-fn'+(r.cat==='ask'?' ask':r.cat==='guard'?' guard':'')}>
-                <span className="n">{i+1}</span><b>{r.text}</b>
-                <span>{r.cat==='ask'?'Ray stops and asks you':r.cat==='guard'?'Ray never crosses this':'Ray decides this itself'}</span></div>
-            </React.Fragment>)}
-            <div className="n4-fa"><i className="ti ti-arrow-down"></i></div>
-            <div className="n4-fn end"><b>Closed, escalated, or on your desk</b><span>whichever the rules above reached</span></div>
-          </div></>}
-        {tab==='sources'&&<>
-          <p className="n4-lead">What Ray read. Add or remove anything at any time — every change shows up as a rule, never as a silent edit.</p>
-          {j.docs.length?j.docs.map(d=><div key={d.id} className="n4-doc"><i className="ti ti-file-text"></i>
-            <div><b>{d.n}</b><span>{d.s||'document'}</span></div>
-            <button className="n4-ib" onClick={()=>R.delDoc(j,d.id)} title="Remove"><i className="ti ti-trash"></i></button></div>)
-            :<div className="n4-none">Only your policy so far.</div>}
-          <button className="n4-b" onClick={()=>R.addDocs(j,[{n:'AML Policy 2026.pdf',s:'policy · 48 clauses'},{n:'Escalation matrix.xlsx',s:'who decides what'}])}>
-            <i className="ti ti-upload"></i>Add documents</button></>}
-        {tab==='trail'&&<>
-          <p className="n4-lead">Every decision, in order, with who made it. Downloadable for the regulator.</p>
-          <div className="n4-trail">{j.trail.map(t=><div key={t.id} className="r">
-            <span className={'n4-av'+(t.who==='you'?' you':'')}>{t.who==='ray'?'✦':P(t.who).i}</span>
-            <span className="w"><b>{t.text}</b><em>{t.at}</em></span></div>)}
-            {!j.trail.length&&<div className="n4-none">Nothing yet.</div>}</div>
-          <button className="n4-b" onClick={()=>dl('audit-trail.txt',j.trail.map(t=>t.at+' · '+t.who+' · '+t.text).join('\n'))}><i className="ti ti-download"></i>Download the trail</button></>}
-      </div>
-    </div></div>;
+  return <Overlay wide title="Everything behind the work" sub="Ray writes these from its rules — you never maintain them" onClose={onClose}>
+    <div className="k4-tabs">{[['papers','What you can sign'],['flow','The flow'],['sources','Sources'],['trail','Audit trail']]
+      .map(t=><button key={t[0]} className={tab===t[0]?'on':''} onClick={()=>setTab(t[0])}>{t[1]}</button>)}</div>
+    {tab==='papers'&&<>
+      {[['Playbook','Every rule as a numbered instruction, with the alert that taught it.','ti-list-numbers',()=>dl('ray-playbook.txt',playbookText(j))],
+        ['Model risk document','What Ray decides, what it never decides, the evidence behind each threshold.','ti-shield-check',()=>dl('model-risk.txt','MODEL RISK DOCUMENT — '+j.name+'\n\nScope: '+R.LEVELS[j.authority].t+'\n'+playbookText(j))],
+        ['Analyst guide','One page for the floor: what Ray handles, what still comes to them.','ti-users',()=>dl('analyst-guide.txt','ANALYST GUIDE — '+j.name+'\n\n'+playbookText(j))]]
+        .map(x=><div key={x[0]} className="k4-exp"><i className={'ti '+x[2]}></i><div><b>{x[0]}</b><span>{x[1]}</span></div>
+          <button className="k4-b" onClick={x[3]}><i className="ti ti-download"></i>Download</button></div>)}
+      <div className="k4-sign2"><b>Signatures on file</b>{j.signs.length
+        ? <div className="k4-ppl">{j.signs.map((s,i)=><span key={i} className="k4-av" title={P(s.who).n+' · '+s.at}>{P(s.who).i}</span>)}</div>
+        : <span className="k4-none">None yet — a card asks for them when a notch needs them.</span>}</div></>}
+    {tab==='flow'&&<div className="k4-flow">
+      <div className="k4-fn start"><b>Alert raised</b></div>
+      {steps.slice(0,6).map((r,i)=><React.Fragment key={r.id}>
+        <div className="k4-fa"><i className="ti ti-arrow-down"></i></div>
+        <div className={'k4-fn'+(r.cat==='ask'?' ask':r.cat==='guard'?' guard':'')}><span className="n">{i+1}</span><b>{r.text}</b>
+          <span>{r.cat==='ask'?'Ray stops and asks you':r.cat==='guard'?'Ray never crosses this':'Ray decides this itself'}</span></div>
+      </React.Fragment>)}
+      <div className="k4-fa"><i className="ti ti-arrow-down"></i></div>
+      <div className="k4-fn end"><b>Closed, escalated, or on your desk</b></div></div>}
+    {tab==='sources'&&<>
+      {j.docs.length?j.docs.map(d=><div key={d.id} className="k4-exp"><i className="ti ti-file-text"></i>
+        <div><b>{d.n}</b><span>{d.s||'document'}</span></div>
+        <button className="k4-ib" onClick={()=>R.delDoc(j,d.id)}><i className="ti ti-trash"></i></button></div>)
+        :<div className="k4-none">Only your policy so far.</div>}
+      <button className="k4-b" onClick={()=>R.addDocs(j,[{n:'AML Policy 2026.pdf',s:'policy · 48 clauses'},{n:'Escalation matrix.xlsx',s:'who decides what'}])}>
+        <i className="ti ti-upload"></i>Add documents</button></>}
+    {tab==='trail'&&<><div className="k4-trail">{j.trail.map(t=><div key={t.id} className="r">
+      <span className={'k4-av'+(t.who==='you'?' you':'')}>{t.who==='ray'?'✦':P(t.who).i}</span>
+      <span className="w"><b>{t.text}</b><em>{t.at}</em></span></div>)}
+      {!j.trail.length&&<div className="k4-none">Nothing yet.</div>}</div>
+      <button className="k4-b" onClick={()=>dl('audit-trail.txt',j.trail.map(t=>t.at+' · '+t.who+' · '+t.text).join('\n'))}>
+        <i className="ti ti-download"></i>Download the trail</button></>}
+  </Overlay>;
 }
 
-/* ─────────── the ask bar ─────────── */
-function AskBar({j}){
-  const [t,setT]=useState('');const [hear,setHear]=useState(false);const ta=useRef(null);
-  const send=()=>{const v=t.trim();if(!v)return;setT('');R.ask(j,v);};
-  useEffect(()=>{const k=e=>{if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();ta.current&&ta.current.focus();}};
-    window.addEventListener('keydown',k);return()=>window.removeEventListener('keydown',k);},[]);
-  const chips=[['Is Ray ready?','is ray ready'],['Where are we?','where are we'],['What have you learned?','what have you learned'],['Why that decision?','why']];
-  return <div className="n4-askwrap">
-    <div className="n4-chips">{chips.map(c=><button key={c[0]} onClick={()=>R.ask(j,c[1])}>{c[0]}</button>)}</div>
-    <div className={'n4-ask'+(hear?' hearing':'')}>
-      {hear?<div className="n4-wave">{Array.from({length:11}).map((_,i)=><i key={i}></i>)}<span>Listening — just say it</span></div>
-        :<input ref={ta} value={t} placeholder="Ask Ray anything, or tell it what to change…   ⌘K"
-          onChange={e=>setT(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')send();}}/>}
-      <button className={'n4-mic'+(hear?' on':' alive')} title={hear?'Stop':'Speak to Ray'}
-        onClick={()=>{if(hear){setHear(false);R.ask(j,'is ray ready');}else setHear(true);}}>
+function Ask({j,onClose}){
+  const [t,setT]=useState('');const [hear,setHear]=useState(false);
+  const answers=j.stream.filter(c=>c.kind==='answer'||c.kind==='note'||c.kind==='you').slice(0,6);
+  const send=v=>{const x=((v===undefined?t:v)||'').trim();if(!x)return;setT('');R.ask(j,x);};
+  const chips=[['Is Ray ready?','is ray ready'],['Where are we?','where are we'],['What have you learned?','what have you learned'],
+    ['Replay the closed alerts','replay'],['Give Ray less authority','less authority']];
+  return <Overlay title="Ask Ray" sub="Or tell it what to change" onClose={onClose}>
+    <div className={'k4-ask'+(hear?' hearing':'')}>
+      {hear?<div className="k4-wave">{Array.from({length:11}).map((_,i)=><i key={i}></i>)}<span>Listening — just say it</span></div>
+        :<input autoFocus value={t} placeholder="Ask anything…" onChange={e=>setT(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')send();}}/>}
+      <button className={'k4-mic'+(hear?' on':' alive')} onClick={()=>{if(hear){setHear(false);send('is ray ready');}else setHear(true);}}>
         <i className={'ti '+(hear?'ti-player-stop-filled':'ti-microphone')}></i></button>
-      <button className={'n4-send'+(t.trim()?' on':'')} disabled={!t.trim()} onClick={send}><i className="ti ti-arrow-up"></i></button>
-    </div>
-  </div>;
+      <button className={'k4-send'+(t.trim()?' on':'')} disabled={!t.trim()} onClick={()=>send()}><i className="ti ti-arrow-up"></i></button></div>
+    <div className="k4-chips">{chips.map(c=><button key={c[0]} onClick={()=>send(c[1])}>{c[0]}</button>)}</div>
+    <div className="k4-answers">{answers.map(c=>c.kind==='you'
+      ? <div key={c.id} className="k4-amsg you">{c.text}</div>
+      : c.kind==='note'
+      ? <div key={c.id} className="k4-amsg"><span className="k4-orb sm">✦</span><div>{md(c.text)}</div></div>
+      : <div key={c.id} className="k4-ansb"><span className="q">{c.ask}</span><div className="a">{md(c.a)}</div>
+          {c.facts&&c.facts.length>0&&<div className="k4-facts">{c.facts.map((f,i)=><div key={i}><span>{f[0]}</span><b>{f[1]}</b></div>)}</div>}</div>)}
+      {!answers.length&&<div className="k4-none">Nothing asked yet.</div>}</div>
+  </Overlay>;
+}
+
+function Keys({onClose}){
+  const K=[['→','Agree with Ray'],['←','Correct it'],['↑','Why did Ray decide that'],['space','Park this one for later'],
+    ['1–4','Pick the outcome, then how far it goes'],['R','What Ray knows'],['A','How much Ray may do alone'],
+    ['E','Documents, flow, sources, audit trail'],['K','Ask Ray anything'],['?','This list'],['esc','Close anything']];
+  return <Overlay title="Everything is a key" sub="You never have to reach for the mouse" onClose={onClose}>
+    <div className="k4-keylist">{K.map(k=><div key={k[0]}><kbd>{k[0]}</kbd><span>{k[1]}</span></div>)}</div></Overlay>;
+}
+
+function Menu({j,onClose,onHand}){
+  const rows=[
+    ['ti-player-pause',j.running?'Pause Ray':'Let Ray work',j.running?'It stops deciding until you start it again':'It picks up where it left off',()=>{j.running?R.stop(j):R.start(j);}],
+    ['ti-user-share','Hand the coaching over','Dana knows how your alerts are decided',()=>onHand()],
+    ['ti-copy','Copy this job','Same rules, another country',()=>R.clone(j)],
+    ['ti-arrow-back-up','Give Ray less authority','Reversible, and recorded',()=>R.rollback(j)]];
+  if(j.stats.shadowDay>0&&j.stats.shadowDay<j.stats.shadowTotal)
+    rows.splice(3,0,['ti-player-skip-forward','Fast-forward the four weeks','For the demo',()=>R.skipShadow(j)]);
+  return <Overlay title={j.name} sub={R.LEVELS[j.authority].t} onClose={onClose}>
+    {rows.map(r=><button key={r[1]} className="k4-row" onClick={()=>{r[3]();onClose();}}>
+      <i className={'ti '+r[0]}></i><span className="w"><b>{r[1]}</b><em>{r[2]}</em></span></button>)}
+    <button className="k4-row" onClick={()=>{onClose();R.close();}}><i className="ti ti-layout-grid"></i>
+      <span className="w"><b>All of Ray’s jobs</b><em>Back to the list</em></span></button>
+  </Overlay>;
 }
 
 function Hand({j,onClose}){
   const [who,setWho]=useState('dana');const [note,setNote]=useState('');
-  const who3=[['dana','Knows how your alerts are decided'],['tom','ThetaRay services — handles data and technical issues'],['you','Keep it yourself']];
-  return <div className="n4-sheetwrap" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
-    <div className="n4-sheet sm">
-      <div className="n4-sh"><b>Who should decide these?</b><span className="sp"></span>
-        <button className="n4-ib" onClick={onClose}><i className="ti ti-x"></i></button></div>
-      <div className="n4-sb">
-        <p className="n4-lead">They get the same queue, the same rules and the same evidence. Nothing waits on you while they work, and you can take it back at any time.</p>
-        {who3.map(w=><button key={w[0]} className={'n4-pick'+(who===w[0]?' on':'')} onClick={()=>setWho(w[0])}>
-          <span className="n4-av">{P(w[0]).i}</span><span className="w"><b>{P(w[0]).n}</b><span>{w[1]}</span></span>
-          {who===w[0]&&<i className="ti ti-check"></i>}</button>)}
-        <textarea className="n4-note" placeholder="Anything they should know? (optional)" value={note} onChange={e=>setNote(e.target.value)}/>
-        <div className="n4-qa"><button className="n4-b pri" onClick={()=>{onClose();if(who!=='you')R.handTo(j,who,note.trim());}}>
-          {who==='you'?'Keep it':'Hand it to '+P(who).n.split(' ')[0]}</button>
-          <button className="n4-b gh" onClick={onClose}>Cancel</button></div>
-      </div></div></div>;
+  return <Overlay title="Who should decide these?" sub="They get the same deck, the same rules, the same evidence" onClose={onClose}>
+    {[['dana','Knows how your alerts are decided'],['tom','ThetaRay services — data and technical issues']].map(w=>
+      <button key={w[0]} className={'k4-row'+(who===w[0]?' on':'')} onClick={()=>setWho(w[0])}>
+        <span className="k4-av">{P(w[0]).i}</span><span className="w"><b>{P(w[0]).n}</b><em>{w[1]}</em></span>
+        {who===w[0]&&<i className="ti ti-check"></i>}</button>)}
+    <textarea className="k4-note" placeholder="Anything they should know? (optional)" value={note} onChange={e=>setNote(e.target.value)}/>
+    <button className="k4-b pri" onClick={()=>{onClose();R.handTo(j,who,note.trim());}}>Hand it to {P(who).n.split(' ')[0]}</button>
+  </Overlay>;
 }
 
-/* ─────────── the desk ─────────── */
-function Desk({j}){
-  const [sheet,setSheet]=useState(null);const [more,setMore]=useState(false);const [hand,setHand]=useState(false);
-  const [flash,setFlash]=useState(null);const [side,setSide]=useState('queue');
-  const strRef=useRef(null);
-  useEffect(()=>{if(strRef.current)strRef.current.scrollTop=0;},[j.stream.length]);
-  // opening a job that has never run starts Ray at once — there is no "set up" step to sit through
+/* ═══════════ the deck ═══════════ */
+function Deck({j}){
+  const [fly,setFly]=useState(null);
+  const [mode,setMode]=useState(null);
+  const [ov,setOv]=useState(null);
+  const [toast,setToast]=useState(null);
+  const busy=useRef(false);
+  const q=j.queue,card=q[0];
+
   useEffect(()=>{if(!j.running&&!j.stream.length&&!j.stats.live)R.start(j);},[j.id]);
-  useEffect(()=>{const k=e=>{
-    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
-    const first=j.queue.find(q=>q.kind==='decide');if(!first)return;
-    if(e.key==='a'||e.key==='A'){e.preventDefault();R.agree(j,first.id);}
-    if(e.key==='?'){e.preventDefault();R.askWhy(j,first.id);}};
-    window.addEventListener('keydown',k);return()=>window.removeEventListener('keydown',k);},[j,j.queue.length]);
-  const jump=id=>{setSide('memory');setFlash(id);setTimeout(()=>setFlash(null),1600);};
-  const n=j.queue.length;
-  return <div className="n4-desk">
-    <div className="n4-head">
-      <button className="n4-ib" onClick={()=>R.close()} title="All of Ray’s jobs"><i className="ti ti-arrow-left"></i></button>
-      <div className="tt"><b>{j.name}</b><span>{j.stats.live?'working alone on low risk':j.running?'working now':'paused'}
-        {j.stats.shadowDay>0&&j.stats.shadowDay<j.stats.shadowTotal?' · beside your analysts, day '+j.stats.shadowDay+' of '+j.stats.shadowTotal:''}</span></div>
+  useEffect(()=>{setMode(null);},[card&&card.id]);
+  const flash=t=>{setToast(t);setTimeout(()=>setToast(null),1700);};
+
+  const act=(kind,a,b)=>{
+    if(!card||busy.current)return;
+    if(card.kind==='sign'&&kind==='yes'&&(card.check||[]).some(c=>!c.on)){flash('Confirm the checklist first');return;}
+    busy.current=true;
+    const before=j.memory.length;
+    setFly(kind==='agree'||kind==='yes'?'right':kind==='later'?'down':'left');
+    setTimeout(()=>{
+      if(kind==='agree')R.agree(j,card.id);
+      else if(kind==='correct')R.correct(j,card.id,a,b);
+      else if(kind==='later')R.later(j,card.id);
+      else if(kind==='yes'){
+        if(card.kind==='propose'){
+          if(card.act==='replay')R.replay(j,card.id);
+          else{R.deq(j,card.id);if(card.rule){R.addRule(j,card.rule,{kind:'ray',ref:'Ray proposed it'},'learned',82);R.log(j,'Allowed: '+card.rule,'you');}R.emit();}
+        }
+        else if(card.kind==='unlock')R.unlock(j,card.id,card.lvl);
+        else if(card.kind==='sign')R.sign(j,card.id);
+        else if(card.kind==='comment'){R.deq(j,card.id);
+          R.addRule(j,'Anything over $100,000 goes to a supervisor, not L2',{kind:'person',ref:'Dana Levi',by:'dana'},'learned',80);
+          R.log(j,'Accepted Dana’s comment','you');R.emit();}
+        else if(card.kind==='waiting')R.nudge(j);
+        else {R.deq(j,card.id);R.emit();}
+      }
+      else if(kind==='no'){
+        if(card.kind==='waiting')R.takeBack(j);
+        else{R.deq(j,card.id);R.log(j,'Declined: '+(card.t||'card'),'you');R.emit();}
+      }
+      setFly(null);setMode(null);busy.current=false;
+      if(j.memory.length>before)flash('Ray learned it');
+    },230);
+  };
+
+  useEffect(()=>{
+    const k=e=>{
+      if(ov)return;
+      if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+      const key=e.key;
+      if(key==='r'||key==='R'){e.preventDefault();setOv('rules');return;}
+      if(key==='a'||key==='A'){e.preventDefault();setOv('auth');return;}
+      if(key==='e'||key==='E'){e.preventDefault();setOv('ev');return;}
+      if(key==='k'||key==='K'){e.preventDefault();setOv('ask');return;}
+      if(key==='?'||key==='/'){e.preventDefault();setOv('keys');return;}
+      if(!card)return;
+      const dec=card.kind==='decide';
+      if(key==='Escape'){e.preventDefault();setMode(mode&&mode.indexOf('scope:')===0?'out':null);return;}
+      if(mode==='out'||(mode&&mode.indexOf('scope:')===0)){
+        const n=parseInt(key,10);
+        if(n>=1&&n<=4){e.preventDefault();
+          if(mode==='out'){const opts=OUTS.filter(o=>o[1]!==card.alert.out);if(opts[n-1])setMode('scope:'+opts[n-1][0]);}
+          else if(SCOPES[n-1])act('correct',mode.split(':')[1],SCOPES[n-1][0]);}
+        return;
+      }
+      if(key==='ArrowRight'){e.preventDefault();act(dec?'agree':'yes');}
+      else if(key==='ArrowLeft'){e.preventDefault();dec?setMode('out'):act('no');}
+      else if(key==='ArrowUp'&&dec){e.preventDefault();setMode(m=>m==='why'?null:'why');}
+      else if(key===' '){e.preventDefault();act('later');}
+    };
+    window.addEventListener('keydown',k);return()=>window.removeEventListener('keydown',k);
+  },[j,card&&card.id,mode,ov]);
+
+  const taught=j.memory.filter(r=>r.cat==='learned'||r.cat==='ask').length;
+  const dec=card&&card.kind==='decide';
+  const yesLabel=!card?'':card.kind==='sign'?'Request and sign':card.kind==='unlock'?'Move the dial'
+    :card.kind==='milestone'?'Keep going':card.kind==='comment'?'Accept':card.kind==='waiting'?'Nudge':(card.ok||'Yes');
+  return <div className="k4">
+    <div className="k4-bar">
+      <button className="k4-ib" onClick={()=>R.close()} title="All of Ray’s jobs"><i className="ti ti-arrow-left"></i></button>
+      <b className="k4-nm">{j.name}</b>
+      <span className="k4-dot" title={j.running?'Ray is working':'Paused'}>{j.running?<i></i>:null}</span>
       <span className="sp"></span>
-      <Dial j={j} onPick={l=>R.setAuthority(j,l)}/>
-      <button className="n4-ib" title={j.running?'Pause Ray':'Let Ray work'} onClick={()=>j.running?R.stop(j):R.start(j)}>
-        <i className={'ti '+(j.running?'ti-player-pause':'ti-player-play')}></i></button>
-      <button className="n4-ib" onClick={()=>setSheet('exports')} title="Documents, flow, sources, audit trail"><i className="ti ti-files"></i></button>
-      <button className="n4-ib" onClick={()=>setMore(m=>!m)} title="More"><i className="ti ti-dots"></i></button>
-      {more&&<div className="n4-menu" onMouseLeave={()=>setMore(false)}>
-        <button onClick={()=>{setMore(false);setSheet('trail');}}><i className="ti ti-shield-check"></i><span>Audit trail<small>Every decision, downloadable</small></span></button>
-        <button onClick={()=>{setMore(false);setSheet('sources');}}><i className="ti ti-file-text"></i><span>Sources<small>Policy and documents Ray read</small></span></button>
-        <button onClick={()=>{setMore(false);setHand(true);}}><i className="ti ti-user-share"></i><span>Hand the coaching over<small>Dana knows how alerts are decided</small></span></button>
-        <button onClick={()=>{setMore(false);R.clone(j);}}><i className="ti ti-copy"></i><span>Copy this job<small>Same rules, another country</small></span></button>
-        {j.stats.shadowDay>0&&j.stats.shadowDay<j.stats.shadowTotal&&
-          <button onClick={()=>{setMore(false);R.skipShadow(j);}}><i className="ti ti-player-skip-forward"></i><span>Fast-forward the four weeks<small>For the demo</small></span></button>}
-        <hr/>
-        <button onClick={()=>{setMore(false);R.rollback(j);}}><i className="ti ti-arrow-back-up"></i><span>Give Ray less authority<small>Reversible, and recorded</small></span></button>
-      </div>}
+      <button className="k4-stat" onClick={()=>setOv('rules')} title="What Ray knows · R">
+        <i className="ti ti-bulb"></i><b>{taught}</b><em>taught</em></button>
+      <button className="k4-stat" onClick={()=>setOv('auth')} title="How much Ray may do alone · A">
+        <span className="k4-notch">{R.LEVELS.map(l=><i key={l.k} className={(j.authority>=l.k?'on ':'')+(j.unlocked>=l.k?'ok':'lock')}></i>)}</span>
+        <em>{R.LEVELS[j.authority].t}</em></button>
+      <button className="k4-ib" onClick={()=>setOv('ev')} title="Documents, flow, sources, trail · E"><i className="ti ti-files"></i></button>
+      <button className="k4-ib" onClick={()=>setOv('ask')} title="Ask Ray · K"><i className="ti ti-message-circle"></i></button>
+      <button className="k4-ib" onClick={()=>setOv('keys')} title="Keys · ?"><i className="ti ti-keyboard"></i></button>
+      <button className="k4-ib" onClick={()=>setOv('menu')} title="More"><i className="ti ti-dots"></i></button>
     </div>
 
-    <div className="n4-body">
-      <div className="n4-main" ref={strRef}>
-        <div className="n4-mh"><span className="orb">✦</span><b>Ray at work</b>
-          <span className="sp"></span>
-          <span className="n4-live">{j.running&&<i className="dot"></i>}{j.stats.seen.toLocaleString()} decided{j.stats.closedByRay?' · '+j.stats.closedByRay.toLocaleString()+' closed by Ray':''}</span></div>
-        <Stream j={j} onJump={jump}/>
-      </div>
-
-      <div className="n4-side">
-        <div className="n4-stabs">
-          <button className={side==='queue'?'on':''} onClick={()=>setSide('queue')}>Needs a person{n>0&&<span className="n4-badge">{n}</span>}</button>
-          <button className={side==='memory'?'on':''} onClick={()=>setSide('memory')}>Ray’s memory<span className="n4-badge gh">{j.memory.length}</span></button>
-        </div>
-        {side==='queue'
-          ? <div className="n4-qlist">
-              {j.queue.filter(q=>q.kind==='propose'&&q.rule).length>1&&
-                <button className="n4-allbtn" onClick={()=>R.acceptAll(j)}>
-                  <i className="ti ti-checks"></i>Allow all {j.queue.filter(q=>q.kind==='propose'&&q.rule).length} proposals</button>}
-              {j.queue.map((it,i)=><QItem key={it.id} j={j} it={it} focus={i===0&&it.kind==='decide'}/>)}
-              {!n&&<div className="n4-quiet"><i className="ti ti-check"></i><b>Nothing needs you</b>
-                <span>Ray is working. It will stop and ask the moment something crosses a line you set.</span></div>}
-            </div>
-          : <Memory j={j} flash={flash}/>}
-      </div>
+    <div className="k4-stage">
+      {card
+        ? <div className="k4-stack">{q.slice(0,3).map((it,i)=><Card key={it.id} j={j} it={it} depth={i} fly={i===0?fly:null}
+            mode={i===0?mode:null} setMode={setMode} onDo={act}/>)}</div>
+        : <div className="k4-done"><i className="ti ti-check"></i><b>Nothing needs you</b>
+            <p>Ray is working{j.stats.seen?' — '+j.stats.seen.toLocaleString()+' alerts decided so far':''}. The next card appears the moment something crosses a line you set.</p>
+            <div className="k4-keys"><span><kbd>R</kbd>see what it knows</span><span><kbd>K</kbd>ask it something</span></div></div>}
     </div>
 
-    <AskBar j={j}/>
-    {sheet&&<Sheet j={j} tab={sheet} onTab={setSheet} onClose={()=>setSheet(null)}/>}
-    {hand&&<Hand j={j} onClose={()=>setHand(false)}/>}
+    <div className="k4-foot">
+      <div className="k4-acts">
+        {dec&&!mode&&<><button className="k4-act no" onClick={()=>setMode('out')}><kbd>←</kbd><i className="ti ti-pencil"></i>Correct</button>
+          <button className="k4-act skip" onClick={()=>act('later')}><kbd>space</kbd>Later</button>
+          <button className="k4-act yes" onClick={()=>act('agree')}><i className="ti ti-check"></i>Agree<kbd>→</kbd></button></>}
+        {dec&&mode==='why'&&<><button className="k4-act skip" onClick={()=>setMode(null)}><kbd>↑</kbd>Hide</button>
+          <button className="k4-act no" onClick={()=>setMode('out')}><kbd>←</kbd>Correct</button>
+          <button className="k4-act yes" onClick={()=>act('agree')}>Agree<kbd>→</kbd></button></>}
+        {card&&!dec&&<><button className="k4-act no" onClick={()=>act('no')}><kbd>←</kbd>{card.kind==='waiting'?'Decide myself':card.kind==='milestone'?'Later':'No'}</button>
+          <button className="k4-act yes" onClick={()=>act('yes')}>{yesLabel}<kbd>→</kbd></button></>}
+        {!card&&<span className="k4-waitmsg">waiting for the next thing that needs a person…</span>}
+      </div>
+      <span className="k4-count">{q.length?q.length+' in the deck':'deck empty'}</span>
+    </div>
+
+    {toast&&<div className="k4-toast"><i className="ti ti-bulb"></i>{toast}</div>}
+    {ov==='rules'&&<Rules j={j} onClose={()=>setOv(null)}/>}
+    {ov==='auth'&&<Authority j={j} onClose={()=>setOv(null)}/>}
+    {ov==='ev'&&<Evidence j={j} onClose={()=>setOv(null)}/>}
+    {ov==='ask'&&<Ask j={j} onClose={()=>setOv(null)}/>}
+    {ov==='keys'&&<Keys onClose={()=>setOv(null)}/>}
+    {ov==='menu'&&<Menu j={j} onClose={()=>setOv(null)} onHand={()=>setOv('hand')}/>}
+    {ov==='hand'&&<Hand j={j} onClose={()=>setOv(null)}/>}
   </div>;
 }
 
-/* ─────────── the hub ─────────── */
+/* ═══════════ hub ═══════════ */
 function Hub(){
   const [t,setT]=useState('');const [hear,setHear]=useState(false);
   const go=()=>{const v=t.trim();if(!v)return;setT('');R.hire(v);};
-  const tpls=D.TEMPLATES.slice(0,3);
-  return <div className="n4-hub">
-    <div className="n4-hero">
-      <span className="n4-orbbig">✦</span>
+  return <div className="k4-hub">
+    <div className="k4-hero">
+      <span className="k4-orb big">✦</span>
       <h1>What should Ray take over?</h1>
-      <p>Say it in one line. Ray starts deciding your alerts straight away — you watch, correct it a few times, and raise how much it may do alone when the evidence says so.</p>
-      <div className={'n4-ask big'+(hear?' hearing':'')}>
-        {hear?<div className="n4-wave">{Array.from({length:11}).map((_,i)=><i key={i}></i>)}<span>Listening — just say it</span></div>
+      <p>Say it in one line. Ray starts deciding your alerts at once, and everything that needs a person
+        comes to you as one card at a time — agree, correct, or park it.</p>
+      <div className={'k4-ask big'+(hear?' hearing':'')}>
+        {hear?<div className="k4-wave">{Array.from({length:11}).map((_,i)=><i key={i}></i>)}<span>Listening — just say it</span></div>
           :<input autoFocus value={t} placeholder="Screen our UK payments against sanctions…"
             onChange={e=>setT(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')go();}}/>}
-        <button className={'n4-mic'+(hear?' on':' alive')} onClick={()=>{if(hear){setHear(false);R.hire('uk transaction screening');}else setHear(true);}}>
+        <button className={'k4-mic'+(hear?' on':' alive')} onClick={()=>{if(hear){setHear(false);R.hire('uk transaction screening');}else setHear(true);}}>
           <i className={'ti '+(hear?'ti-player-stop-filled':'ti-microphone')}></i></button>
-        <button className={'n4-send'+(t.trim()?' on':'')} disabled={!t.trim()} onClick={go}><i className="ti ti-arrow-up"></i></button>
-      </div>
-      <div className="n4-tchips">{tpls.map(x=><button key={x.id} onClick={()=>R.hireTpl(x.id)}>
-        <i className={'ti '+(D.CATS[x.cat]||{ic:'ti-briefcase'}).ic}></i>{x.t}</button>)}
-        <button className="gh" onClick={()=>R.hireTpl('ts-example')}>or one of 24 jobs Ray already knows</button></div>
+        <button className={'k4-send'+(t.trim()?' on':'')} disabled={!t.trim()} onClick={go}><i className="ti ti-arrow-up"></i></button></div>
+      <div className="k4-chips mid">{D.TEMPLATES.slice(0,3).map(x=><button key={x.id} onClick={()=>R.hireTpl(x.id)}>{x.t}</button>)}</div>
     </div>
-    <div className="n4-staff">
-      <div className="n4-sh2">Ray is already doing these</div>
-      <div className="n4-cards">{R.state.jobs.map(j=>{
-        const q=j.queue.length;
-        return <button key={j.id} className="n4-jc" onClick={()=>R.open(j.id)}>
-          <div className="top"><b>{j.name}</b>{q>0&&<span className="n4-badge">{q}</span>}</div>
-          <div className="lvl"><span className="n4-notches sm">{R.LEVELS.map(l=><i key={l.k} className={(j.authority>=l.k?'on ':'')+(j.unlocked>=l.k?'ok':'lock')}></i>)}</span>{R.LEVELS[j.authority].t}</div>
-          <div className="st">{j.stats.seen.toLocaleString()} decided · {j.memory.length} rules{j.stats.agree?' · '+j.stats.agree+'% agreement':''}</div>
-        </button>;})}
-      </div>
+    <div className="k4-jobs">
+      {R.state.jobs.map(j=><button key={j.id} className="k4-job" onClick={()=>R.open(j.id)}>
+        <div className="t"><b>{j.name}</b>{j.queue.length>0&&<span className="k4-badge">{j.queue.length}</span>}</div>
+        <div className="l"><span className="k4-notch">{R.LEVELS.map(l=><i key={l.k} className={(j.authority>=l.k?'on ':'')+(j.unlocked>=l.k?'ok':'lock')}></i>)}</span>
+          {R.LEVELS[j.authority].t}</div>
+        <div className="s">{j.stats.seen.toLocaleString()} decided · {j.memory.length} rules{j.stats.agree?' · '+j.stats.agree+'% agreement':''}</div>
+      </button>)}
     </div>
   </div>;
 }
@@ -394,7 +381,7 @@ function RayStudio4(){
   useEffect(()=>R.subscribe(setV),[]);
   useEffect(()=>{R.seed();},[]);
   const j=R.state.openId?R.get(R.state.openId):null;
-  return <div className="n4">{j?<Desk key={j.id} j={j}/>:<Hub/>}</div>;
+  return <div className="n4">{j?<Deck key={j.id} j={j}/>:<Hub/>}</div>;
 }
 window.RayStudio4=RayStudio4;
 })();
