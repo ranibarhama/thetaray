@@ -6,6 +6,14 @@ const D=window.RSD,E=window.RSE,U=window.RSU;
 const SCRIPT={home:'Set up UK transaction screening on autopilot with our AML policy',brief:'Use the template policy and start',
   'b.refine':'Change the SLA to 24 hours for high-risk alerts','t.sugs':'Accept all','t.gate':'Approve and sign','p.run':'Skip to the end','o.live':'Where are we?'};
 
+/* Ray can speak back; the user can keep the mic open for a conversation */
+const SPEAK={on:false};
+function say(text){
+  if(!SPEAK.on||!window.speechSynthesis)return;
+  try{const u=new SpeechSynthesisUtterance(String(text).replace(/\*\*/g,'').slice(0,240));u.rate=1.05;u.pitch=1;window.speechSynthesis.cancel();window.speechSynthesis.speak(u);}catch(e){}
+}
+window.RSE.speak=say;
+
 /* real speech recognition, with a scripted fallback when the mic or API is unavailable */
 function useVoice(onFinal,scriptFor){
   const [st,setSt]=useState({on:false,interim:'',demo:false});
@@ -28,7 +36,9 @@ function useVoice(onFinal,scriptFor){
 let VOICE_USED=false;
 function Composer({onSend,placeholder,scriptKey,big,prefill,autoFocus,hint}){
   const [txt,setTxt]=useState('');const ta=useRef(null);const [,bump]=useState(0);
-  const voice=useVoice((t,via)=>{VOICE_USED=true;bump(x=>x+1);onSend(t,via);},()=>SCRIPT[scriptKey()]||SCRIPT['o.live']);
+  const [conv,setConv]=useState(SPEAK.on);
+  const voice=useVoice((t,via)=>{VOICE_USED=true;bump(x=>x+1);onSend(t,via);if(SPEAK.on)setTimeout(()=>{try{voiceRef.current&&voiceRef.current.start();}catch(e){}},2600);},()=>SCRIPT[scriptKey()]||SCRIPT['o.live']);
+  const voiceRef=useRef(null);voiceRef.current=voice;
   useEffect(()=>{if(prefill&&prefill.text){setTxt(prefill.text);setTimeout(()=>{if(ta.current){ta.current.focus();ta.current.setSelectionRange(prefill.text.length,prefill.text.length);}},0);}},[prefill]);
   useEffect(()=>{if(ta.current){ta.current.style.height='auto';ta.current.style.height=Math.min(130,ta.current.scrollHeight)+'px';}},[txt]);
   const send=()=>{const t=txt.trim();if(!t)return;setTxt('');onSend(t,'text');};
@@ -43,20 +53,29 @@ function Composer({onSend,placeholder,scriptKey,big,prefill,autoFocus,hint}){
         onClick={()=>on?voice.stop():typing?send():voice.start()}>
         {on?<><i className="ti ti-player-stop-filled"></i><span>Stop</span></>:typing?<i className="ti ti-arrow-up"></i>:<><i className="ti ti-microphone"></i><span>Talk</span></>}</button>
     </div>
+    {(on||conv)&&<div className="s3-hint" style={{justifyContent:'space-between'}}>
+      <button className="s3-ev" onClick={()=>{const v=!conv;setConv(v);SPEAK.on=v;if(!v&&window.speechSynthesis)window.speechSynthesis.cancel();}}>
+        <i className={'ti '+(conv?'ti-volume':'ti-volume-off')}></i>{conv?'Conversation mode on — Ray speaks and keeps listening':'Turn on conversation mode'}</button>
+      <span></span></div>}
     {hint&&!VOICE_USED&&!typing&&!on&&<div className="s3-hint"><span>Tap <b>Talk</b> and say it out loud — Ray understands plain language</span><i className="ti ti-corner-right-up"></i></div>}
   </div>;
 }
 
 function Browser({onPick,onClose}){
-  const [cat,setCat]=useState('all');const [q,setQ]=useState('');
+  const [cat,setCat]=useState('all');const [q,setQ]=useState('');const [det,setDet]=useState(null);
   const list=D.TEMPLATES.filter(t=>(cat==='all'||t.cat===cat)&&(!q||(t.t+t.d+t.r+t.reg).toLowerCase().includes(q.toLowerCase())));
   return <div className="s3-scrim" onClick={onClose}><div className="s3-modal" onClick={e=>e.stopPropagation()}>
     <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{flex:1}}><h3>Choose a job for Ray</h3><div style={{fontSize:13.5,color:'var(--ink-2)',marginTop:3}}>Each is a proven ThetaRay setup — you make it yours in the brief.</div></div><button className="s3-ib" onClick={onClose}><i className="ti ti-x"></i></button></div>
     <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:16,alignItems:'center'}}>
       <div className="s3-search"><i className="ti ti-search" style={{color:'var(--ink-3)'}}></i><input value={q} autoFocus onChange={e=>setQ(e.target.value)} placeholder="Search by name, country or regulator"/></div>
       <div className="s3-seg"><button className={cat==='all'?'on':''} onClick={()=>setCat('all')}>All</button>{Object.keys(D.CATS).map(k=><button key={k} className={cat===k?'on':''} onClick={()=>setCat(k)}>{D.CATS[k].n}</button>)}</div></div>
-    <div className="s3-list" style={{marginTop:14}}>{list.map(t=>{const c=D.CATS[t.cat];return <div key={t.id} className="s3-row" onClick={()=>onPick(t.id)}>
-      <span className="ic" style={{background:c.c+'1f',color:c.c}}><i className={'ti '+c.ic}></i></span><div className="main"><b>{t.t}</b><span>{t.d}</span></div><div className="meta"><span className="hm">{t.r}</span><i className="ti ti-chevron-right chev"></i></div></div>;})}</div>
+    <div className="s3-list" style={{marginTop:14}}>{list.map(t=>{const c=D.CATS[t.cat];const open=det===t.id;const wf=open?D.buildWorkflow(t.id):null;
+      return <div key={t.id}><div className="s3-row" onClick={()=>setDet(open?null:t.id)}>
+        <span className="ic" style={{background:c.c+'1f',color:c.c}}><i className={'ti '+c.ic}></i></span><div className="main"><b>{t.t}</b><span>{t.d}</span></div>
+        <div className="meta"><span className="hm">{t.r}</span><i className={'ti chev '+(open?'ti-chevron-up':'ti-chevron-down')}></i></div></div>
+      {open&&<div className="s3-tdet"><div className="row"><b>{wf.nodes.length}</b> steps · <b>{wf.nodes.filter(n=>n.ai).length}</b> decided by Ray · regulator: <b>{t.reg}</b></div>
+        <ol>{wf.nodes.slice(0,5).map(n=><li key={n.id}>{n.t}<span> · {n.role}</span></li>)}{wf.nodes.length>5&&<li style={{color:'var(--ink-3)'}}>+ {wf.nodes.length-5} more</li>}</ol>
+        <button className="s3-b pri sm" onClick={()=>onPick(t.id)}><i className="ti ti-check"></i>Use this job</button></div>}</div>;})}</div>
   </div></div>;
 }
 
@@ -164,6 +183,9 @@ function readiness(uc,goStep,openSheet){
   if(uc.step==='building'||(!uc.versions.length))return {k:'ray',ic:'ti-loader-2',t:<><b>Ray is writing your playbook</b> · reading your policy first</>};
   if(uc.run&&uc.run.kind==='practice'){const r=last('replay');return {k:'ray',ic:'ti-loader-2',t:<><b>Practicing on closed alerts</b>{r?<> · {r.card.cnt.toLocaleString()} of {r.card.n.toLocaleString()}</>:null}</>};}
   if(uc.prove.running)return {k:'ray',ic:'ti-eye-check',t:<><b>Shadow run · day {uc.prove.day} of {uc.prove.total}</b> · 91% agreement · no effect on alerts</>,btn:'Skip to end (demo)',act:()=>E.skipShadow(uc),sec:true};
+  const oc=E.openCmts(uc).length;
+  if(oc)return {k:'you',ic:'ti-message-2',t:<><b>{oc} comment{oc>1?'s':''} waiting</b> · Ray applies {oc>1?'them':'it'} in one new version</>,btn:'Run the comments',act:()=>E.runComments(uc)};
+  if(uc.stale&&uc.stage==='build')return {k:'wait',ic:'ti-alert-triangle',t:<><b>Draft changed after go-live</b> · it must pass Train and Prove again</>,btn:'Review & sign',act:openSheet};
   if(uc.comment)return {k:'you',ic:'ti-message-circle',t:<><b>Dana suggested a change</b> · it’s marked in your playbook</>,btn:'Show me',act:()=>goStep(uc.comment.node)};
   const pend=uc.train.rounds.length?E.tuneSet(uc).filter(x=>!uc.train.sugs[x.id]):[];
   if(pend.length){if(uc.next.who==='dana')return {k:'wait',ic:'ti-hourglass',t:<><b>Waiting on Dana</b> · {pend.length} suggestions to decide</>,btn:'Decide myself',act:()=>E.takeOver(uc)};
@@ -181,14 +203,47 @@ function readiness(uc,goStep,openSheet){
   return {k:'ray',ic:'ti-sparkles',t:<><b>Ray is working</b></>};
 }
 
+function SkipSheet({uc,onClose}){
+  const [what,setWhat]=useState(null);
+  const opts=[!uc.done.train&&['train','Skip Train','Ray never practises on your closed alerts, so you go live with no evidence that it agrees with your analysts.'],
+    !uc.done.prove&&['prove','Skip Prove','Ray never runs beside your analysts on live alerts, so nothing proves it generalises beyond the training set.'],
+    (!uc.done.train&&!uc.done.prove)&&['both','Skip both','Straight from the playbook to production. Only the policy and your signature stand behind it.']].filter(Boolean);
+  return <div className="s3-sheetbg" onClick={onClose}><div className="s3-sheet" onClick={e=>e.stopPropagation()}>
+    <div style={{display:'flex',alignItems:'center'}}><div className="s3-kick" style={{flex:1}}><i className="ti ti-player-skip-forward"></i>Skip a stage</div><button className="s3-ib" onClick={onClose}><i className="ti ti-x"></i></button></div>
+    <h3>Go faster, with less proof</h3><p className="lead">Teams running a proof of concept sometimes skip ahead. It is recorded in the audit trail with your name.</p>
+    <div className="s3-levels" style={{gridTemplateColumns:'1fr'}}>{opts.map(([k,t,d])=><button key={k} className={'s3-level'+(what===k?' on':'')} onClick={()=>setWhat(k)}><b>{t}</b><span>{d}</span></button>)}</div>
+    {what&&<div className="s3-block" style={{marginTop:14}}><i className="ti ti-alert-triangle"></i><div><b>What you lose</b><span>{opts.find(o=>o[0]===what)[2]} The go-live checklist will say so.</span></div></div>}
+    <div className="s3-sigrow"><span className="sp"></span><button className="s3-b" onClick={onClose}>Keep the full journey</button>
+      <button className="s3-b danger" disabled={!what} onClick={()=>{onClose();E.skipStage(uc,what);}}>Skip and accept</button></div>
+  </div></div>;
+}
+function CopySheet({uc,onClose}){
+  const [o,setO]=useState({workflow:true,policy:true,report:true,tuning:false});
+  const [tpl,setTpl]=useState(uc.tpl);
+  const rows=[['workflow','The playbook','All '+(E.cur(uc)?E.cur(uc).wf.nodes.length:0)+' steps, owners and deadlines'],['policy','The policy clauses',uc.policy.length+' clauses and their sources'],
+    ['report','The report layout',uc.report==='upload'?'Your own layout':'The predefined layout'],['tuning','Tuning decisions',Object.keys(uc.train.sugs||{}).length+' accepted or rejected suggestions']];
+  return <div className="s3-sheetbg" onClick={onClose}><div className="s3-sheet" onClick={e=>e.stopPropagation()}>
+    <div style={{display:'flex',alignItems:'center'}}><div className="s3-kick" style={{flex:1}}><i className="ti ti-copy"></i>Copy this use case</div><button className="s3-ib" onClick={onClose}><i className="ti ti-x"></i></button></div>
+    <h3>Reuse {uc.name}</h3><p className="lead">Start a new use case from this one — Ray flags anything that looks country-specific.</p>
+    <h4>What to copy</h4>
+    {rows.map(([k,t,d])=><div key={k} className={'s3-chk'+(o[k]?' on':'')} onClick={()=>setO(x=>Object.assign({},x,{[k]:!x[k]}))}><span className="bx">{o[k]&&<i className="ti ti-check"></i>}</span><div style={{flex:1}}><b style={{fontWeight:650}}>{t}</b><span style={{display:'block',fontSize:12,color:'var(--ink-3)'}}>{d}</span></div></div>)}
+    <h4>For which job</h4>
+    <select className="s3-sel" value={tpl} onChange={e=>setTpl(e.target.value)}>{D.TEMPLATES.map(t=><option key={t.id} value={t.id}>{t.t} · {t.r}</option>)}</select>
+    <div className="s3-sigrow"><span className="sp"></span><button className="s3-b" onClick={onClose}>Cancel</button>
+      <button className="s3-b pri" onClick={()=>{onClose();E.copyFlow(uc,o,tpl);}}><i className="ti ti-copy"></i>Create the copy</button></div>
+  </div></div>;
+}
+
 function Workspace({uc,onBrowse}){
   const [prefill,setPrefill]=useState(null);const [menu,setMenu]=useState(false);const [sheet,setSheet]=useState(false);const [audit,setAudit]=useState(false);
+  const [skip,setSkip]=useState(false);const [copy,setCopy]=useState(false);
   const [rail,setRail]=useState(false);const [viewVer,setViewVer]=useState(null);
   const [mob,setMob]=useState(()=>window.matchMedia('(max-width:900px)').matches);
   const th=useRef(null);const seenMsgs=useRef(uc.msgs.length);
   useEffect(()=>{const mq=window.matchMedia('(max-width:900px)');const f=()=>setMob(mq.matches);mq.addEventListener?mq.addEventListener('change',f):mq.addListener(f);return()=>{mq.removeEventListener?mq.removeEventListener('change',f):mq.removeListener(f);};},[]);
   useEffect(()=>{if(th.current)th.current.scrollTop=th.current.scrollHeight;},[uc.msgs.length,uc.typing,rail]);
   useEffect(()=>{if(uc.openSheet)setSheet(true);},[uc.openSheet]);
+  useEffect(()=>{if(uc.openCopy)setCopy(true);},[uc.openCopy]);
   useEffect(()=>{if(rail||!mob)seenMsgs.current=uc.msgs.length;},[rail,mob,uc.msgs.length]);
   const goStep=id=>{setViewVer(null);setRail(false);E.pulse(uc,[id]);};
   const onStep=(n,num)=>{uc.focusNode=n.id;setPrefill({text:'About step '+num+' ('+n.t+'): ',t:Date.now()});};
@@ -214,6 +269,8 @@ function Workspace({uc,onBrowse}){
         {['every','important','sign'].map(k=><button key={k} className={(uc.step==='brief'?uc.brief.level:uc.level)===k?'on':''} onClick={()=>{E.setLevel(uc,k);setMenu(false);}}><i className={'ti '+E.LV[k].ic}></i><span>{E.LV[k].t}<small>{E.LV[k].d}</small></span></button>)}
         <hr/>
         <button onClick={()=>{setMenu(false);setAudit(true);}}><i className="ti ti-shield-check"></i><span>Audit trail<small>Every decision, downloadable</small></span></button>
+        <button onClick={()=>{setMenu(false);setCopy(true);}}><i className="ti ti-copy"></i><span>Copy this use case<small>Reuse it for another country</small></span></button>
+        {!uc.operate.live&&(!uc.done.train||!uc.done.prove)&&<button onClick={()=>{setMenu(false);setSkip(true);}}><i className="ti ti-player-skip-forward"></i><span>Skip a stage<small>For a proof of concept</small></span></button>}
         <button onClick={()=>{setMenu(false);E.say(uc,'Where are we?','text');if(mob)setRail(true);}}><i className="ti ti-map-pin"></i>Where are we?</button>
         <button onClick={()=>{setMenu(false);E.startBlank();}}><i className="ti ti-plus"></i><span>Teach Ray a new job<small>Start another investigation</small></span></button>
         <button onClick={()=>{setMenu(false);E.close();}}><i className="ti ti-layout-list"></i>All investigators</button>
@@ -249,6 +306,8 @@ function Workspace({uc,onBrowse}){
     </div>
     {sheet&&uc.gate&&<U.SignSheet uc={uc} onClose={()=>setSheet(false)}/>}
     {audit&&<U.Audit uc={uc} onClose={()=>setAudit(false)} onView={n=>setViewVer(n===E.cur(uc).n?null:n)}/>}
+    {skip&&<SkipSheet uc={uc} onClose={()=>setSkip(false)}/>}
+    {copy&&<CopySheet uc={uc} onClose={()=>setCopy(false)}/>}
   </div>;
 }
 

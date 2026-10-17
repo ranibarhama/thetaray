@@ -9,19 +9,29 @@ const CATS={
 };
 const TEMPLATES=[
  {id:'ts-example',cat:'scr',t:'Transaction Screening Example',r:'Multi-region',reg:'Local sanctions & PEP regimes',d:'Real-world package: Ray reviews every hit in parallel, decides the alert and closes or parks it.',kw:['example','real-world','production'],ex:true},
- {id:'tm-retail',cat:'tm',t:'Transaction Monitoring for Retail Banking',r:'Global',reg:'FATF / local FIU',d:'Spots suspicious activity across retail current, savings and card accounts.',kw:['retail','monitoring','tm','structuring'],pop:true},
- {id:'ts-uk',cat:'scr',t:'Transaction Screening UK',r:'United Kingdom',reg:'FCA · OFSI',d:'Screens UK payments in real time against OFSI, UN and EU sanctions lists.',kw:['uk','united kingdom','ofsi','britain','payments','transaction screening','sanction'],pop:true},
- {id:'cb-es',cat:'cor',t:'Correspondent Banking Spain',r:'Spain',reg:'SEPBLAC · Banco de España',d:'Monitors respondent bank flows through your correspondent accounts in Spain.',kw:['correspondent','spain','respondent','sepblac']},
- {id:'cs-eu',cat:'scr',t:'Customer Screening EU Sanctions',r:'European Union',reg:'EBA · national authorities',d:'Screens customers against EU sanctions at onboarding and on every list update.',kw:['customer screening','eu','onboarding','europe']},
+ {id:'tm-retail',cat:'tm',t:'Transaction Monitoring for Retail Banking',r:'Global',reg:'FATF / local FIU',d:'Spots suspicious activity across retail current, savings and card accounts.',kw:['retail','structuring'],pop:true},
+ {id:'ts-uk',cat:'scr',t:'Transaction Screening UK',r:'United Kingdom',reg:'FCA · OFSI',d:'Screens UK payments in real time against OFSI, UN and EU sanctions lists.',kw:['uk','united kingdom','ofsi','britain','payments','sanction'],pop:true},
+ {id:'cb-es',cat:'cor',t:'Correspondent Banking Spain',r:'Spain',reg:'SEPBLAC · Banco de España',d:'Monitors respondent bank flows through your correspondent accounts in Spain.',kw:['spain','respondent','sepblac']},
+ {id:'cs-eu',cat:'scr',t:'Customer Screening EU Sanctions',r:'European Union',reg:'EBA · national authorities',d:'Screens customers against EU sanctions at onboarding and on every list update.',kw:['eu','onboarding','europe']},
  {id:'tm-corp',cat:'tm',t:'Transaction Monitoring for Corporate Banking',r:'Global',reg:'FATF / local FIU',d:'Detects money laundering risk in corporate and business banking activity.',kw:['corporate','business banking','trade-based']},
  {id:'fr-inst',cat:'fr',t:'Instant Payments Fraud (SEPA Inst)',r:'Eurozone',reg:'EBA · PSD3',d:'Stops authorised push payment scams and account takeover on instant payments.',kw:['instant','sepa','app scam','push payment']},
- {id:'tf-sg',cat:'oth',t:'Trade Finance AML Singapore',r:'Singapore',reg:'MAS',d:'Finds over- and under-invoicing and dual-use goods risk in trade finance.',kw:['trade finance','singapore','invoic','dual-use']},
+ {id:'tf-sg',cat:'oth',t:'Trade Finance AML Singapore',r:'Singapore',reg:'MAS',d:'Finds over- and under-invoicing and dual-use goods risk in trade finance.',kw:['singapore','invoic','dual-use']},
  {id:'vasp',cat:'tm',t:'Crypto / VASP Transaction Monitoring',r:'Global',reg:'FATF Travel Rule',d:'Monitors crypto flows for mixer exposure and Travel Rule gaps.',kw:['crypto','vasp','bitcoin','mixer','travel rule']},
  {id:'msb-ae',cat:'tm',t:'Remittance & Money Services UAE',r:'United Arab Emirates',reg:'CBUAE',d:'Covers remittance corridors and agent networks for money service businesses.',kw:['remittance','uae','money service','hawala','msb']},
  {id:'pep-am',cat:'scr',t:'PEP & Adverse Media Screening',r:'Global',reg:'FATF R.12',d:'Identifies politically exposed persons and negative news about your customers.',kw:['pep','adverse','media','politically']},
- {id:'card-us',cat:'fr',t:'Card Fraud Issuing US',r:'United States',reg:'Reg E · Card networks',d:'Detects card-not-present fraud, card testing and compromised merchants.',kw:['card','issuing','us ','united states','cnp']},
+ {id:'card-us',cat:'fr',t:'Card Fraud Issuing US',r:'United States',reg:'Reg E · Card networks',d:'Detects card-not-present fraud, card testing and compromised merchants.',kw:['issuing','united states','cnp']},
  {id:'wm-ch',cat:'oth',t:'Wealth Management AML Switzerland',r:'Switzerland',reg:'FINMA · MROS',d:'Monitors private banking clients for source-of-wealth and structure risk.',kw:['wealth','swiss','switzerland','private bank']},
- {id:'mule',cat:'fr',t:'Money Mule Detection Retail',r:'Global',reg:'Local FIU',d:'Finds accounts used to receive and pass on stolen or laundered money.',kw:['mule','pass-through']}
+ {id:'mule',cat:'fr',t:'Money Mule Detection Retail',r:'Global',reg:'Local FIU',d:'Finds accounts used to receive and pass on stolen or laundered money.',kw:['mule','pass-through']},
+ {id:'ts-us',cat:'scr',t:'Transaction Screening US (OFAC)',r:'United States',reg:'OFAC · FinCEN',d:'Screens USD payments against OFAC SDN and sectoral lists before release.',kw:['ofac','us screening','sdn','dollar']},
+ {id:'ts-sg',cat:'scr',t:'Transaction Screening Singapore',r:'Singapore',reg:'MAS',d:'Screens SGD and cross-border payments against MAS-mandated lists.',kw:['singapore screening','mas']},
+ {id:'cb-us',cat:'cor',t:'Correspondent Banking US',r:'United States',reg:'FinCEN · OCC',d:'Monitors respondent bank activity through US correspondent accounts.',kw:['correspondent us','nested','respondent']},
+ {id:'tm-sme',cat:'tm',t:'Transaction Monitoring for SME Banking',r:'Global',reg:'FATF / local FIU',d:'Watches small-business accounts for turnover that does not match the trade.',kw:['sme','small business','turnover']},
+ {id:'fr-card-eu',cat:'fr',t:'Card Fraud Acquiring EU',r:'European Union',reg:'EBA · PSD3',d:'Finds merchant collusion, laundering through terminals and refund abuse.',kw:['acquiring','merchant','refund','terminal']},
+ {id:'kyc-rev',cat:'oth',t:'Periodic KYC Review',r:'Global',reg:'FATF R.10',d:'Reviews customer files on their risk cycle and flags what changed.',kw:['kyc','periodic review','refresh','cdd']},
+ {id:'sanc-cust',cat:'scr',t:'Customer Screening UK (OFSI)',r:'United Kingdom',reg:'FCA · OFSI',d:'Screens customers and UBOs against the OFSI consolidated list.',kw:['customer screening uk','ofsi customer','ubo']},
+ {id:'tf-ae',cat:'oth',t:'Trade Finance AML UAE',r:'United Arab Emirates',reg:'CBUAE',d:'Checks letters of credit for invoicing and dual-use goods risk.',kw:['trade finance uae','letters of credit']},
+ {id:'tm-gaming',cat:'tm',t:'Gaming & Betting AML',r:'Global',reg:'Local gambling regulators',d:'Monitors deposits, play patterns and withdrawals for laundering.',kw:['gaming','betting','casino','gambling']},
+ {id:'fr-loan',cat:'fr',t:'Loan & Application Fraud',r:'Global',reg:'Local FIU',d:'Detects falsified income, synthetic identities and first-payment default rings.',kw:['loan fraud','application','synthetic identity']},
 ];
 const SAMPLE_FILES=[
   {name:'AML_Policy_2026.pdf',size:'2.4 MB',ext:'PDF',c:'#DC3F3B',found:'14 policy clauses'},
@@ -34,48 +44,51 @@ const EX_FILES=[
   {name:'Country_Guidelines_UK_RTS_v1.md',size:'4 KB',ext:'MD',c:'#28941E',found:'5 close states'},
   {name:'Change_State_Method_v1.md',size:'3 KB',ext:'MD',c:'#DC3F3B',found:'2 state routes'}
 ];
+const ACTS={ex:{"n1": ["Stream alerts from the reporting database", "Gate by alert type and queue", "Route to the queue's use case"], "n2": ["Assign to Ray if nobody holds it", "If an analyst holds it, add a note only"], "n3": ["Read every hit on the alert", "Up to 60 hits in one pass", "Otherwise chunks of up to 19 hits"], "n4": ["Compare name, date of birth, nationality and ID documents", "Give every hit a verdict: no match, possible, true match", "Quote both values for every identifier"], "n5": ["Count the verdicts against all hits", "An unreviewed hit forces an escalation"], "n6": ["The highest-risk hit sets the outcome", "Write the disposition section", "Record a confidence level"], "n7": ["Set the state to closed", "Resolution: approved", "Post Ray's note"], "n8": ["Park it unassigned for post-Ray investigation", "Recommend further investigation", "Post Ray's note"], "n9": ["Apply the country close state", "Run EDD or decline as required", "Notify the escalation mailbox"]},scr:{"n1": ["Hold the payment"], "n2": ["Score the match strength", "Discount anything below the threshold"], "n3": ["Compare the identifiers", "Request more information", "Add a note"], "n4": ["Select a closure reason", "Add to the good-guy list"], "n5": ["Attach the evidence"], "n6": ["Approve the block", "Or return it to level 1"], "n7": ["Record the rationale"], "n8": ["Freeze the funds", "File the report"]},tm:{"n1": ["Assign a risk score"], "n2": ["Pull 90 days of activity", "Attach related alerts"], "n3": ["Review the activity", "Add a note", "Close or escalate"], "n4": ["Select a closure reason", "Write the rationale"], "n5": ["Attach the evidence", "Set the priority"], "n6": ["Request information from the customer", "Link alerts into one case"], "n7": ["Approve the closure"], "n8": ["Draft the report narrative", "Submit the report"]}};
 const KIND={bell:['ti-bell','#4A72E8'],lock:['ti-lock','#7B6CF0'],db:['ti-database','#16A6AE'],search2:['ti-search','#7B6CF0'],rule:['ti-list-check','#E8850C'],user:['ti-user','#2f6df6'],close:['ti-circle-check','#1e9e6a'],up:['ti-arrow-up-right','#E8850C'],users:['ti-users','#9068C4'],bolt:['ti-bolt','#E8850C'],flag:['ti-flag','#d93a3a'],shield:['ti-shield-check','#1e9e6a']};
 
 function buildWorkflow(tplId){
   const tpl=TEMPLATES.find(t=>t.id===tplId)||TEMPLATES[1];
+  const A=tpl.id==='ts-example'?ACTS.ex:(tpl.cat==='scr'?ACTS.scr:ACTS.tm);
+  const withActs=o=>{o.acts=(A[o.id]||[]).slice();return o;};
   if(tpl.id==='ts-example') return {
     nodes:[
-      {id:'n1',r:0,c:1,t:'Screening alert received',k:'bell',ai:false,role:'System',sla:'Instant',pol:'1'},
-      {id:'n2',r:1,c:1,t:'Claim alert for Ray',k:'lock',ai:false,role:'Ray',sla:'Instant',pol:'9'},
-      {id:'n3',r:2,c:1,t:'Collect hits & split into chunks',k:'db',ai:false,role:'System',sla:'Instant',pol:'3'},
-      {id:'n4',r:3,c:1,t:'Review every hit in parallel',k:'search2',ai:true,role:'Ray',sla:'Instant',pol:'2'},
-      {id:'n5',r:4,c:1,t:'Coverage check & highlights',k:'rule',ai:false,role:'System',sla:'Instant',pol:'4'},
-      {id:'n6',r:5,c:1,t:'Decide alert & write summary',k:'user',ai:true,role:'Ray',sla:'Instant',pol:'7'},
-      {id:'n7',r:6,c:0,t:'Close as false positive',k:'close',ai:false,role:'Ray',sla:'Instant',pol:'9'},
-      {id:'n8',r:6,c:2,t:'Park for analyst review',k:'up',ai:false,role:'Ray',sla:'Instant',pol:'9'},
-      {id:'n9',r:7,c:2,t:'Analyst & Compliance decision',k:'users',ai:false,role:'Analyst L1',sla:'24 hours',pol:'8'}
+      withActs({id:'n1',r:0,c:1,t:'Screening alert received',k:'bell',ai:false,role:'System',sla:'Instant',pol:'1'}),
+      withActs({id:'n2',r:1,c:1,t:'Claim alert for Ray',k:'lock',ai:false,role:'Ray',sla:'Instant',pol:'9'}),
+      withActs({id:'n3',r:2,c:1,t:'Collect hits & split into chunks',k:'db',ai:false,role:'System',sla:'Instant',pol:'3'}),
+      withActs({id:'n4',r:3,c:1,t:'Review every hit in parallel',k:'search2',ai:true,role:'Ray',sla:'Instant',pol:'2'}),
+      withActs({id:'n5',r:4,c:1,t:'Coverage check & highlights',k:'rule',ai:false,role:'System',sla:'Instant',pol:'4'}),
+      withActs({id:'n6',r:5,c:1,t:'Decide alert & write summary',k:'user',ai:true,role:'Ray',sla:'Instant',pol:'7'}),
+      withActs({id:'n7',r:6,c:0,t:'Close as false positive',k:'close',ai:false,role:'Ray',sla:'Instant',pol:'9'}),
+      withActs({id:'n8',r:6,c:2,t:'Park for analyst review',k:'up',ai:false,role:'Ray',sla:'Instant',pol:'9'}),
+      withActs({id:'n9',r:7,c:2,t:'Analyst & Compliance decision',k:'users',ai:false,role:'Analyst L1',sla:'24 hours',pol:'8'})
     ],
     edges:[['n1','n2'],['n2','n3'],['n3','n4','Hit chunks'],['n4','n5'],['n5','n6'],['n6','n7','High-confidence FP'],['n6','n8','Match or unresolved'],['n8','n9']]
   };
   const regRep={'cb-es':'SEPBLAC report','ts-uk':'OFSI report','wm-ch':'MROS goAML','tf-sg':'STRO filing','msb-ae':'goAML UAE','card-us':'Chargeback'}[tpl.id]||'Regulatory report';
   if(tpl.cat==='scr') return {
     nodes:[
-      {id:'n1',r:0,c:1,t:'Screening hit raised',k:'bell',ai:false,role:'System',sla:'Instant',pol:'3.1'},
-      {id:'n2',r:1,c:1,t:'Auto-discount weak matches',k:'bolt',ai:false,role:'System',sla:'Instant',pol:'4.3'},
-      {id:'n3',r:2,c:1,t:'L1 hit review',k:'user',ai:true,role:'Analyst L1',sla:'4 hours',pol:'4.2'},
-      {id:'n4',r:3,c:0,t:'Release as false positive',k:'close',ai:false,role:'Analyst L1',sla:'4 hours',pol:'4.3'},
-      {id:'n5',r:3,c:2,t:'Escalate possible match',k:'up',ai:false,role:'Analyst L1',sla:'4 hours',pol:'5.1'},
-      {id:'n6',r:4,c:2,t:'Supervisor decision',k:'users',ai:false,role:'Supervisor',sla:'24 hours',pol:'5.4'},
-      {id:'n7',r:5,c:1,t:'Release payment',k:'close',ai:false,role:'Supervisor',sla:'24 hours',pol:'7.2'},
-      {id:'n8',r:5,c:2,t:'Block & '+regRep,k:'flag',ai:false,role:'MLRO',sla:'24 hours',pol:'6.1'}
+      withActs({id:'n1',r:0,c:1,t:'Screening hit raised',k:'bell',ai:false,role:'System',sla:'Instant',pol:'3.1'}),
+      withActs({id:'n2',r:1,c:1,t:'Auto-discount weak matches',k:'bolt',ai:false,role:'System',sla:'Instant',pol:'4.3'}),
+      withActs({id:'n3',r:2,c:1,t:'L1 hit review',k:'user',ai:true,role:'Analyst L1',sla:'4 hours',pol:'4.2'}),
+      withActs({id:'n4',r:3,c:0,t:'Release as false positive',k:'close',ai:false,role:'Analyst L1',sla:'4 hours',pol:'4.3'}),
+      withActs({id:'n5',r:3,c:2,t:'Escalate possible match',k:'up',ai:false,role:'Analyst L1',sla:'4 hours',pol:'5.1'}),
+      withActs({id:'n6',r:4,c:2,t:'Supervisor decision',k:'users',ai:false,role:'Supervisor',sla:'24 hours',pol:'5.4'}),
+      withActs({id:'n7',r:5,c:1,t:'Release payment',k:'close',ai:false,role:'Supervisor',sla:'24 hours',pol:'7.2'}),
+      withActs({id:'n8',r:5,c:2,t:'Block & '+regRep,k:'flag',ai:false,role:'MLRO',sla:'24 hours',pol:'6.1'})
     ],
     edges:[['n1','n2'],['n2','n3','Remaining hits'],['n3','n4','No match'],['n3','n5','Possible match'],['n5','n6'],['n6','n7','Not a match'],['n6','n8','True match']]
   };
   return {
     nodes:[
-      {id:'n1',r:0,c:1,t:'Alert generated',k:'bell',ai:false,role:'System',sla:'Instant',pol:'3.1'},
-      {id:'n2',r:1,c:1,t:'Auto-enrichment',k:'db',ai:false,role:'System',sla:'Instant',pol:'3.1'},
-      {id:'n3',r:2,c:1,t:'L1 triage',k:'user',ai:true,role:'Analyst L1',sla:'48 hours',pol:'4.2'},
-      {id:'n4',r:3,c:0,t:'Close as false positive',k:'close',ai:false,role:'Analyst L1',sla:'48 hours',pol:'4.3'},
-      {id:'n5',r:3,c:2,t:'Escalate to L2',k:'up',ai:false,role:'Analyst L1',sla:'24 hours',pol:'5.1'},
-      {id:'n6',r:4,c:2,t:'Investigation & RFI',k:'search2',ai:true,role:'Analyst L2',sla:'10 days',pol:'5.4'},
-      {id:'n7',r:5,c:1,t:'Close with rationale',k:'close',ai:false,role:'Supervisor',sla:'5 days',pol:'7.2'},
-      {id:'n8',r:5,c:2,t:'File '+(tpl.cat==='fr'?'fraud report':'SAR'),k:'flag',ai:false,role:'MLRO',sla:'30 days',pol:'6.1'}
+      withActs({id:'n1',r:0,c:1,t:'Alert generated',k:'bell',ai:false,role:'System',sla:'Instant',pol:'3.1'}),
+      withActs({id:'n2',r:1,c:1,t:'Auto-enrichment',k:'db',ai:false,role:'System',sla:'Instant',pol:'3.1'}),
+      withActs({id:'n3',r:2,c:1,t:'L1 triage',k:'user',ai:true,role:'Analyst L1',sla:'48 hours',pol:'4.2'}),
+      withActs({id:'n4',r:3,c:0,t:'Close as false positive',k:'close',ai:false,role:'Analyst L1',sla:'48 hours',pol:'4.3'}),
+      withActs({id:'n5',r:3,c:2,t:'Escalate to L2',k:'up',ai:false,role:'Analyst L1',sla:'24 hours',pol:'5.1'}),
+      withActs({id:'n6',r:4,c:2,t:'Investigation & RFI',k:'search2',ai:true,role:'Analyst L2',sla:'10 days',pol:'5.4'}),
+      withActs({id:'n7',r:5,c:1,t:'Close with rationale',k:'close',ai:false,role:'Supervisor',sla:'5 days',pol:'7.2'}),
+      withActs({id:'n8',r:5,c:2,t:'File '+(tpl.cat==='fr'?'fraud report':'SAR'),k:'flag',ai:false,role:'MLRO',sla:'30 days',pol:'6.1'})
     ],
     edges:[['n1','n2'],['n2','n3'],['n3','n4','No concern'],['n3','n5','Suspicious'],['n5','n6'],['n6','n7','Explained'],['n6','n8','Suspicion confirmed']]
   };
@@ -172,8 +185,10 @@ const PEOPLE={
   dana:{n:'Dana Levi',r:'Analyst team lead',i:'DL'},
   mlro:{n:'Sarah Klein',r:'MLRO',i:'SK'},
   fcc:{n:'Lior Ben-Ami',r:'Head of FCC',i:'LB'},
-  ray:{n:'Ray',r:'AI investigator',i:'✦'}
+  ray:{n:'Ray',r:'AI investigator',i:'✦'},
+  tom:{n:'Tom Keller',r:'ThetaRay services',i:'TK'},
+  thetaray:{n:'ThetaRay',r:'Services team',i:'TR'}
 };
 
-window.RSD={CATS,TEMPLATES,SAMPLE_FILES,EX_FILES,KIND,buildWorkflow,buildPolicy,REPORT,INTENTS,TUNE,TUNE_CAT,DIFFS,SHADOW_DIFFS,CHECKLIST,AUTHORITY,STAGES,PEOPLE};
+window.RSD={ACTS,CATS,TEMPLATES,SAMPLE_FILES,EX_FILES,KIND,buildWorkflow,buildPolicy,REPORT,INTENTS,TUNE,TUNE_CAT,DIFFS,SHADOW_DIFFS,CHECKLIST,AUTHORITY,STAGES,PEOPLE};
 })();

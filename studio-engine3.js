@@ -4,6 +4,7 @@ const D=window.RSD,E=window.RSE,S=E.state;
 const wait=E.wait,now=E.now,emit=E.emit;
 const has=(s,a)=>a.some(k=>s.includes(k));
 const clone=o=>JSON.parse(JSON.stringify(o));
+const uid=()=>Math.random().toString(36).slice(2,9);
 const LV={every:{t:'Every step',d:'Ray asks before each step',ic:'ti-list-check'},important:{t:'Only what matters',d:'Ray asks for decisions and signatures',ic:'ti-adjustments'},sign:{t:'Only to sign',d:'Autopilot — you decide 3 times',ic:'ti-sparkles'}};
 E.LV=LV;
 
@@ -14,15 +15,32 @@ E.newUC=tpl=>{const uc=baseNew(tpl);
   uc.next={who:'you',what:'Check the brief'};return uc;};
 function pingIfAway(uc,t,d){if(S.openId!==uc.id){uc.need={kind:'ai',ic:'ti-bell-ringing',t,d,acts:[['Open','open']]};emit();}}
 
+const STOP=['the','and','for','our','its','set','up','out','new','need','want','build','make','with','from','that','this','please','case','uses','used','using','about','into','just','like','help','start','setup','something','screen','aml','policy','autopilot','step','steps'];
+function candidates(str){
+  const s=' '+str.toLowerCase()+' ';
+  const toks=s.split(/[^a-z0-9]+/).filter(w=>w.length>1&&STOP.indexOf(w)<0);
+  const out=[];
+  D.TEMPLATES.forEach(t=>{
+    let sc=0;t.kw.forEach(k=>{if(s.includes(k))sc+=k.length>4?2:1;});
+    if(s.includes(t.t.toLowerCase()))sc+=10;
+    const hay=(t.t+' '+t.r+' '+D.CATS[t.cat].n).toLowerCase();
+    toks.forEach(w=>{if(hay.indexOf(w)>=0)sc+=1;});
+    if(sc>0)out.push({t,sc});});
+  out.sort((a,b)=>b.sc-a.sc);
+  if(!out.length)return [];
+  const top=out[0].sc;return out.filter(x=>x.sc>=top-0.5).slice(0,3).map(x=>x.t);
+}
 function parse(text){const s=' '+text.toLowerCase()+' ';
-  return {t:E.matchTpl(s),level:has(s,['autopilot','auto pilot','shortcut','do it for me','for me'])?'sign':has(s,['step by step','every step','guide me'])?'every':'important',
+  return {cands:candidates(s),t:candidates(s)[0]||E.matchTpl(s),level:has(s,['autopilot','auto pilot','shortcut','do it for me','for me'])?'sign':has(s,['step by step','every step','guide me'])?'every':'important',
     docs:!has(s,['template policy','no policy','without our'])};}
 
 /* ---------- Brief ---------- */
 E.createFromPrompt=async(text,via)=>{
-  const p=parse(text);const uc=E.newUC(p.t?p.t.id:null);S.openId=uc.id;
+  const p=parse(text);const many=p.cands.length>1;
+  const uc=E.newUC(many?null:(p.t?p.t.id:null));S.openId=uc.id;
   uc.brief.level=p.level;uc.brief.docs=p.docs;
   E.you(uc,text,via);
+  if(many){await E.ray(uc,'That matches **'+p.cands.length+' jobs** — which one do you mean?',{type:'pick',opts:p.cands.map(t=>t.id)});return;}
   await E.ray(uc,p.t?'I turned that into a **brief** — it’s on the left. Tap anything to change it, or just tell me. Then press **Start**.':'Happy to help. **Which job should I learn?** Pick one in the brief, or name it.');
 };
 E.startFromTpl=async(id)=>{const uc=E.newUC(id);S.openId=uc.id;emit();await E.ray(uc,'Here’s a **brief** for '+uc.name+'. Adjust anything, then press **Start**.');};
@@ -34,7 +52,7 @@ E.setLevel=async(uc,lv)=>{if(uc.step==='brief'){E.setBrief(uc,'level',lv);return
 
 E.startBrief=async(uc)=>{
   if(!uc.tpl)return;const b=uc.brief;
-  uc.level=b.level;uc.mode=b.level==='sign'?'auto':'guide';uc.train.period=b.period;uc.step='building';
+  uc.level=b.level;uc.mode=b.level==='sign'?'auto':'guide';uc.train.period=b.period;uc.train.csv=!!b.csv;uc.step='building';
   E.log(uc,'Brief agreed: '+uc.name+' · '+(b.docs?'your policy':'ThetaRay template policy')+' · '+(b.report==='upload'?'your report layout':'predefined report')+' · check with me: '+LV[b.level].t,'you','sign');
   E.setNext(uc,'ray','Writing the playbook');
   await E.policyChoice(uc,null,b.docs?'sample':'skip',true);
@@ -64,7 +82,7 @@ E.applyTune=(uc,by,summary)=>{
   const v=E.addVersion(uc,wf,by,summary,ch,{tuned:true});E.pulse(uc,ch);E.log(uc,'v'+v.n+': '+summary,by,by==='ray'?'ray':'you');return v;
 };
 async function practice(uc){
-  uc.stage='train';uc.step='t.run';const round=uc.train.rounds.length+1,target=round===1?87:round===2?91:92,N=1000;
+  uc.stage='train';uc.step='t.run';const round=uc.train.rounds.length+1,target=round===1?87:round===2?91:92,N=uc.train.csv?600:1000;
   E.setNext(uc,'ray','Practicing');
   const m=await E.ray(uc,round===1?'Practicing on **1,000 alerts** your analysts already closed. About a minute — I’ll ping you if you leave.':'Practice round '+round+' — checking that the changes help.',{type:'replay',n:N,cnt:0,agree:0,round},{fast:true});
   uc.run={kind:'practice'};
@@ -85,32 +103,58 @@ E.startPractice=async(uc)=>{
 };
 E.decideSug=async(uc,sid,yes)=>{
   if(uc.train.sugs[sid])return;
-  uc.train.sugs[sid]=yes?'yes':'no';uc.need=null;const s=E.tuneSet(uc).find(x=>x.id===sid);
+  uc.train.sugs[sid]=yes?'yes':'no';uc.need=null;(uc.sugLog=uc.sugLog||[]).push(sid);const s=E.tuneSet(uc).find(x=>x.id===sid);
   E.log(uc,(yes?'Accepted':'Rejected')+' suggestion: '+s.t,'you','you');
   if(yes)E.applyTune(uc,'you','Accepted: '+s.t);
   emit();
   if(!E.tuneSet(uc).some(x=>!uc.train.sugs[x.id]))await afterSugs(uc);
 };
+E.undoSug=async(uc)=>{
+  const last=uc.sugLog&&uc.sugLog.length?uc.sugLog.pop():null;if(!last)return;
+  delete uc.train.sugs[last];
+  if(uc.train.applied&&uc.train.applied[last]&&uc.versions.length>1){const prev=uc.versions[uc.versions.length-2];
+    const v=E.addVersion(uc,clone(prev.wf),'you','Undid the last suggestion decision',[]);delete uc.train.applied[last];
+    E.log(uc,'v'+v.n+': undid the last suggestion decision','you','change');}
+  else E.log(uc,'Undid the last suggestion decision','you','change');
+  emit();await E.ray(uc,'Undone — that suggestion is open again.');
+};
+E.commentSug=async(uc,sid,text)=>{
+  const s2=E.tuneSet(uc).find(x=>x.id===sid);if(!s2||!text.trim())return;
+  E.log(uc,'Comment on suggestion “'+s2.t+'”: “'+text.trim()+'”','you','comment');emit();
+  await E.ray(uc,'Noted against **'+s2.t+'** — it stays open until you accept or reject it, and the comment is in the audit trail.');
+};
+E.useCsv=async(uc)=>{uc.train.csv=true;E.log(uc,'Uploaded a labelled CSV as the practice set (600 alerts)','you','change');emit();
+  await E.ray(uc,'Read it — **600 labelled alerts** with the expected outcome on each. I’ll practise on those instead of the last '+uc.train.period.toLowerCase()+'.');};
+E.anotherRound=async(uc)=>{await E.startPractice2(uc);};
 E.acceptAllSugs=async(uc)=>{E.tuneSet(uc).forEach(x=>{if(!uc.train.sugs[x.id])uc.train.sugs[x.id]='yes';});uc.need=null;E.applyTune(uc,'you','Accepted all remaining suggestions');E.log(uc,'Accepted all remaining suggestions','you','you');await afterSugs(uc);};
 async function afterSugs(uc){
   if(uc.level==='every'){uc.step='t.round';await E.ray(uc,'All decided. Run one more practice round to prove the changes help?',{type:'confirm',what:'round',label:'Run round 2'});E.setNext(uc,'you','Run round 2');return;}
   await round2(uc);
 }
+E.startPractice2=async(uc)=>{await round2(uc);};
 async function round2(uc){
   const t=await practice(uc);
   uc.step='t.gate';uc.gate={what:!uc.done.build?'buildtrain':'train'};
   await E.ray(uc,'Round '+uc.train.rounds.length+': **'+t+'%** — above the 90% target, with nothing left that adds 1%. **Ready for your signature.**');
   E.setNext(uc,'you','Sign off '+(uc.gate.what==='buildtrain'?'Build + Train':'Train'));
 }
+E.pickOwner=async(uc,msgId,who,note)=>{
+  E.doneCard(uc,msgId,who==='you'?'I’ll run it':D.PEOPLE[who].n);
+  await E.handTo(uc,who,note);
+  if(who==='you'){uc.step='t.ask';await E.ray(uc,'Ready when you are — I practice on 1,000 closed alerts and come back with what I learned.',{type:'confirm',what:'practice',label:'Start practice'});E.setNext(uc,'you','Start practice');}
+};
 E.confirm=async(uc,msgId,what)=>{E.doneCard(uc,msgId,'Yes');if(what==='round')await round2(uc);if(what==='practice')await E.startPractice(uc);if(what==='shadow')await E.startShadow3(uc);};
 
 /* ---------- gates & signing ---------- */
 E.signGate=async(uc)=>{
   const g=uc.gate;if(!g)return;const v=E.cur(uc).n;uc.signedVer=v;uc.signs.push(v);uc.gate=null;uc.need=null;
   if(g.what==='build'){
-    uc.done.build=true;uc.stage='train';E.log(uc,'Signed off Build · v'+v+' · MRM document and user guide generated','you','sign');E.logMsg(uc,'Build signed · v'+v,'ti-signature');
-    if(uc.level==='every'){uc.step='t.ask';await E.ray(uc,'Signed. Next is **Train**: I practice on 1,000 alerts your analysts already closed. Start?',{type:'confirm',what:'practice',label:'Start practice'});E.setNext(uc,'you','Start practice');}
-    else{await E.ray(uc,'Signed — the MRM document and user guide are in the audit trail. Moving straight on to **Train**.');await E.startPractice(uc);}
+    uc.done.build=true;uc.stage='train';uc.docsReady=true;
+    E.log(uc,'Signed off Build · v'+v+' · model risk document and analyst guide written','you','sign');E.logMsg(uc,'Build signed · v'+v+' · 2 documents written','ti-signature');
+    if(uc.level==='sign'){await E.ray(uc,'Signed — the **model risk document** and **analyst guide** are in the playbook. Moving straight on to **Train**.');await E.startPractice(uc);return;}
+    uc.step='t.who';
+    await E.ray(uc,'Signed — the **model risk document** and **analyst guide** are written (open them at the bottom of the playbook). Next is **Train**: practice on alerts your analysts already closed. That stage is usually owned by the analyst team lead. Who runs it?',{type:'handoff'});
+    E.setNext(uc,'you','Choose who runs Train');
     return;}
   if(g.what==='train'||g.what==='buildtrain'){
     const w=g.what==='buildtrain'?'Build + Train':'Train';
@@ -164,6 +208,13 @@ E.applyComment3=async(uc,yes)=>{
   E.log(uc,'Declined Dana’s suggestion: '+c.text,'you','you');emit();await E.ray(uc,'Declined — I’ll let Dana know, with the reason in the audit trail.');
 };
 
+
+/* ---------- audit: phase + more event kinds ---------- */
+const PHASE={build:'Build',train:'Train',prove:'Prove',operate:'Operate'};
+const baseLog=E.log;
+E.log=(uc,text,who,kind)=>{baseLog(uc,text,who,kind);const t=uc.trail[0];if(t)t.phase=PHASE[uc.stage]||'Build';};
+E.note=(uc,text,who,kind)=>{E.log(uc,text,who||'you',kind||'view');};
+
 /* ---------- direct edits: same tracked change, version and audit entry as talking ---------- */
 E.ROLES=['System','Ray','Analyst L1','Analyst L2','Supervisor','MLRO'];
 E.SLAS=['Instant','4 hours','24 hours','48 hours','5 days','10 days','30 days'];
@@ -186,6 +237,7 @@ E.editStep=async(uc,id,d)=>{
   if(d.sla&&d.sla!==n.sla){chg.sla={before:n.sla,after:d.sla};parts.push('deadline is now '+d.sla);n.sla=d.sla;}
   if(d.ai!==undefined&&!!d.ai!==!!n.ai){chg.ai={before:n.ai?'Ray decides':'a fixed rule',after:d.ai?'Ray decides':'a fixed rule'};parts.push(d.ai?'Ray decides it':'a fixed rule decides it');n.ai=!!d.ai;}
   if(d.note&&d.note.trim()){chg.note={after:d.note.trim()};parts.push('your instruction added');n.note=d.note.trim();}
+  if(d.acts){const before=(n.acts||[]).join('|');if(before!==d.acts.join('|')){const added=d.acts.filter(x=>!(n.acts||[]).includes(x));chg.acts={after:added[0]||d.acts[0],list:true};parts.push(d.acts.length>(n.acts||[]).length?'a line added to what happens':'what happens edited');n.acts=d.acts;}}
   if(!parts.length)return;
   n.chg=chg;
   await commit(uc,wf,'Step “'+n.t+'”: '+parts.join('; '),[n.id],n.id,'Step '+numOf(wf,n.id)+' updated: '+parts.join(', '));
@@ -211,6 +263,155 @@ E.removeStep=async(uc,id)=>{
   await commit(uc,wf,'Removed step “'+n.t+'”',[],null,'Removed “'+n.t+'”');
 };
 
+
+/* ---------- comments on steps, applied in one batch ---------- */
+E.comments=uc=>uc.cmts||(uc.cmts=[]);
+E.addComment=(uc,nodeId,text,by)=>{
+  if(!text.trim())return;
+  E.comments(uc).push({id:uid(),node:nodeId,text:text.trim(),by:by||'you',at:now(),applied:false});
+  const n=E.cur(uc).wf.nodes.find(x=>x.id===nodeId);
+  E.log(uc,'Comment on “'+(n?n.t:'a step')+'”: “'+text.trim()+'”',by||'you','comment');
+  E.logMsg(uc,'Comment added · Ray applies it when you run the comments','ti-message-2');
+  emit();
+};
+E.delComment=(uc,id)=>{uc.cmts=E.comments(uc).filter(c=>c.id!==id);emit();};
+E.openCmts=uc=>E.comments(uc).filter(c=>!c.applied);
+E.runComments=async(uc)=>{
+  const open=E.openCmts(uc);if(!open.length)return;
+  const wf=clone(E.cur(uc).wf),NV=uc.versions.length+1,changed=[];
+  open.forEach(c=>{
+    const n=wf.nodes.find(x=>x.id===c.node);if(!n)return;
+    const low=c.text.toLowerCase(),m=low.match(/(\d+)\s*(hour|day)/);
+    if(m)   {const after=m[1]+' '+m[2]+(m[1]==='1'?'':'s');n.chg=Object.assign({ver:NV},n.chg&&n.chg.ver===NV?n.chg:null,{sla:{before:n.sla,after}});n.sla=after;}
+    else if(/supervisor|mlro|level 2|l2/.test(low)){const role=/mlro/.test(low)?'MLRO':/level 2|l2/.test(low)?'Analyst L2':'Supervisor';n.chg=Object.assign({ver:NV},n.chg&&n.chg.ver===NV?n.chg:null,{role:{before:n.role,after:role}});n.role=role;}
+    else if(/four-eyes|four eyes|second review/.test(low)){n.acts=(n.acts||[]).concat(['Second reviewer signs off before this completes']);n.chg=Object.assign({ver:NV},{acts:{after:'Second reviewer signs off before this completes'}});}
+    else    {n.note=c.text;n.chg=Object.assign({ver:NV},n.chg&&n.chg.ver===NV?n.chg:null,{note:{after:c.text}});}
+    c.applied=true;c.ver=NV;changed.push(n.id);
+  });
+  const who=open.filter(c=>c.by!=='you').length?'dana':'you';
+  const v=E.addVersion(uc,wf,who,'Applied '+open.length+' comment'+(open.length>1?'s':''),changed);
+  uc.lastChange={v:v.n,summary:v.summary,clause:uc.policy[0],intent:'comment'};
+  E.pulse(uc,changed);E.log(uc,'v'+v.n+': applied '+open.length+' comment'+(open.length>1?'s':'')+' on '+changed.length+' step'+(changed.length>1?'s':''),'ray','ray');
+  if(uc.stage==='build')uc.gate={what:'build'};
+  emit();
+  await E.ray(uc,'Applied '+open.length+' comment'+(open.length>1?'s':'')+' — **version '+v.n+'**. Each one is marked on its step.',{type:'anchor',anchor:changed[0]});
+};
+
+/* ---------- hand the next stage to someone ---------- */
+E.handTo=async(uc,who,note)=>{
+  uc.owner=who;uc.need=null;
+  if(who==='you'){uc.next={who:'you',what:'Start practice'};E.log(uc,'Took the next stage on myself','you','decision');emit();
+    await E.ray(uc,'You own it. Ready when you are.');return;}
+  const p=D.PEOPLE[who];
+  uc.next={who,what:'Start the practice round'};
+  E.log(uc,'Handed Train to '+p.n+' ('+p.r+')'+(note?' — “'+note+'”':''),'you','decision');
+  E.logMsg(uc,p.n+' is notified · context, versions and open items attached','ti-send');
+  uc.need={kind:'warn',ic:'ti-hourglass',t:'Waiting on '+p.n.split(' ')[0],d:uc.name+': the practice round has not started yet.',acts:[['Nudge '+p.n.split(' ')[0],'nudge'],['Decide myself','take']]};
+  emit();
+  await E.ray(uc,'Sent to **'+p.n+'** with the full context — what we built, why, and what is still open. I will nudge if nothing moves by tomorrow.');
+};
+
+/* ---------- documents: add, remove, Ray-written docs, policy update ---------- */
+const DOCKIND={policy:'Policy',proc:'Procedure',sup:'Supporting',ray:'Written by Ray'};
+E.DOCKIND=DOCKIND;
+E.docs=uc=>{
+  if(!uc.docList){
+    uc.docList=(uc.files||[]).map((f,i)=>Object.assign({},f,{id:'d'+i,kind:i===0?'policy':i===1?'proc':'sup'}));
+  }
+  return uc.docList;
+};
+E.addDocs=async(uc,names)=>{
+  const list=E.docs(uc);
+  names.forEach((nm,i)=>list.push({id:'d'+uid(),name:nm,size:(0.3+i*0.4).toFixed(1)+' MB',ext:(nm.split('.').pop()||'PDF').toUpperCase().slice(0,3),c:'#6A4BC4',found:(3+i)+' clauses',kind:'sup',pct:100,fresh:true}));
+  E.log(uc,'Added '+names.length+' document'+(names.length>1?'s':''),'you','change');emit();
+  await E.ray(uc,'Read '+(names.length>1?'them':'it')+'. Nothing in '+(names.length>1?'those documents':'that document')+' contradicts the playbook — I noted the extra detail against the steps it touches.');
+};
+E.delDoc=(uc,id)=>{uc.docList=E.docs(uc).filter(d=>d.id!==id);E.log(uc,'Removed a document','you','change');emit();};
+E.rayDocs=uc=>{
+  const v=E.cur(uc)?E.cur(uc).n:1,t=E.tplOf(uc)||{t:'this use case',reg:'the regulator'};
+  return [
+   {id:'mrm',t:'Model risk document',sub:'For validators and the regulator · version '+v,ic:'ti-shield-check',
+    body:[['Purpose','Ray investigates '+t.t+' alerts under '+t.reg+'. It proposes outcomes; a person signs anything that affects a real alert.'],
+      ['Data','Replayed '+(uc.train.rounds.length?'1,000 closed alerts from '+uc.train.period.toLowerCase():'no alerts yet')+'. Live alerts arrive from the case manager.'],
+      ['Logic','The playbook has '+(E.cur(uc)?E.cur(uc).wf.nodes.length:0)+' steps, each tied to a clause in '+(uc.hasDocs?'the bank’s policy':'the ThetaRay template')+'. Decisions quote both values for every identifier.'],
+      ['Controls','Sanctions and risk thresholds are held for a person. Filing is never automatic. Every change is versioned and reversible.'],
+      ['Validation',uc.train.rounds.length?('Agreement with analysts: '+uc.train.rounds.map(r=>r.agree+'%').join(' → ')+'. '+(uc.prove.day>=uc.prove.total?'Shadow run passed all three targets.':'Shadow run in progress.')):'Not yet tuned.'],
+      ['Sign-off',uc.signs.length?('Signed by the compliance lead at version '+uc.signs[uc.signs.length-1]+(uc.prove.signed.mlro?'; MLRO and Head of FCC signed the proof of concept.':'.')):'Not yet signed.']]},
+   {id:'guide',t:'Analyst guide',sub:'What changes for your analysts · version '+v,ic:'ti-users',
+    body:[['What Ray does',(E.cur(uc)?E.cur(uc).wf.nodes.filter(n=>n.ai).length:0)+' of the steps are decided by Ray; the rest stay rules or people.'],
+      ['What you still own','Anything Ray parks for review, every escalation, and every filing decision.'],
+      ['How to read Ray’s note','Ray writes the disposition, quotes the identifiers it compared and records a confidence level.'],
+      ['If Ray is wrong','Reject it in the alert and tell your team lead — the comment comes back into the playbook.'],
+      ['Authority today',uc.operate.live?D.AUTHORITY.find(a=>a.id===uc.operate.auth).t:'None yet — Ray affects no real alert until go-live.']]}];
+};
+E.readDoc=(uc,id)=>{const d=E.rayDocs(uc).find(x=>x.id===id);if(d){E.note(uc,'Opened the '+d.t.toLowerCase(),'you','view');}};
+E.downloadDoc=(uc,id)=>{
+  const d=E.rayDocs(uc).find(x=>x.id===id);if(!d)return;
+  const txt=[uc.name+' — '+d.t,d.sub,''].concat(d.body.map(b=>b[0].toUpperCase()+'\n'+b[1]+'\n')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
+  a.download=uc.name.replace(/[^a-z0-9]+/gi,'_').toLowerCase()+'_'+d.id+'.txt';document.body.appendChild(a);a.click();a.remove();
+  E.note(uc,'Downloaded the '+d.t.toLowerCase(),'you','download');emit();
+};
+E.updatePolicy=async(uc)=>{
+  const wf=clone(E.cur(uc).wf),NV=uc.versions.length+1;
+  const targets=wf.nodes.filter(n=>n.pol).slice(0,2),changed=[];
+  targets.forEach((n,i)=>{const before=n.sla;n.sla=i===0?'24 hours':n.sla;
+    n.chg=Object.assign({ver:NV},i===0?{sla:{before,after:'24 hours'}}:{note:{after:'Follow the updated clause wording'}});
+    if(i!==0)n.note='Follow the updated clause wording';changed.push(n.id);});
+  E.docs(uc).unshift({id:'d'+uid(),name:'AML_Policy_2027.pdf',size:'2.6 MB',ext:'PDF',c:'#DC3F3B',found:'3 clauses changed',kind:'policy',pct:100,fresh:true});
+  const v=E.addVersion(uc,wf,'ray','Updated from the new policy',changed);
+  E.pulse(uc,changed);E.log(uc,'v'+v.n+': compared the new policy · 3 clauses changed · updated '+changed.length+' steps','ray','change');
+  if(uc.stage==='build')uc.gate={what:'build'};
+  else{uc.stale=true;}
+  emit();
+  await E.ray(uc,'Compared the new policy against the old one: **3 clauses changed**, and I updated '+changed.length+' steps in **version '+v.n+'**.'+(uc.done.train?' Because this is already past Train, **run practice again before it goes live** — I’ve marked it.':''),{type:'anchor',anchor:changed[0]});
+};
+
+/* ---------- skip a stage (POC paths) ---------- */
+E.skipStage=async(uc,what)=>{
+  uc.skipped=uc.skipped||{};
+  const go=async(k)=>{uc.skipped[k]=true;uc.done[k]=true;E.log(uc,'Skipped '+PHASE[k]+' — accepted the consequences','you','decision');};
+  if(what==='train'||what==='both')await go('train');
+  if(what==='prove'||what==='both')await go('prove');
+  uc.stage=uc.skipped.prove?'operate':'prove';
+  uc.gate={what:uc.stage==='operate'?'live':'prove'};
+  uc.step=uc.stage==='operate'?'o.gate':'p.gate';
+  if(uc.stage==='operate')D.CHECKLIST.forEach((c,i)=>{if(c.ray)uc.operate.chk[i]='ray';});
+  emit();
+  await E.ray(uc,'Skipped '+(what==='both'?'**Train and Prove**':'**'+PHASE[what]+'**')+'. That is recorded in the audit trail with your name — and the go-live checklist now says the workflow was never tested on your alerts.');
+};
+
+/* ---------- change a live use case ---------- */
+E.requestChange=async(uc,text)=>{
+  uc.stale=true;uc.changeReq=text||'Change requested';
+  uc.stage='build';uc.step='b.refine';uc.gate={what:'build'};uc.done.train=false;uc.done.prove=false;
+  uc.train.rounds=[];uc.train.sugs={};uc.train.applied={};uc.prove.day=0;uc.prove.running=false;uc.prove.requested=false;uc.prove.signed={};
+  E.log(uc,'Change requested in production: “'+(text||'')+'” — back to Build; Train and Prove must run again','you','decision');
+  emit();
+  await E.ray(uc,'I took the live version as the starting point and opened a **draft**. Ray keeps running live on version '+uc.signedVer+' until you sign a new one — this draft has to go through **Train and Prove** again first.');
+};
+
+/* ---------- copy a flow into a new use case ---------- */
+E.copyFlow=async(uc,opts,tplId)=>{
+  const t=D.TEMPLATES.find(x=>x.id===tplId)||E.tplOf(uc);
+  const nu=E.newUC(t.id);S.openId=nu.id;
+  nu.brief.docs=!!opts.policy;nu.brief.report=uc.report||'predefined';nu.brief.level=uc.level;
+  if(opts.policy){nu.policy=clone(uc.policy);nu.hasDocs=uc.hasDocs;nu.docList=clone(E.docs(uc));}
+  if(opts.workflow){const wf=clone(E.cur(uc).wf);wf.nodes.forEach(n=>{delete n.chg;delete n.isNew;if(!opts.tuning){delete n.tuned;delete n.tunedT;delete n.tunedVer;delete n.tunedBy;}});
+    E.addVersion(nu,wf,'ray','Copied from '+uc.name,[]);}
+  if(opts.tuning)nu.train.sugs=clone(uc.train.sugs);
+  nu.copiedFrom=uc.name;
+  const flags=opts.workflow?clone(E.cur(uc).wf).nodes.filter(n=>/report|OFSI|SEPBLAC|MROS|STRO|goAML|escalation mailbox/i.test(n.t+(n.acts||[]).join(' '))).map(n=>n.t):[];
+  nu.checkNodes=flags;
+  E.log(nu,'Copied from '+uc.name+': '+Object.keys(opts).filter(k=>opts[k]).join(', '),'you','copy');
+  emit();
+  await E.ray(nu,'Copied from **'+uc.name+'**'+(flags.length?'. **'+flags.length+' step'+(flags.length>1?'s look':' looks')+' country-specific** — check '+flags.map(f=>'“'+f+'”').join(' and ')+' against '+t.r+'.':'.')+' The brief is ready — press Start when it looks right.');
+};
+
+/* Ray speaks its replies when conversation mode is on */
+const baseRay=E.ray;
+E.ray=async(uc,text,card,opts)=>{const m=await baseRay(uc,text,card,opts);if(text&&E.speak)E.speak(text);return m;};
+
 /* ---------- talk ---------- */
 E.say=async(uc,text,via)=>{
   if(!text.trim())return;E.you(uc,text,via);const s=text.toLowerCase();
@@ -229,9 +430,15 @@ E.say=async(uc,text,via)=>{
   if(has(s,['accept all'])&&uc.train.rounds.length&&E.tuneSet(uc).some(x=>!uc.train.sugs[x.id])){await E.acceptAllSugs(uc);return;}
   if(/\b(sign|approve|go live)\b/.test(s)&&uc.gate){uc.openSheet=Date.now();emit();await E.ray(uc,'Here’s what you’re signing.');return;}
   if(has(s,['skip','fast forward','fast-forward'])&&uc.prove.running){await E.skipShadow(uc);return;}
+  if(has(s,['skip train','skip the train','skip practice'])&&!uc.done.train){await E.skipStage(uc,'prove'===0?'prove':'train');return;}
+  if(has(s,['skip prove','skip the shadow','skip shadow'])&&!uc.done.prove){await E.skipStage(uc,'prove');return;}
+  if(has(s,['hand it to dana','hand to dana','give it to dana','dana should'])&&uc.stage==='train'){await E.handTo(uc,'dana');return;}
+  if(has(s,['new policy','updated policy','policy changed','update the policy'])){await E.updatePolicy(uc);return;}
+  if(has(s,['copy this','copy the flow','duplicate'])){uc.openCopy=Date.now();emit();await E.ray(uc,'Pick what to copy and where it goes.');return;}
+  if(E.openCmts(uc).length&&has(s,['run the comments','apply the comments','run comments'])){await E.runComments(uc);return;}
   const conf=[...uc.msgs].reverse().find(m=>m.card&&m.card.type==='confirm'&&!m.card.done);
   if(conf&&/\b(yes|start|go|run)\b/.test(s)){await E.confirm(uc,conf.id,conf.card.what);return;}
-  if(uc.operate.live){await E.ray(uc,'Noted: “'+text+'”. I’ll draft it as **version '+(E.cur(uc).n+1)+'** and run it through Train and Prove first — it won’t touch a real alert until you sign.');E.log(uc,'Change requested in production: “'+text+'”','you','you');return;}
+  if(uc.operate.live){await E.requestChange(uc,text);return;}
   if(uc.step==='building'||uc.run){await E.ray(uc,'One moment — I’m mid-way. I’ll take that right after.');return;}
   if(uc.versions.length&&(uc.stage==='build'||uc.stage==='train')){await E.refine(uc,text);if(uc.stage==='build')uc.gate={what:'build'};emit();return;}
   await E.ray(uc,'Got it. Right now: **'+uc.next.what+'**. You can also ask *“where are we?”*, *“why?”* or *“undo”*.');
