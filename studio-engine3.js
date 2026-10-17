@@ -164,6 +164,53 @@ E.applyComment3=async(uc,yes)=>{
   E.log(uc,'Declined Dana’s suggestion: '+c.text,'you','you');emit();await E.ray(uc,'Declined — I’ll let Dana know, with the reason in the audit trail.');
 };
 
+/* ---------- direct edits: same tracked change, version and audit entry as talking ---------- */
+E.ROLES=['System','Ray','Analyst L1','Analyst L2','Supervisor','MLRO'];
+E.SLAS=['Instant','4 hours','24 hours','48 hours','5 days','10 days','30 days'];
+const numOf=(wf,id)=>[...wf.nodes].sort((a,b)=>a.r-b.r||a.c-b.c).findIndex(n=>n.id===id)+1;
+async function commit(uc,wf,summary,changed,anchorId,line){
+  const v=E.addVersion(uc,wf,'you',summary,changed);
+  const n=wf.nodes.find(x=>x.id===anchorId);
+  uc.lastChange={v:v.n,summary,clause:(n&&uc.policy.find(c=>c.no===n.pol))||uc.policy[0],intent:'edit'};
+  if(changed.length)E.pulse(uc,changed);
+  E.log(uc,'v'+v.n+': '+summary,'you','you');
+  E.logMsg(uc,'Version '+v.n+' · edited in the playbook','ti-pencil');
+  if(uc.stage==='build')uc.gate={what:'build'};
+  emit();
+  await E.ray(uc,line+' — **version '+v.n+'**.',anchorId?{type:'anchor',anchor:anchorId}:null);
+}
+E.editStep=async(uc,id,d)=>{
+  const wf=clone(E.cur(uc).wf),NV=uc.versions.length+1,n=wf.nodes.find(x=>x.id===id);if(!n)return;
+  const chg={ver:NV},parts=[];
+  if(d.role&&d.role!==n.role){chg.role={before:n.role,after:d.role};parts.push('owner is now '+d.role);n.role=d.role;}
+  if(d.sla&&d.sla!==n.sla){chg.sla={before:n.sla,after:d.sla};parts.push('deadline is now '+d.sla);n.sla=d.sla;}
+  if(d.ai!==undefined&&!!d.ai!==!!n.ai){chg.ai={before:n.ai?'Ray decides':'a fixed rule',after:d.ai?'Ray decides':'a fixed rule'};parts.push(d.ai?'Ray decides it':'a fixed rule decides it');n.ai=!!d.ai;}
+  if(d.note&&d.note.trim()){chg.note={after:d.note.trim()};parts.push('your instruction added');n.note=d.note.trim();}
+  if(!parts.length)return;
+  n.chg=chg;
+  await commit(uc,wf,'Step “'+n.t+'”: '+parts.join('; '),[n.id],n.id,'Step '+numOf(wf,n.id)+' updated: '+parts.join(', '));
+};
+E.addStep=async(uc,afterId,d)=>{
+  const wf=clone(E.cur(uc).wf),NV=uc.versions.length+1;
+  const a=wf.nodes.find(x=>x.id===afterId)||wf.nodes[wf.nodes.length-1];
+  const nid='s'+Math.random().toString(36).slice(2,7);
+  wf.nodes.forEach(x=>{if(x.r>a.r)x.r++;});
+  wf.edges=wf.edges.map(e=>e[0]===a.id?[nid,e[1],e[2]]:e);
+  wf.edges.push([a.id,nid]);
+  wf.nodes.push({id:nid,t:(d.t||'New step').trim(),k:d.ai?'search2':'rule',ai:!!d.ai,role:d.role||'Analyst L1',sla:d.sla||'24 hours',pol:a.pol,isNew:NV,r:a.r+1,c:a.c});
+  await commit(uc,wf,'Added step “'+(d.t||'New step').trim()+'” after “'+a.t+'”',[nid],nid,'Added “'+(d.t||'New step').trim()+'” as step '+numOf(wf,nid));
+};
+E.removeStep=async(uc,id)=>{
+  const wf=clone(E.cur(uc).wf),n=wf.nodes.find(x=>x.id===id);
+  if(!n||wf.nodes.length<3)return;
+  const ins=wf.edges.filter(e=>e[1]===id),outs=wf.edges.filter(e=>e[0]===id);
+  wf.edges=wf.edges.filter(e=>e[0]!==id&&e[1]!==id);
+  ins.forEach(i=>outs.forEach(o=>{if(i[0]!==o[1]&&!wf.edges.some(e=>e[0]===i[0]&&e[1]===o[1]))wf.edges.push([i[0],o[1],i[2]||o[2]]);}));
+  wf.nodes=wf.nodes.filter(x=>x.id!==id);
+  if(!wf.nodes.some(x=>x.r===n.r))wf.nodes.forEach(x=>{if(x.r>n.r)x.r--;});
+  await commit(uc,wf,'Removed step “'+n.t+'”',[],null,'Removed “'+n.t+'”');
+};
+
 /* ---------- talk ---------- */
 E.say=async(uc,text,via)=>{
   if(!text.trim())return;E.you(uc,text,via);const s=text.toLowerCase();

@@ -133,7 +133,8 @@ function Today({onBrowse}){
     if(k==='sigs'){E.requestSigs(u);u.need=null;E.emit();flash('Signatures requested — MLRO and Head of FCC');}};
   const sugs=[['ti-shield-check','UK transaction screening, on autopilot, with our AML policy'],['ti-route','Retail transaction monitoring, step by step'],['ti-flask','The real-world screening example']];
   const live=S.ucs.filter(u=>u.operate.live).length,working=S.ucs.filter(u=>!u.operate.live&&(u.prove.running||u.next.who==='ray')).length;
-  return <div className="s3-home">
+  return <>
+    <div className="s3-home">
     <div className="s3-hero"><div className="s3-hero-in">
       <div className="s3-orb lg">✦</div>
       <h1>What should Ray learn to investigate?</h1>
@@ -151,9 +152,10 @@ function Today({onBrowse}){
       <b>Your investigators</b><span className="s3-pill">{S.ucs.length}</span>
       <span className="dots">{S.ucs.slice(0,6).map(u=>{const st=D.STAGES.find(x=>x.k===u.stage);return <i key={u.id} title={u.name+' · '+st.t} style={{background:u.operate.live?'var(--ok)':st.c}}></i>;})}</span>
       <span className="sp"></span><span className="sum">{live} live · {working} working · {S.ucs.length-live-working} waiting</span><i className="ti ti-chevron-up"></i></button>
+    </div>
     {drawer&&<Drawer onClose={()=>setDrawer(false)} onOpen={u=>{setDrawer(false);E.open(u.id);}} onNew={()=>{setDrawer(false);E.startBlank();}}/>}
     {toast&&<div className="s3-toast"><i className="ti ti-circle-check"></i>{toast}</div>}
-  </div>;
+  </>;
 }
 
 /* the ONE line that says where you are and what's next */

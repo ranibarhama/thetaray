@@ -61,26 +61,61 @@ function Ev({s}){
       {n>3&&<tr><td colSpan="3" style={{color:'var(--ink-3)'}}>+ {n-3} more</td></tr>}</tbody></table>}</>;
 }
 
+/* ---------- edit a step directly ---------- */
+function StepEdit({uc,n,num,close,talk}){
+  const [role,setRole]=useState(n.role),[sla,setSla]=useState(n.sla),[ai,setAi]=useState(!!n.ai),[note,setNote]=useState('');
+  const [adding,setAdding]=useState(false);
+  const [nt,setNt]=useState(''),[nrole,setNrole]=useState('Analyst L1'),[nsla,setNsla]=useState('24 hours'),[nai,setNai]=useState(false);
+  const dirty=role!==n.role||sla!==n.sla||ai!==!!n.ai||!!note.trim();
+  const apply=()=>{close();E.editStep(uc,n.id,{role,sla,ai,note});};
+  return <div className="s3-edit" onClick={e=>e.stopPropagation()}>
+    <div className="s3-eh"><i className="ti ti-pencil"></i>Edit step {num}<span className="sp"></span><button className="s3-ib" style={{width:26,height:26,fontSize:15}} onClick={close}><i className="ti ti-x"></i></button></div>
+    <div className="s3-er"><label>Who handles it</label><div className="s3-seg">{E.ROLES.map(r=><button key={r} className={role===r?'on':''} onClick={()=>setRole(r)}>{r}</button>)}</div></div>
+    <div className="s3-er"><label>How fast</label><div className="s3-seg">{E.SLAS.map(x=><button key={x} className={sla===x?'on':''} onClick={()=>setSla(x)}>{x}</button>)}</div></div>
+    <div className="s3-er"><label>Decided by</label><div className="s3-seg"><button className={ai?'on':''} onClick={()=>setAi(true)}>✦ Ray</button><button className={!ai?'on':''} onClick={()=>setAi(false)}>A fixed rule</button></div></div>
+    <div className="s3-er"><label>Add an instruction</label><textarea rows={2} value={note} placeholder={n.note?'Current: “'+n.note+'” — type to replace it':'e.g. always call the customer above €50,000'} onChange={e=>setNote(e.target.value)}/></div>
+    {adding&&<div className="s3-newform" onClick={e=>e.stopPropagation()}>
+      <input autoFocus value={nt} placeholder="What happens in the new step?" onChange={e=>setNt(e.target.value)}/>
+      <div className="s3-er"><label>Who handles it</label><div className="s3-seg">{E.ROLES.map(r=><button key={r} className={nrole===r?'on':''} onClick={()=>setNrole(r)}>{r}</button>)}</div></div>
+      <div className="s3-er"><label>How fast</label><div className="s3-seg">{E.SLAS.map(x=><button key={x} className={nsla===x?'on':''} onClick={()=>setNsla(x)}>{x}</button>)}</div></div>
+      <div className="s3-er"><label>Decided by</label><div className="s3-seg"><button className={nai?'on':''} onClick={()=>setNai(true)}>✦ Ray</button><button className={!nai?'on':''} onClick={()=>setNai(false)}>A fixed rule</button></div></div>
+      <div className="s3-ef"><button className="s3-b pri sm" disabled={!nt.trim()} onClick={()=>{close();E.addStep(uc,n.id,{t:nt,role:nrole,sla:nsla,ai:nai});}}><i className="ti ti-plus"></i>Add after step {num}</button>
+        <button className="s3-b gh sm" onClick={()=>setAdding(false)}>Cancel</button></div></div>}
+    <div className="s3-ef">
+      <button className="s3-b ok sm" disabled={!dirty} onClick={apply}><i className="ti ti-check"></i>Apply{dirty?' changes':''}</button>
+      {!adding&&<button className="s3-b sm" onClick={()=>setAdding(true)}><i className="ti ti-plus"></i>Add a step after</button>}
+      <button className="s3-b danger sm" onClick={()=>{close();E.removeStep(uc,n.id);}}><i className="ti ti-trash"></i>Remove</button>
+      <span className="sp"></span>
+      <span className="s3-or"><i className="ti ti-microphone"></i><button className="s3-ev" onClick={()=>{close();talk();}}>or tell Ray instead</button></span>
+    </div>
+  </div>;
+}
+
 /* ---------- one playbook step ---------- */
-function Step({uc,v,n,idx,num,onStep,readOnly}){
+function Step({uc,v,n,idx,num,onStep,readOnly,editId,setEditId}){
   const tracked=x=>x&&!readOnly&&x.ver>uc.signedVer;
   const cg=tracked(n.chg)?n.chg:null;
+  const F=f=>!cg?null:(cg.f===f?{before:cg.before,after:cg.after}:cg[f]);
+  const open=editId===n.id&&!readOnly;
   const isNew=!readOnly&&n.isNew&&n.isNew>uc.signedVer;
   const fresh=Date.now()-uc.pulse.t<3500&&uc.pulse.ids.includes(n.id);
-  const who=cg&&cg.f==='role'?<><del className="s3d">{WHO[cg.before]||cg.before}</del> <ins className="s3i">{WHO[cg.after]||cg.after}</ins></>:(WHO[n.role]||n.role);
-  const wh=cg&&cg.f==='sla'?<>within <del className="s3d">{cg.before}</del> <ins className="s3i">{cg.after}</ins></>:when(n.sla);
-  const title=cg&&cg.f==='title'?<><del className="s3d">{cg.before}</del> <ins className="s3i">{cg.after}</ins></>:n.t;
+  const rf=F('role'),sf=F('sla'),tf=F('title'),nf=F('note'),af=F('ai');
+  const who=rf?<><del className="s3d">{WHO[rf.before]||rf.before}</del> <ins className="s3i">{WHO[rf.after]||rf.after}</ins></>:(WHO[n.role]||n.role);
+  const wh=sf?<>within <del className="s3d">{sf.before}</del> <ins className="s3i">{sf.after}</ins></>:when(n.sla);
+  const title=tf?<><del className="s3d">{tf.before}</del> <ins className="s3i">{tf.after}</ins></>:n.t;
   const outs=v.wf.edges.filter(e=>e[0]===n.id&&e[2]).map(e=>({l:e[2],to:idx[e[1]]})).filter(o=>o.to);
   const pend=uc.train.rounds.length&&!readOnly?E.tuneSet(uc).filter(s=>s.node===n.id&&!uc.train.sugs[s.id]):[];
   const cmt=!readOnly&&uc.comment&&uc.comment.node===n.id?uc.comment:null;
   const tFresh=n.tuned&&!readOnly&&n.tunedVer>uc.signedVer;
-  return <div className={'s3-step'+(isNew?' new':'')+(fresh?(uc.pulse.fresh?' appear':' pulse'):'')} data-nid={n.id} onClick={()=>!readOnly&&onStep&&onStep(n,num)}>
+  return <div className={'s3-step'+(isNew?' new':'')+(fresh?(uc.pulse.fresh?' appear':' pulse'):'')} data-nid={n.id} onClick={()=>!readOnly&&setEditId(open?null:n.id)}>
     <span className="num">{num}</span>
     <div>
-      <div className="hd"><span className="t">{title}</span>{n.ai&&<span className="s3-aitag">✦ AI</span>}{n.pol&&<span className="s3-cl">§{n.pol}</span>}{isNew&&<span className="s3-pill ok">New</span>}</div>
+      <div className="hd"><span className="t">{title}</span>{n.ai&&<span className="s3-aitag">✦ AI</span>}{n.pol&&<span className="s3-cl">§{n.pol}</span>}{isNew&&<span className="s3-pill ok">New</span>}
+        {!readOnly&&<span className="s3-editbtn"><i className="ti ti-pencil"></i>Edit</span>}</div>
       <div className="s">{who} {n.ai&&n.role==='Ray'?'decides':'handles this'} {wh}.</div>
       {outs.length>0&&<div className="br">{outs.map(o=><span key={o.l}><i className="ti ti-corner-down-right"></i>If {o.l.toLowerCase()} → <b>step {o.to.num}</b></span>)}</div>}
-      {n.note&&<div className="s3-tuned fresh"><i className="ti ti-message-2"></i><span>{cg&&cg.f==='note'?<ins className="s3i">Your instruction: “{n.note}”</ins>:'Your instruction: “'+n.note+'”'}</span></div>}
+      {af&&<div className="s3-tuned fresh"><i className="ti ti-sparkles"></i><span>Now <del className="s3d">{af.before}</del> <ins className="s3i">{af.after}</ins></span></div>}
+      {n.note&&<div className="s3-tuned fresh"><i className="ti ti-message-2"></i><span>{nf?<ins className="s3i">Your instruction: “{n.note}”</ins>:'Your instruction: “'+n.note+'”'}</span></div>}
       {n.tuned&&<div className={'s3-tuned'+(tFresh?' fresh':'')}><i className="ti ti-sparkles"></i><span>{tFresh?<ins className="s3i">{n.tuned}</ins>:n.tuned}{tFresh&&n.tunedBy==='ray'?<span className="s3-pill" style={{marginLeft:6}}>Fixed by Ray</span>:null}</span></div>}
       {(cg||isNew)&&<div className="s3-chg"><i className="ti ti-git-commit"></i>{isNew?'Added':'Changed'} in v{(cg||{}).ver||n.isNew}{cg&&cg.by==='dana'?' from Dana’s suggestion':''}
         {E.cur(uc).n===((cg||{}).ver||n.isNew)&&<> · <button onClick={e=>{e.stopPropagation();E.undo(uc);}}>Undo</button></>}
@@ -91,12 +126,25 @@ function Step({uc,v,n,idx,num,onStep,readOnly}){
         <div className="tx"><del className="s3d">{s.cur}</del><br/><ins className="s3i">{s.sug}</ins></div>
         <div className="acts"><button className="s3-b ok sm" onClick={()=>E.decideSug(uc,s.id,true)}><i className="ti ti-check"></i>Accept</button><button className="s3-b sm" onClick={()=>E.decideSug(uc,s.id,false)}>Reject</button><Ev s={s}/></div>
       </div>;})}
+      {open&&<StepEdit uc={uc} n={n} num={num} close={()=>setEditId(null)} talk={()=>onStep&&onStep(n,num)}/>}
       {cmt&&<div className="s3-sug dana" onClick={e=>e.stopPropagation()}>
         <div className="sh"><U.Av who={cmt.who}/>{P(cmt.who).n} suggests<span className="sp"></span><span className="s3-pill">{P(cmt.who).r}</span></div>
         <div className="tx" style={{marginTop:8}}>“{cmt.text}”<br/><span style={{color:'var(--ink-2)'}}>{WHO[n.role]} → </span><ins className="s3i">A supervisor</ins></div>
         <div className="acts"><button className="s3-b ok sm" onClick={()=>E.applyComment3(uc,true)}><i className="ti ti-check"></i>Accept</button><button className="s3-b sm" onClick={()=>E.applyComment3(uc,false)}>Decline</button></div>
       </div>}
     </div>
+  </div>;
+}
+
+function NewStep({uc,after,num,close}){
+  const [t,setT]=useState(''),[role,setRole]=useState('Analyst L1'),[sla,setSla]=useState('24 hours'),[ai,setAi]=useState(false);
+  return <div className="s3-newform">
+    <input autoFocus value={t} placeholder="What happens in the new step?" onChange={e=>setT(e.target.value)}/>
+    <div className="s3-er"><label>Who handles it</label><div className="s3-seg">{E.ROLES.map(r=><button key={r} className={role===r?'on':''} onClick={()=>setRole(r)}>{r}</button>)}</div></div>
+    <div className="s3-er"><label>How fast</label><div className="s3-seg">{E.SLAS.map(x=><button key={x} className={sla===x?'on':''} onClick={()=>setSla(x)}>{x}</button>)}</div></div>
+    <div className="s3-er"><label>Decided by</label><div className="s3-seg"><button className={ai?'on':''} onClick={()=>setAi(true)}>✦ Ray</button><button className={!ai?'on':''} onClick={()=>setAi(false)}>A fixed rule</button></div></div>
+    <div className="s3-ef"><button className="s3-b pri sm" disabled={!t.trim()} onClick={()=>{close();E.addStep(uc,after.id,{t,role,sla,ai});}}><i className="ti ti-plus"></i>Add step {num+1}</button>
+      <button className="s3-b gh sm" onClick={close}>Cancel</button></div>
   </div>;
 }
 
@@ -126,19 +174,19 @@ function Ready({uc}){
 }
 
 /* ---------- optional flow view ---------- */
-function Flow({uc,v,onStep,idx}){
+function Flow({uc,v,onStep,idx,onPick}){
   const NW=180,GAP=20,RH=104;const wf=v.wf,rows=wf.nodes.reduce((a,n)=>Math.max(a,n.r),0)+1;
   const pos=n=>({x:n.c*(NW+GAP),y:n.r*RH}),W=3*NW+2*GAP,H=rows*RH-34;
-  return <div className="s3-flowwrap"><div className="s3-flow" style={{width:W,height:H}}>
+  return <div className="s3-flowwrap"><div className="s3-flownote"><i className="ti ti-hand-finger"></i>Tap a card to edit that step</div><div className="s3-flow" style={{width:W,height:H}}>
     <svg width={W} height={H}>{wf.edges.map((e,i)=>{const a=wf.nodes.find(n=>n.id===e[0]),b=wf.nodes.find(n=>n.id===e[1]);if(!a||!b)return null;const p=pos(a),q=pos(b),x1=p.x+NW/2,y1=p.y+56,x2=q.x+NW/2,y2=q.y;
       return <g key={i}><path d={`M${x1} ${y1} C${x1} ${y1+22},${x2} ${y2-22},${x2} ${y2-2}`}/>{e[2]&&<text x={x1===x2?x1+7:(x1+x2)/2} y={(y1+y2)/2+3} textAnchor={x1===x2?'start':'middle'}>{e[2]}</text>}</g>;})}</svg>
-    {wf.nodes.map(n=>{const p=pos(n);return <div key={n.id} className={'s3-nd'+(v.changed.includes(n.id)?' chg':'')} style={{left:p.x,top:p.y}} onClick={()=>onStep&&onStep(n,idx[n.id].num)}>{idx[n.id].num}. {n.t}<span>{n.role} · {n.sla}</span></div>;})}
+    {wf.nodes.map(n=>{const p=pos(n);return <div key={n.id} className={'s3-nd'+(v.changed.includes(n.id)?' chg':'')} style={{left:p.x,top:p.y}} onClick={()=>onPick&&onPick(n)}>{idx[n.id].num}. {n.t}<span>{n.role} · {n.sla}</span></div>;})}
   </div></div>;
 }
 
 /* ---------- the Playbook ---------- */
 U.Playbook=function({uc,onStep,viewVer,setViewVer}){
-  const [view,setView]=useState('steps');
+  const [view,setView]=useState('steps');const [editId,setEditId]=useState(null);const [adding,setAdding]=useState(false);
   const [rules,setRules]=useState(false);const [rep,setRep]=useState(false);
   const cur=E.cur(uc);
   const v=viewVer?uc.versions.find(x=>x.n===viewVer):cur;
@@ -155,10 +203,16 @@ U.Playbook=function({uc,onStep,viewVer,setViewVer}){
     {!readOnly&&<Ready uc={uc}/>}
     <div className="s3-pbh"><div><div className="s3-kick"><i className="ti ti-book-2"></i>Playbook · version {v.n}</div>
       <div className="s3-title">{t?t.t:'Playbook'}</div>
-      <p className="s3-lead" style={{marginBottom:0}}>{ord.length} steps, each tied to your policy.{pending&&!readOnly?<> <b style={{color:'var(--t-violet)'}}>{pending} suggestion{pending>1?'s':''} to decide.</b></>:''}{uc.comment&&!readOnly?<> <b style={{color:'var(--t-act)'}}>1 suggestion from Dana.</b></>:''} Tap any step to talk about it.</p></div>
-      <span className="sp"></span><div className="s3-seg" style={{flex:'0 0 auto'}}><button className={view==='steps'?'on':''} onClick={()=>setView('steps')}>Steps</button><button className={view==='flow'?'on':''} onClick={()=>setView('flow')}>Flow</button></div></div>
+      <p className="s3-lead" style={{marginBottom:0}}>{ord.length} steps, each tied to your policy.{pending&&!readOnly?<> <b style={{color:'var(--t-violet)'}}>{pending} suggestion{pending>1?'s':''} to decide.</b></>:''}{uc.comment&&!readOnly?<> <b style={{color:'var(--t-act)'}}>1 suggestion from Dana.</b></>:''} <b> Tap any step to edit it</b> — or tell Ray.</p></div>
+      <span className="sp"></span><div className="s3-seg" style={{flex:'0 0 auto'}} title="Read it as steps, or see the diagram">
+      <button className={view==='steps'?'on':''} onClick={()=>setView('steps')}><i className="ti ti-list-numbers"></i>Steps</button>
+      <button className={view==='flow'?'on':''} onClick={()=>setView('flow')}><i className="ti ti-binary-tree"></i>Diagram</button></div></div>
     <div className="s3-sect">
-      {view==='steps'?ord.map((n,i)=><Step key={n.id} uc={uc} v={v} n={n} idx={idx} num={i+1} onStep={onStep} readOnly={readOnly}/>):<Flow uc={uc} v={v} idx={idx} onStep={onStep}/>}
+      {view==='steps'?<>{ord.map((n,i)=><Step key={n.id} uc={uc} v={v} n={n} idx={idx} num={i+1} onStep={onStep} readOnly={readOnly} editId={editId} setEditId={setEditId}/>)}
+        {!readOnly&&(adding
+          ?<NewStep uc={uc} after={ord[ord.length-1]} num={ord.length} close={()=>setAdding(false)}/>
+          :<button className="s3-addrow" onClick={()=>setAdding(true)}><i className="ti ti-plus"></i>Add a step at the end</button>)}</>
+        :<Flow uc={uc} v={v} idx={idx} onStep={onStep} onPick={n=>{setView('steps');setEditId(n.id);setTimeout(()=>{const el=document.querySelector('[data-nid="'+n.id+'"]');if(el)el.scrollIntoView({block:'center'});},60);}}/>}
     </div>
     <div className="s3-sect"><h3><i className="ti ti-book"></i>Rules Ray follows · {uc.policy.length}<span className="sp"></span><button onClick={()=>setRules(x=>!x)}>{rules?'Hide':'Show'}<i className={'ti '+(rules?'ti-chevron-up':'ti-chevron-down')}></i></button></h3>
       {!rules&&<div style={{fontSize:13.5,color:'var(--ink-2)'}}>From {uc.hasDocs&&uc.files.length?uc.files.map(f=>f.name).slice(0,2).join(', ')+(uc.files.length>2?' and '+(uc.files.length-2)+' more':''):'the ThetaRay template'} — every clause linked to its page.</div>}
