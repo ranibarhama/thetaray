@@ -45,19 +45,20 @@ function Composer({onSend,placeholder,scriptKey,big,prefill,autoFocus,hint}){
   const typing=!!txt.trim(),on=voice.st.on;
   return <div className="s3-cw">
     <div className={'s3-cmp'+(big?' big':'')+(on?' hearing':'')}>
+      <button className={'s3-micb'+(on?' on':'')+(!VOICE_USED&&!typing&&!on?' alive':'')} title={on?'Stop listening':'Speak to Ray'}
+        onClick={()=>on?voice.stop():voice.start()}><i className={'ti '+(on?'ti-player-stop-filled':'ti-microphone')}></i></button>
       {on
         ?<div className="s3-voice"><div className="s3-wave">{Array.from({length:11}).map((_,i)=><i key={i}></i>)}</div>
           <div className="vt"><div className="vl">{voice.st.demo?'Voice demo · microphone unavailable here':'Listening — just say it'}</div>{voice.st.interim||<em>“Change the SLA to 24 hours for high-risk alerts”…</em>}</div></div>
         :<textarea ref={ta} rows={1} value={txt} autoFocus={autoFocus} placeholder={placeholder} onChange={e=>setTxt(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}}/>}
-      <button className={'s3-talk'+(on?' on':typing?' send':'')} title={on?'Stop and send':typing?'Send':'Tap and speak to Ray'}
-        onClick={()=>on?voice.stop():typing?send():voice.start()}>
-        {on?<><i className="ti ti-player-stop-filled"></i><span>Stop</span></>:typing?<i className="ti ti-arrow-up"></i>:<><i className="ti ti-microphone"></i><span>Talk</span></>}</button>
+      <button className={'s3-sendb'+(typing?' on':'')} title={typing?'Send':'Type or speak, then send'} disabled={!typing&&!on}
+        onClick={()=>on?voice.stop():send()}><i className="ti ti-arrow-up"></i></button>
     </div>
     {(on||conv)&&<div className="s3-hint" style={{justifyContent:'space-between'}}>
       <button className="s3-ev" onClick={()=>{const v=!conv;setConv(v);SPEAK.on=v;if(!v&&window.speechSynthesis)window.speechSynthesis.cancel();}}>
         <i className={'ti '+(conv?'ti-volume':'ti-volume-off')}></i>{conv?'Conversation mode on — Ray speaks and keeps listening':'Turn on conversation mode'}</button>
       <span></span></div>}
-    {hint&&!VOICE_USED&&!typing&&!on&&<div className="s3-hint"><span>Tap <b>Talk</b> and say it out loud — Ray understands plain language</span><i className="ti ti-corner-right-up"></i></div>}
+    {hint&&!VOICE_USED&&!typing&&!on&&<div className="s3-hint"><span>Tap the <b>microphone</b> and say it out loud — Ray understands plain language</span><i className="ti ti-corner-right-up"></i></div>}
   </div>;
 }
 
@@ -241,16 +242,19 @@ function Workspace({uc,onBrowse}){
   const [prefill,setPrefill]=useState(null);const [menu,setMenu]=useState(false);const [sheet,setSheet]=useState(false);const [audit,setAudit]=useState(false);
   const [skip,setSkip]=useState(false);const [copy,setCopy]=useState(false);const [more,setMore]=useState(false);const [railOff,setRailOff]=useState(false);
   const [rail,setRail]=useState(false);const [viewVer,setViewVer]=useState(null);
+  const [ask,setAsk]=useState(null);
   const [mob,setMob]=useState(()=>window.matchMedia('(max-width:900px)').matches);
   const th=useRef(null);const seenMsgs=useRef(uc.msgs.length);
   useEffect(()=>{const mq=window.matchMedia('(max-width:900px)');const f=()=>setMob(mq.matches);mq.addEventListener?mq.addEventListener('change',f):mq.addListener(f);return()=>{mq.removeEventListener?mq.removeEventListener('change',f):mq.removeListener(f);};},[]);
   useEffect(()=>{if(th.current)th.current.scrollTop=th.current.scrollHeight;},[uc.msgs.length,uc.typing,rail]);
   useEffect(()=>{if(uc.openSheet)setSheet(true);},[uc.openSheet]);
   useEffect(()=>{if(uc.openCopy)setCopy(true);},[uc.openCopy]);
+  useEffect(()=>{if(uc.ask){setAsk(uc.ask);uc.ask=null;}},[uc.ask,uc.v]);
   useEffect(()=>{if(rail||!mob)seenMsgs.current=uc.msgs.length;},[rail,mob,uc.msgs.length]);
   const goStep=id=>{setViewVer(null);setRail(false);E.pulse(uc,[id]);};
   const onStep=(n,num)=>{uc.focusNode=n.id;setPrefill({text:'About step '+num+' ('+n.t+'): ',t:Date.now()});};
   const r=readiness(uc,goStep,()=>setSheet(true));
+  const rd=U.readyData(uc),wd=U.whereData(uc);
   const si=D.STAGES.findIndex(s=>s.k===uc.stage);const t=E.tplOf(uc),c=t?D.CATS[t.cat]:null;
   const lastRay=[...uc.msgs].reverse().find(m=>m.from==='ray'&&m.text);
   const peek=mob&&!rail&&uc.msgs.length>seenMsgs.current&&lastRay;
@@ -269,7 +273,6 @@ function Workspace({uc,onBrowse}){
         <i className={'ti '+E.LV[uc.step==='brief'?uc.brief.level:uc.level].ic}></i>
         <span className="lt"><em>Check with me</em>{E.LV[uc.step==='brief'?uc.brief.level:uc.level].t}</span>
         <i className="ti ti-chevron-down" style={{color:'var(--ink-3)'}}></i></button>
-      <button className="s3-ib" onClick={()=>{E.say(uc,'Where are we?','text');if(mob)setRail(true);else setRailOff(false);}} title="Where are we?"><i className="ti ti-map-pin"></i></button>
       <button className="s3-ib s3-railtog" onClick={()=>setRailOff(x=>!x)} title={railOff?'Show Ray':'Hide Ray'}><i className={'ti '+(railOff?'ti-layout-sidebar-right-expand':'ti-layout-sidebar-right-collapse')}></i></button>
       <button className="s3-ib s3-raybtn" onClick={()=>setRail(true)} title="Talk history"><i className="ti ti-message-circle"></i></button>
       <button className="s3-ib" onClick={()=>setMore(m=>!m)} title="More"><i className="ti ti-dots"></i></button>
@@ -289,11 +292,24 @@ function Workspace({uc,onBrowse}){
       </div>}
     </div>
     <div className={'s3-strip '+r.k}>
+      <div className="s3-qs">
+        <div className="s3-qwrap">
+          <button className={'s3-q '+(rd.tone||'none')+(ask==='ready'?' open':'')} onClick={()=>setAsk(a=>a==='ready'?null:'ready')}>
+            <span className="qd"></span><span className="qw"><em>Is Ray ready?</em><b>{rd.short}</b></span><i className="ti ti-chevron-down"></i></button>
+          {ask==='ready'&&<div className="s3-alayer"><U.ReadyPanel uc={uc} onClose={()=>setAsk(null)} goStep={goStep} openSheet={()=>setSheet(true)}/></div>}
+        </div>
+        <div className="s3-qwrap">
+          <button className={'s3-q where'+(ask==='where'?' open':'')} onClick={()=>setAsk(a=>a==='where'?null:'where')}>
+            <span className="qd"><i className="ti ti-map-pin"></i></span><span className="qw"><em>Where am I?</em><b>{wd.short}</b></span><i className="ti ti-chevron-down"></i></button>
+          {ask==='where'&&<div className="s3-alayer where"><U.WherePanel uc={uc} onClose={()=>setAsk(null)} act={r}/></div>}
+        </div>
+      </div>
       <span className="ri"><i className={'ti '+r.ic}></i></span><span className="rt">{r.t}</span>
       {r.btn&&<button className={'s3-b sm '+(r.sec?'':r.k==='you'?'pri':'')} onClick={r.act}>{r.btn}</button>}
       {uc.versions.length>0&&<div className="s3-vers"><span className="vl">Versions</span>{uc.versions.map(v=><button key={v.n} title={'v'+v.n+' · '+v.summary+(uc.signs.includes(v.n)?' · signed':'')} className={(viewVer===v.n?'view ':'')+(v.n===E.cur(uc).n&&!viewVer?'cur ':'')+(uc.signs.includes(v.n)?'sig':'')} onClick={()=>setViewVer(v.n===E.cur(uc).n?null:v.n)}>{v.n}</button>)}
         <button title="Audit trail" onClick={()=>setAudit(true)} style={{width:'auto',padding:'0 6px'}}><i className="ti ti-shield-check" style={{fontSize:15}}></i></button></div>}
     </div>
+    {ask&&<div className="s3-ascrim" onClick={()=>setAsk(null)}></div>}
     <div className={'s3-body'+(railOff?' norail':'')}>
       <div className="s3-main">
         <div className="s3-scroll">

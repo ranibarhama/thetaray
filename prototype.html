@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ray Platform · Investigation Desktop</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="studio.css?v=40"/>
+<link rel="stylesheet" href="studio.css?v=44"/>
 <style>
   .ti{line-height:1;vertical-align:-7%;font-size:1.05em;}
   :root{
@@ -744,7 +744,18 @@
   .adv-b{flex:1;overflow:auto;padding:12px;}
   .cmsg{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:9px 11px;margin-bottom:9px;font-size:12px;color:var(--ink-2);line-height:1.5;}
   .cmsg.me{background:var(--act-sub);border-color:var(--act-bd);color:var(--ink);} .cmsg.insight{background:var(--now-sub);border-color:var(--now-bd);color:#7a4a08;}
-  .adv-in{border-top:1px solid var(--line);padding:9px;display:flex;gap:7px;} .adv-in input{flex:1;border:1px solid var(--line-2);border-radius:9px;padding:8px 10px;font-size:12px;}
+  .adv-in{border-top:1px solid var(--line);padding:8px;display:flex;align-items:center;gap:4px;} .adv-in input{flex:1;min-width:0;border:0;background:none;padding:8px 6px;font-size:12px;color:var(--ink);}
+  .adv-in input:focus{outline:none;}
+  .adv-mic{width:30px;height:30px;flex:0 0 auto;border:0;background:none;border-radius:50%;display:grid;place-items:center;font-size:16px;color:var(--ink-3);position:relative;}
+  .adv-mic:hover{background:var(--surface-3);color:var(--ink);}
+  .adv-mic.alive{color:var(--t-act);}
+  .adv-mic.alive::after{content:'';position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--act);animation:advalive 2.8s cubic-bezier(.3,.6,.4,1) infinite;pointer-events:none;}
+  .adv-mic.alive .ti{animation:advnudge 2.8s ease-in-out infinite;}
+  .adv-mic.alive:hover::after,.adv-mic.alive:hover .ti{animation:none;}
+  @keyframes advalive{0%{transform:scale(.62);opacity:0;}25%{opacity:.8;}100%{transform:scale(1.3);opacity:0;}}
+  @keyframes advnudge{0%,70%,100%{transform:scale(1);}78%{transform:scale(1.16);}86%{transform:scale(1);}}
+  .adv-send{width:30px;height:30px;flex:0 0 auto;border:0;border-radius:50%;display:grid;place-items:center;font-size:16px;background:var(--act-sub);color:var(--t-act);transition:transform .15s;}
+  .adv-send:hover{transform:scale(1.07);background:var(--act);color:#fff;}
 
   .concept{position:fixed;left:16px;bottom:16px;z-index:65;}
   .concept.right{left:auto;right:16px;} .concept.right .cpop{left:auto;right:0;}
@@ -757,12 +768,12 @@
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
-<script src="studio-data.js?v=40"></script>
-<script src="studio-engine.js?v=40"></script>
-<script src="studio-engine2.js?v=40"></script>
-<script src="studio-engine3.js?v=40"></script>
-<script type="text/babel" src="studio-ui.js?v=40"></script>
-<script type="text/babel" src="studio.js?v=40"></script>
+<script src="studio-data.js?v=44"></script>
+<script src="studio-engine.js?v=44"></script>
+<script src="studio-engine2.js?v=44"></script>
+<script src="studio-engine3.js?v=44"></script>
+<script type="text/babel" src="studio-ui.js?v=44"></script>
+<script type="text/babel" src="studio.js?v=44"></script>
 <script type="text/babel">
 const {useState,useRef,useEffect} = React;
 const START=Date.parse('2026-02-15T00:00:00Z'),END=Date.parse('2026-04-06T00:00:00Z'),span=END-START;
@@ -1072,7 +1083,7 @@ function App(){
             <div className="cmsg me">What should I do next?</div>
             <div className="cmsg">Corroborate the DOJ adverse-media match, request the missing KYC via RFI, then complete the escalation for alert #1428963.</div>
           </div>
-          <div className="adv-in"><input placeholder="Ask the advisor…"/><button className="btn pri sm">Send</button></div>
+          <div className="adv-in"><button className="adv-mic alive" title="Speak to the advisor"><i className="ti ti-microphone"></i></button><input placeholder="Ask the advisor…"/><button className="adv-send" title="Send"><i className="ti ti-arrow-up"></i></button></div>
         </div>
       )}
       {screen!=='studio'&&<div className="advisor"><button className="adv-btn" onClick={()=>{if(!advOpen)setAdvCard(null);setAdvOpen(o=>!o);setAdvSeen(true);}}>◆{!advSeen&&<span className="adv-note">1</span>}</button></div>}
@@ -1081,7 +1092,9 @@ function App(){
         {concept&&screen==='studio'&&<div className="cpop"><h4>About this page — Ray Studio</h4><ul>
             <li><b>Describe it once</b> — one sentence (typed or spoken 🎙) becomes a <b>Brief</b> that fits on one screen: the job as a header, three tiles (policy — with the documents Ray will read, add or remove them there; report; practice data), the <b>Check with me</b> choice, the guardrails that stay yours, and Start — no scrolling to find it.</li>
             <li><b>Room to work</b> — the playbook card uses the full width of the screen, and you can hide Ray’s column with the sidebar button (a Ray tab on the edge brings it back). The diagram always scales to fit the space it has; zoom manually and click <b>Fit</b> to return, or open it <b>full screen</b> to work on it properly — drag to move around, tap a step to edit it in the side inspector, tell Ray what to change from the bar at the bottom, and press Esc to come back.</li>
-            <li><b>Controls are split by job</b> — the header pill is only about <b>how often Ray checks with you</b>; <b>Where are we?</b> is its own button; everything else (audit trail, copy, skip a stage, new job) sits under ⋯.</li>
+            <li><b>Two questions, always answered</b> — the bar under the header carries the only two questions that matter: <b>Is Ray ready?</b> and <b>Where am I?</b>. Each one shows its answer in a word on the chip itself (“Not yet · 87% of 90%”, “Train · waiting on Dana”) and opens a focused answer card: readiness gives the verdict, every target against its threshold and the one thing that closes the gap; orientation gives the four stages with what is done, which version is signed, who acts next and what Ray did last. Ask either out loud and the same card opens while Ray answers in words.</li>
+            <li><b>Controls are split by job</b> — the header pill is only about <b>how often Ray checks with you</b>; everything else (audit trail, copy, skip a stage, new job) sits under ⋯.</li>
+            <li><b>One way to talk, everywhere</b> — every chat field is the same: a microphone on the left that breathes so you remember you can just speak, and a send arrow on the right for when you'd rather type.</li>
             <li><b>The Playbook</b> — Ray writes how it will investigate as numbered plain sentences, each tied to a policy clause. Read it like a new hire’s manual; a flow view is one tap away.</li>
             <li><b>Two ways to change anything</b> — tap a step to open its inline editor (owner, deadline, decided by Ray or a fixed rule, extra instruction, add a step after, remove) <b>or</b> just tell Ray. Both produce the same tracked change, version and audit entry — a direct edit is never a silent settings change.</li>
             <li><b>Steps or Diagram</b> — the same workflow as numbered sentences or as a diagram. Diagram cards are colour-coded by owner, show what happens, the policy clause, Ray-vs-rule and any comments; branches are labelled and tinted (green = cleared, amber = escalated). Tapping a card opens an inspector <b>beside the diagram</b> — you edit without leaving it — with zoom and a “who changed what” overlay.</li>

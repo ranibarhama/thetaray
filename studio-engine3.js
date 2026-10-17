@@ -430,7 +430,9 @@ E.say=async(uc,text,via)=>{
   if(!text.trim())return;E.you(uc,text,via);const s=text.toLowerCase();
   if(has(s,['undo','revert that','take that back'])&&uc.versions.length>1&&!uc.operate.live){await E.undo(uc);return;}
   if(/\bwhy\b/.test(s)&&uc.lastChange){const c=uc.lastChange.clause;await E.ray(uc,'Because of **§'+c.no+' '+c.t+'**: “'+c.p+'” ('+c.src+').');return;}
-  if(has(s,['where are we','status','recap','summar','what did you do'])){await E.recap(uc);return;}
+  if(has(s,['is ray ready','are you ready','is it ready','ready yet','readiness','is ray good'])){uc.ask='ready';E.emit();const rdv=(window.RSU&&window.RSU.readyData)?window.RSU.readyData(uc):null;
+    await E.ray(uc,rdv?'**'+rdv.verdict+'.** '+rdv.sub+' The full answer is open at the top of the screen.':'The readiness answer is open at the top of the screen.');return;}
+  if(has(s,['where are we','where am i','status','recap','summar','what did you do'])){uc.ask='where';E.emit();await E.recap(uc);return;}
   if(uc.step==='brief'){
     const p=parse(s);if(p.t)E.setBrief(uc,'tpl',p.t.id);
     if(has(s,['autopilot','for me']))E.setBrief(uc,'level','sign');

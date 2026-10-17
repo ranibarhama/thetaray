@@ -234,30 +234,83 @@ function Docs({uc,readOnly}){
   </div>;
 }
 
-/* ---------- Is Ray ready? ---------- */
-function Ready({uc}){
-  const [o,setO]=useState(false);
+/* ---------- the two questions: "Is Ray ready?" and "Where am I?" ---------- */
+U.readyData=uc=>{
   const r=uc.train.rounds,p=uc.prove,live=uc.operate.live;
-  if(!r.length&&!p.day&&!live)return null;
-  let tone,verdict,k,rows=D.DIFFS,bar=null;
-  if(live){tone='ok';verdict='Live and healthy';k=[['3,912','alerts this week'],['31%','closed by Ray'],['3.1 h','avg. decision time'],['0','deadlines missed']];rows=D.SHADOW_DIFFS;}
-  else if(p.day>0){const done=p.day>=p.total;tone=done?'ok':'ai';rows=D.SHADOW_DIFFS;
-    verdict=done?'Passed the shadow run — 3 of 3 targets met':'On track — day '+p.day+' of '+p.total+' on live alerts';
-    k=[[Math.round(4100*Math.min(1,p.day/p.total)).toLocaleString(),'live alerts shadowed'],['91%','agreement','target 85%'],['98%','escalations caught','target 95%'],['0','missed SARs','target 0']];bar=p.day/p.total;}
-  else{const a=r[r.length-1].agree,pend=E.tuneSet(uc).filter(x=>!uc.train.sugs[x.id]).length;tone=a>=90?'ok':'warn';
-    verdict=a>=90?'Ready — '+a+'% agreement, no missed escalations':'Not yet — '+a+'% agreement, target 90%'+(pend?' · '+pend+' suggestion'+(pend>1?'s':'')+' below close the gap':'');
-    k=[[a+'%','agreement with analysts'],['34%','false positives Ray closes'],[r.length>1?'0':'2','escalations missed'],['2.1 min','per decision']];}
-  const col={ok:'var(--ok)',warn:'var(--now)',ai:'var(--violet2)'}[tone];
-  return <div className={'s3-rd '+tone}>
-    <div className="rh"><span className="light" style={{background:col,boxShadow:'0 0 0 4px '+col+'33'}}></span><span className="q">Is Ray ready?</span><span style={{flex:1}}></span>
-      {r.length>0&&!p.day&&<div className="s3-rounds" title="Practice rounds">{r.map(x=><i key={x.n} style={{height:(x.agree-70)*1.6}}></i>)}</div>}</div>
-    <div className="verdict">{verdict}</div>
-    {bar!==null&&<div className="s3-bar"><i style={{width:(bar*100)+'%'}}></i></div>}
-    <div className="s3-kpis">{k.map(x=><div key={x[1]} className="s3-kpi"><b>{x[0]}</b><span>{x[1]}</span>{x[2]&&<span className="tg">{x[2]} · met</span>}</div>)}</div>
-    <button className="s3-ev" style={{marginTop:12}} onClick={()=>setO(x=>!x)}><i className={'ti '+(o?'ti-chevron-up':'ti-chevron-down')}></i>{o?'Hide':'Where Ray and your analysts differ'} ({rows.length})</button>
-    {o&&<table className="s3-tbl"><thead><tr><th>Alert</th><th>Analysts</th><th>Ray</th><th>Why</th></tr></thead><tbody>{rows.map(d=><tr key={d[0]}><td className="code">{d[0]}</td><td>{d[1]}</td><td><b>{d[2]}</b></td><td style={{color:'var(--ink-2)'}}>{d[3]}</td></tr>)}</tbody></table>}
-  </div>;
+  const pend=uc.train.rounds.length?E.tuneSet(uc).filter(x=>!uc.train.sugs[x.id]).length:0;
+  if(live)return {tone:'ok',short:'Live and healthy',verdict:'Live and healthy',sub:'Ray is working on real alerts under the authority you signed.',
+    targets:[['Alerts this week','3,912',null,true],['Closed by Ray','31%',null,true],['Average time to decision','3.1 h',null,true],['Deadlines missed','0','target 0',true]],
+    gaps:[],rows:D.SHADOW_DIFFS};
+  if(p.day>0){const done=p.day>=p.total;
+    return {tone:done?'ok':'ai',short:done?'Passed · 3 of 3 targets':'On track · day '+p.day+' of '+p.total,
+      verdict:done?'Ready — the shadow run passed all three targets':'On track — day '+p.day+' of '+p.total+' on live alerts',
+      sub:done?'Two senior signatures are all that stands between this and production.':'Ray is deciding beside your analysts on live alerts. Nothing it does affects them.',
+      targets:[['Live alerts shadowed',Math.round(4100*Math.min(1,p.day/p.total)).toLocaleString(),null,true],
+        ['Agreement with analysts','91%','target 85%',true],['Escalations caught','98%','target 95%',true],['Missed SARs','0','target 0',true]],
+      gaps:done?[]:[['The run finishes on day '+p.total,'Skip to the end (demo)','skip']],rows:D.SHADOW_DIFFS};}
+  if(r.length){const a2=r[r.length-1].agree,ok=a2>=90;
+    return {tone:ok?'ok':'warn',short:(ok?'Ready · ':'Not yet · ')+a2+'% of 90%',
+      verdict:ok?('Ready — '+a2+'% agreement, no missed escalations'):('Not yet — '+a2+'% agreement against a 90% target'),
+      sub:ok?'Practice is done; Ray stopped improving. Your signature makes this the baseline for the shadow run.':'Ray practised on alerts your analysts already closed. These are the gaps.',
+      targets:[['Agreement with analysts',a2+'%','target 90%',a2>=90],['False positives Ray closes','34%',null,true],
+        ['Escalations missed',r.length>1?'0':'2','target 0',r.length>1],['Average decision time','2.1 min',null,true]],
+      gaps:pend?[[pend+' suggestion'+(pend>1?'s':'')+' would close the gap','Show me','sugs']]:(ok?[]:[['Another practice round','Run it','round']]),rows:D.DIFFS};}
+  return {tone:'',short:'Not tested yet',verdict:'Not tested yet',sub:'Ray has a playbook but has not practised on your alerts. Nothing is proven until it does.',
+    targets:[['Agreement with analysts','—','target 90%',false],['Practice rounds','0',null,false],['Live alerts shadowed','0',null,false],['Signatures',String(uc.signs.length),null,!!uc.signs.length]],
+    gaps:[[uc.gate?'Sign off the playbook, then practice':'Practice on closed alerts','Start practice','practice']],rows:[]};
+};
+U.whereData=uc=>{
+  const si=D.STAGES.findIndex(x=>x.k===uc.stage),nx=P(uc.next.who);
+  const short=uc.operate.live?'Live · working alone':(uc.prove.running?'Prove · day '+uc.prove.day+' of '+uc.prove.total
+    :(uc.next.who==='dana'?'Train · waiting on Dana':D.STAGES[si].t+' · '+(uc.next.who==='you'?'your turn':'Ray is working')));
+  return {si,nx,short};
+};
+function Targets({t}){
+  return <div className="s3-tg">{t.map(x=><div key={x[0]} className={'s3-tgr'+(x[3]?' met':'')}>
+    <span className="k">{x[0]}</span><span className="v">{x[1]}</span>
+    {x[2]&&<span className={'s3-pill '+(x[3]?'ok':'warn')}>{x[3]?'met':'below'} · {x[2]}</span>}</div>)}</div>;
 }
+U.ReadyPanel=function({uc,onClose,goStep,openSheet}){
+  const d=U.readyData(uc);const [ev,setEv]=useState(false);
+  const col={ok:'var(--ok)',warn:'var(--now)',ai:'var(--violet2)','':'var(--ink-3)'}[d.tone];
+  const act=k=>{onClose();if(k==='skip')E.skipShadow(uc);if(k==='round')E.anotherRound(uc);if(k==='practice'){uc.gate?openSheet():E.startPractice(uc);}
+    if(k==='sugs'){const s2=E.tuneSet(uc).filter(x=>!uc.train.sugs[x.id])[0];if(s2)goStep(s2.node);}};
+  return <div className={'s3-answer '+d.tone}>
+    <div className="s3-ah"><span className="light" style={{background:col,boxShadow:'0 0 0 5px '+col+'30'}}></span>
+      <div style={{flex:1,minWidth:0}}><span className="q">Is Ray ready?</span><b>{d.verdict}</b></div>
+      <button className="s3-ib" onClick={onClose}><i className="ti ti-x"></i></button></div>
+    <p className="s3-asub">{d.sub}</p>
+    <Targets t={d.targets}/>
+    {d.gaps.length>0&&<div className="s3-gaps">{d.gaps.map(g=><div key={g[0]} className="s3-gap"><i className="ti ti-arrow-narrow-right"></i><span>{g[0]}</span>
+      <button className="s3-b pri sm" onClick={()=>act(g[2])}>{g[1]}</button></div>)}</div>}
+    {d.rows.length>0&&<><button className="s3-ev" style={{marginTop:12}} onClick={()=>setEv(x=>!x)}><i className={'ti '+(ev?'ti-chevron-up':'ti-chevron-down')}></i>{ev?'Hide':'Where Ray and your analysts differ'} ({d.rows.length})</button>
+      {ev&&<table className="s3-tbl"><thead><tr><th>Alert</th><th>Analysts</th><th>Ray</th><th>Why</th></tr></thead><tbody>{d.rows.map(x=><tr key={x[0]}><td className="code">{x[0]}</td><td>{x[1]}</td><td><b>{x[2]}</b></td><td style={{color:'var(--ink-2)'}}>{x[3]}</td></tr>)}</tbody></table>}</>}
+  </div>;
+};
+U.WherePanel=function({uc,onClose,act}){
+  const {si,nx}=U.whereData(uc);
+  const rayDid=uc.trail.filter(t=>t.who==='ray').slice(0,3);
+  return <div className="s3-answer">
+    <div className="s3-ah"><span className="s3-orb sm">✦</span>
+      <div style={{flex:1,minWidth:0}}><span className="q">Where am I?</span><b>{D.STAGES[si].t} · {D.STAGES[si].sub.toLowerCase()}</b></div>
+      <button className="s3-ib" onClick={onClose}><i className="ti ti-x"></i></button></div>
+    <div className="s3-jr">{D.STAGES.map((st,i)=>{const done=i<si,cur=i===si;
+      return <div key={st.k} className={'s3-jrow'+(done?' done':'')+(cur?' cur':'')} style={{'--c':st.c}}>
+        <span className="d">{done?<i className="ti ti-check"></i>:i+1}</span>
+        <div><b>{st.t}</b><span>{done?(uc.skipped&&uc.skipped[st.k]?'skipped — recorded in the audit trail':'complete')
+          :cur?(uc.operate.live?'working alone · monitored':uc.prove.running?'day '+uc.prove.day+' of '+uc.prove.total:uc.next.what.toLowerCase())
+          :st.sub.toLowerCase()}</span></div>
+        {cur&&<span className="s3-pill ai">you are here</span>}</div>;})}</div>
+    <div className="s3-nowbox">
+      <div className="r"><i className="ti ti-git-commit"></i><span>Playbook <b>version {E.cur(uc)?E.cur(uc).n:1}</b>{uc.signedVer?', signed at v'+uc.signedVer:', not signed yet'}</span></div>
+      <div className="r"><U.Av who={uc.next.who}/><span>Next: <b>{nx.n}</b> — {uc.next.what.toLowerCase()}</span></div>
+      {uc.owner&&uc.owner!=='you'&&<div className="r"><i className="ti ti-user-share"></i><span>Handed to <b>{P(uc.owner).n}</b></span></div>}
+    </div>
+    {rayDid.length>0&&<><h4 className="s3-ah4">What Ray did last</h4><div className="s3-did">{rayDid.map(t=><div key={t.id} className="r"><span className="s3-orb sm">✦</span><span>{t.text}<em>{t.at}</em></span></div>)}</div></>}
+    <div className="s3-arow">{act&&act.btn&&<button className="s3-b pri" onClick={()=>{onClose();act.act();}}>{act.btn}</button>}
+      <button className="s3-b" onClick={()=>{onClose();E.say(uc,'Where are we?','text');}}><i className="ti ti-message-2"></i>Tell me in words</button></div>
+  </div>;
+};
 
 /* ---------- diagram view: read it, and edit it in place ---------- */
 const OWNER={'System':['#6E7281','ti-settings-automation'],'Ray':['#6B4BC0','ti-sparkles'],'Analyst L1':['#2F6DF6','ti-user'],
@@ -352,7 +405,6 @@ U.Playbook=function({uc,onStep,viewVer,setViewVer}){
   return <div className="s3-paper" ref={ref}>
     {readOnly&&<div className="s3-viewing"><i className="ti ti-history"></i>Viewing version {v.n} · {v.summary}<span className="sp"></span>
       <button className="s3-b sm" onClick={()=>{E.restore(uc,v.n);setViewVer(null);}}>Restore</button><button className="s3-b pri sm" onClick={()=>setViewVer(null)}>Back to current</button></div>}
-    {!readOnly&&<Ready uc={uc}/>}
     {!readOnly&&E.openCmts(uc).length>0&&<div className="s3-runbar">
       <i className="ti ti-message-2"></i>
       <span><b>{E.openCmts(uc).length} comment{E.openCmts(uc).length>1?'s':''}</b> on {new Set(E.openCmts(uc).map(c=>c.node)).size} step{new Set(E.openCmts(uc).map(c=>c.node)).size>1?'s':''} — Ray has not applied {E.openCmts(uc).length>1?'them':'it'} yet</span>
