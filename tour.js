@@ -50,7 +50,7 @@ const STEPS=[
    sel:'.hopanel,.hd-chip',place:'left',before:openCase},
   {t:'A workspace you shape',d:'Every artifact opens as a **floating panel** you can move, expand or pin side by side — and reset to the default layout in one click. Analysts who want their own cockpit can build it; everyone else never has to.',
    sel:'.case-hdr',place:'bottom',before:openCase},
-  {t:'That\u2019s the tour',d:'Everything here is explained in more depth under **\u24d8 about** on any screen, and you can reopen this walkthrough from the **compass button** in the top bar whenever you want.',
+  {t:'That\u2019s the tour',d:'You can reopen this walkthrough any time from the **compass button** in the top bar — and close it from the same button. Each screen also answers for itself: in Studio, **Is Ray ready?** and **Where am I?** are always one click away.',
    sel:'.tour-open',place:'bottom'}
 ];
 

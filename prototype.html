@@ -8,8 +8,8 @@
 <meta http-equiv="Expires" content="0" />
 <title>Ray Platform · Investigation Desktop</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="studio.css?v=51"/>
-<link rel="stylesheet" href="tour.css?v=51"/>
+<link rel="stylesheet" href="studio.css?v=52"/>
+<link rel="stylesheet" href="tour.css?v=52"/>
 <style>
   .ti{line-height:1;vertical-align:-7%;font-size:1.05em;}
   :root{
@@ -761,6 +761,7 @@
   .adv-send{width:30px;height:30px;flex:0 0 auto;border:0;border-radius:50%;display:grid;place-items:center;font-size:16px;background:var(--act-sub);color:var(--t-act);transition:transform .15s;}
   .adv-send:hover{transform:scale(1.07);background:var(--act);color:#fff;}
 
+  .buildno{font-size:10.5px;font-weight:600;letter-spacing:.3px;color:rgba(255,255,255,.42);padding:0 6px;white-space:nowrap;}
   .concept{position:fixed;left:16px;bottom:16px;z-index:65;}
   .concept.right{left:auto;right:16px;} .concept.right .cpop{left:auto;right:0;}
   .concept .toggle{background:#141a26;color:#dfe4ee;border:1px solid var(--glass-line);border-radius:999px;padding:7px 13px;font-size:11px;font-weight:600;box-shadow:var(--shadow-pop);}
@@ -772,12 +773,12 @@
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
-<script src="studio-data.js?v=51"></script>
-<script src="studio-engine.js?v=51"></script>
-<script src="studio-engine2.js?v=51"></script>
-<script src="studio-engine3.js?v=51"></script>
-<script type="text/babel" src="studio-ui.js?v=51"></script>
-<script type="text/babel" src="studio.js?v=51"></script>
+<script src="studio-data.js?v=52"></script>
+<script src="studio-engine.js?v=52"></script>
+<script src="studio-engine2.js?v=52"></script>
+<script src="studio-engine3.js?v=52"></script>
+<script type="text/babel" src="studio-ui.js?v=52"></script>
+<script type="text/babel" src="studio.js?v=52"></script>
 <script type="text/babel">
 const {useState,useRef,useEffect} = React;
 const START=Date.parse('2026-02-15T00:00:00Z'),END=Date.parse('2026-04-06T00:00:00Z'),span=END-START;
@@ -1020,7 +1021,7 @@ function App(){
   const [caseId,setCaseId]=useState('CASE-AML-0001-3');
   const [role,setRole]=useState('agent');
   const [advOpen,setAdvOpen]=useState(false);const [advSeen,setAdvSeen]=useState(false);const [advCard,setAdvCard]=useState(null);
-  const [concept,setConcept]=useState(false);
+  const [concept,setConcept]=useState(false); // kept: the tour bridge still exposes setConcept
   const [theme,setTheme]=useState('light');
   const [fs,setFs]=useState(false);
   useEffect(()=>{const f=()=>setFs(!!document.fullscreenElement);document.addEventListener('fullscreenchange',f);return()=>document.removeEventListener('fullscreenchange',f);},[]);
@@ -1052,6 +1053,7 @@ function App(){
         <button className={'navarea'+(screen==='studio'?' on':'')} onClick={()=>setScreen('studio')}>Studio</button>
         <button className={'navarea'+(screen==='dashboard'?' on':'')} onClick={goDash}>Investigations</button><button className="navarea">Admin</button>
         <div className="top-sp"></div>
+        <span className="buildno" title="Deployed build">build 52</span>
         <button className="tic tour-open" title="Show me around — open or close the walkthrough" onClick={()=>{const t=window.__tour;if(!t)return;t.running()?t.stop():t.start();}}><i className="ti ti-compass"></i></button>
         <a className="tic" href="./concept.html" title="Back to the concept page" style={{textDecoration:'none',display:'grid',placeItems:'center'}} onClick={()=>{if(document.fullscreenElement)sessionStorage.setItem('rayFS','1');}}><i className="ti ti-presentation"></i></a>
         <button className="tic" title={fs?'Exit full screen':'Present full screen'} onClick={()=>{fs?document.exitFullscreen():document.documentElement.requestFullscreen();}}>{fs?<i className="ti ti-minimize"></i>:<i className="ti ti-maximize"></i>}</button>
@@ -1095,51 +1097,6 @@ function App(){
       )}
       {screen!=='studio'&&<div className="advisor"><button className="adv-btn" onClick={()=>{if(!advOpen)setAdvCard(null);setAdvOpen(o=>!o);setAdvSeen(true);}}>◆{!advSeen&&<span className="adv-note">1</span>}</button></div>}
 
-      <div className={'concept'+(screen==='studio'?' right':'')}>
-        {concept&&screen==='studio'&&<div className="cpop"><h4>About this page — Ray Studio</h4><ul>
-            <li><b>Describe it once</b> — one sentence (typed or spoken 🎙) becomes a <b>Brief</b> that fits on one screen: the job as a header, three tiles (policy — with the documents Ray will read, add or remove them there; report; practice data), the <b>Check with me</b> choice, the guardrails that stay yours, and Start — no scrolling to find it.</li>
-            <li><b>Room to work</b> — the playbook card uses the full width of the screen, and you can hide Ray’s column with the sidebar button (a Ray tab on the edge brings it back). The diagram always scales to fit the space it has; zoom manually and click <b>Fit</b> to return, or open it <b>full screen</b> to work on it properly — drag to move around, tap a step to edit it in the side inspector, tell Ray what to change from the bar at the bottom, and press Esc to come back.</li>
-            <li><b>Two questions, always answered</b> — the bar under the header carries the only two questions that matter: <b>Is Ray ready?</b> and <b>Where am I?</b>. Each one shows its answer in a word on the chip itself (“Not yet · 87% of 90%”, “Train · waiting on Dana”) and opens a focused answer card: readiness gives the verdict, every target against its threshold and the one thing that closes the gap; orientation gives the four stages with what is done, which version is signed, who acts next and what Ray did last. Ask either out loud and the same card opens while Ray answers in words.</li>
-            <li><b>Controls are split by job</b> — the header pill is only about <b>how often Ray checks with you</b>; everything else (audit trail, copy, skip a stage, new job) sits under ⋯.</li>
-            <li><b>One way to talk, everywhere</b> — every chat field is the same: a microphone on the left that breathes so you remember you can just speak, and a send arrow on the right for when you'd rather type.</li>
-            <li><b>The Playbook</b> — Ray writes how it will investigate as numbered plain sentences, each tied to a policy clause. Read it like a new hire’s manual; a flow view is one tap away.</li>
-            <li><b>Two ways to change anything</b> — tap a step to open its inline editor (owner, deadline, decided by Ray or a fixed rule, extra instruction, add a step after, remove) <b>or</b> just tell Ray. Both produce the same tracked change, version and audit entry — a direct edit is never a silent settings change.</li>
-            <li><b>Steps or Diagram</b> — the same workflow as numbered sentences or as a diagram. Diagram cards are colour-coded by owner, show what happens, the policy clause, Ray-vs-rule and any comments; branches are labelled and tinted (green = cleared, amber = escalated). Tapping a card opens an inspector <b>beside the diagram</b> — you edit without leaving it — with zoom and a “who changed what” overlay.</li>
-            <li><b>Change it by talking</b> — edits appear in place as tracked changes (red → green, like Word) with Undo and Why. Ray’s suggestions and colleagues’ comments appear the same way: Accept or Reject, with “see the alerts” evidence.</li>
-            <li><b>One line tells you what’s next</b> — the strip under the header says where you are and offers the one action that matters. “Is Ray ready?” gives a plain verdict instead of raw numbers.</li>
-            <li><b>Check with me</b> — Every step · Only what matters · Only to sign (Autopilot). Change it anytime from the header.</li>
-            <li><b>One way to sign</b> — every gate (Build, Train, Prove, Go live) uses the same Sign sheet: what you approve, the evidence, who else signs.</li>
-            <li><b>Two owners, not one</b> — hand Train to the analyst team lead or ThetaRay services with a note; comment on any step and Ray applies every comment in one new version; you can’t sign while comments are still open.</li>
-            <li><b>Documents</b> — add or remove policy files at any time, upload a new policy and Ray compares it and says what changed, and open or download the <b>model risk document</b> and <b>analyst guide</b> Ray writes for each version.</li>
-            <li><b>Reuse &amp; change</b> — copy a use case into another country (Ray flags the country-specific steps), and request a change on a live one: Ray keeps running the signed version while the draft goes back through Train and Prove.</li>
-            <li><b>Shortcuts, honestly</b> — skip Train or Prove for a proof of concept after reading what you give up, and stop Autopilot mid-run to take over.</li>
-            <li><b>Built for the auditor</b> — version timeline in the strip, per-step “who changed what” stamps in the diagram, and an audit drawer filtered by decisions, changes, Ray &amp; ThetaRay or views, downloadable as CSV or a printable report.</li>
-            <li><b>Home needs no scrolling</b> — <b>“Needs you”</b> is a collapsible card pinned top-left that hands you one decision at a time (why it matters, what to do, resolve it there); the ask-Ray box sits in the middle; the investigations bar is pinned to the bottom. Arrow keys or the dots move between decisions.</li>
-            <li><b>Investigations live in one drawer</b> — the pinned bottom bar opens every investigator with search and stage filters, and holds <b>“Teach Ray a new job”</b> (also in the ⋯ menu inside a case).</li>
-            <li><b>Talking is the default</b> — the <b>Talk</b> button is labelled, not a bare icon; it pulses until you use it, turns red while listening, and becomes Send the moment you type.</li>
-          </ul></div>}
-        {concept&&screen!=='studio'&&(screen==='dashboard'
-          ?<div className="cpop"><h4>About this page — Investigations dashboard</h4><ul>
-            <li><b>KPI tiles are filters</b> — click Active / Due / High risk / Awaiting review to filter the list; Pending tasks opens your task card. Click again to clear.</li>
-            <li><b>Your tasks & Recent activity</b> collapse from their headers (closed by default). Checked tasks get struck through.</li>
-            <li><b>The small switch</b> flips to the ✨ Smart view: a scored priority queue with reason chips, attention signals, AI briefing, a 7-day due strip and My Day.</li>
-            <li><b>Agent / Manager</b> changes the lens — manager gets team workload, comments, assignment (and swimlanes with drag-to-reassign in Smart).</li>
-            <li><b>⚙ Manage</b> opens bulk investigation management (search, faceted filter, lock, delete).</li>
-            <li><b>📱 Send to mobile</b> (manager only) previews the <b>Manager pulse</b> — a one-screen phone view built for decisions, not browsing: what needs your sign-off first (approve / open in one tap), live pulse tiles, team-load bars that expose imbalance (including idle analysts), and the two critical events right now.</li>
-            <li>Click any case row to open its <b>investigation desktop</b>.</li>
-          </ul></div>
-          :<div className="cpop"><h4>About this page — Investigation desktop</h4><ul>
-            <li><b>Handover</b> — taking over a colleague's case? A brief auto-opens once (done vs still-open, resume-where-they-left-off); reopen it from the amber Handover chip; ✓/⚠ dots on section cards mark complete vs open areas.</li>
-            <li><b>Two views</b> — the header switch toggles Map focus and Artifacts focus (wide worksheet + mini map); the timeline highlights & scrolls to the section for the current moment, and clicking a section header jumps the timeline back. Position, selection and playback survive the switch.</li>
-            <li><b>The map is the workspace</b> — pan (drag), zoom (scroll / +−), click a node for its story & actions.</li>
-            <li><b>Timeline is docked</b> & two-way linked; drag the grip tab, play at 1× or ½× — landing on an event pins its label below the line.</li>
-            <li><b>Everything floats</b> — chips open movable panels (double-click a header for full-screen work mode; 📝 notes with read/unread; 💬 asks the advisor in context).</li>
-            <li><b>Drag evidence out</b> of Attachments or Visualizations to pin it on the desk — amber threads tie each pin to its entities; drag back to return it.</li>
-            <li><b>All 7 sections carry the real case content</b> — worksheet, 9 documents, 9 datasets, run waterfall, 50 audit events, LLM spend.</li>
-            <li><b>↩︎ resets the layout</b>; the case switcher (top-left) jumps between investigations.</li>
-          </ul></div>)}
-        <button className="toggle" onClick={()=>setConcept(c=>!c)}>{concept?'× close':'ⓘ about'}<span style={{opacity:.45,marginLeft:6,fontWeight:500}}>{'\u00b7 build 51'}</span></button>
-      </div>
     </div>
   );
 }
@@ -2515,7 +2472,7 @@ function ParametersDoc(){
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
-<script type="text/babel" src="tour.js?v=51"></script>
+<script type="text/babel" src="tour.js?v=52"></script>
 <script>
 // carry fullscreen across LP <-> prototype: restore on first click after arriving
 if(sessionStorage.getItem('rayFS')==='1'){
